@@ -44,6 +44,7 @@ jobs:
 
       - name: Bump & Publish
         run: |
+          set -e  # Exit on any error
           MSG=$(git log -1 --pretty=%B)
           
           # Determine bump type
