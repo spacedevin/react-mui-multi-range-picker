@@ -98,3 +98,20 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Releases
+        if: success()
+        run: |
+          VER=$(npm view @spacedevin/react-mui-pro-multi-range-picker version)
+          
+          # Free package release
+          gh release create "@spacedevin/react-mui-multi-range-picker@$VER" \
+            --title "react-mui-multi-range-picker v$VER" \
+            --generate-notes
+          
+          # Pro package release  
+          gh release create "@spacedevin/react-mui-pro-multi-range-picker@$VER" \
+            --title "react-mui-pro-multi-range-picker v$VER" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
