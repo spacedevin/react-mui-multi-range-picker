@@ -8,15 +8,9 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  release-free:
+    name: Release Free
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - dir: MuiMultiDateRangePicker
-            name: '@spacedevin/react-mui-multi-range-picker'
-          - dir: MuiMultiDateRangePickerPro
-            name: '@spacedevin/react-mui-pro-multi-range-picker'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,10 +23,10 @@ jobs:
 
       - name: Check & Release
         run: |
-          cd packages/${{ matrix.dir }}
+          cd packages/MuiMultiDateRangePicker
           
           # Check if changed
-          TAG=$(git tag -l "${{ matrix.name }}@*" | sort -V | tail -1)
+          TAG=$(git tag -l "@spacedevin/react-mui-multi-range-picker@*" | sort -V | tail -1)
           if [ -n "$TAG" ]; then
             CHANGES=$(git diff --name-only $TAG HEAD . | wc -l)
             [ $CHANGES -eq 0 ] && exit 0
@@ -56,9 +50,66 @@ jobs:
           
           # Tag
           VERSION=$(node -p "require('./package.json').version")
-          TAG="${{ matrix.name }}@$VERSION"
+          TAG="@spacedevin/react-mui-multi-range-picker@$VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package*.json
+          git commit -m "chore: release $TAG"
+          git tag -a "$TAG" -m "$TAG"
+          git push origin main --follow-tags
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release-pro:
+    name: Release Pro
+    needs: release-free
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Check & Release
+        run: |
+          cd packages/MuiMultiDateRangePickerPro
+          
+          # Check if changed
+          TAG=$(git tag -l "@spacedevin/react-mui-pro-multi-range-picker@*" | sort -V | tail -1)
+          if [ -n "$TAG" ]; then
+            CHANGES=$(git diff --name-only $TAG HEAD . | wc -l)
+            [ $CHANGES -eq 0 ] && exit 0
+          fi
+          
+          # Parse commit for bump type
+          MSG=$(git log -1 --pretty=%B)
+          if echo "$MSG" | grep -qE "^feat.*!:|BREAKING CHANGE:"; then
+            BUMP="major"
+          elif echo "$MSG" | grep -qE "^feat(\(|:)"; then
+            BUMP="minor"
+          else
+            BUMP="patch"
+          fi
+          
+          # Build & publish
+          npm ci
+          npm run build
+          npm version $BUMP --no-git-tag-version
+          npm publish --access public
+          
+          # Tag
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="@spacedevin/react-mui-pro-multi-range-picker@$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Pull first to avoid conflicts
+          git pull origin main --rebase
+          
           git add package*.json
           git commit -m "chore: release $TAG"
           git tag -a "$TAG" -m "$TAG"
