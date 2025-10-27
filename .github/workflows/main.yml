@@ -66,7 +66,6 @@ jobs:
           esac
           
           echo "Publishing both packages at version: $VER (from $LATEST, bump: $BUMP)"
-          TAGS=""
           
           # Free Package
           cd packages/MuiMultiDateRangePicker
@@ -74,7 +73,6 @@ jobs:
           npm version $VER --no-git-tag-version
           npm run build
           npm publish --access public
-          TAGS="$TAGS @spacedevin/react-mui-multi-range-picker@$VER"
           
           # Pro Package
           cd ../MuiMultiDateRangePickerPro
@@ -82,36 +80,31 @@ jobs:
           npm version $VER --no-git-tag-version
           npm run build
           npm publish --access public
-          TAGS="$TAGS @spacedevin/react-mui-pro-multi-range-picker@$VER"
           
-          # Single commit for all version bumps
+          # Commit and tag
           cd ../..
-          if [ -n "$TAGS" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add packages/*/package*.json
-            git commit -m "chore: release$TAGS"
-            for TAG in $TAGS; do
-              git tag -a "$TAG" -m "$TAG"
-            done
-            git push origin main --follow-tags
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/*/package*.json
+          git commit -m "chore: release v$VER"
+          git tag -a "v$VER" -m "Release v$VER"
+          git push origin main --follow-tags
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create GitHub Releases
+      - name: Create GitHub Release
         if: success()
         run: |
           VER=$(npm view @spacedevin/react-mui-pro-multi-range-picker version)
           
-          # Free package release
-          gh release create "@spacedevin/react-mui-multi-range-picker@$VER" \
-            --title "react-mui-multi-range-picker v$VER" \
-            --generate-notes
+          gh release create "v$VER" \
+            --title "v$VER" \
+            --notes "**Packages Released:**
           
-          # Pro package release  
-          gh release create "@spacedevin/react-mui-pro-multi-range-picker@$VER" \
-            --title "react-mui-pro-multi-range-picker v$VER" \
-            --generate-notes
+          - \`@spacedevin/react-mui-multi-range-picker@$VER\`
+          - \`@spacedevin/react-mui-pro-multi-range-picker@$VER\`
+          
+          Published to NPM" \
+            --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
