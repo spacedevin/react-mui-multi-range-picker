@@ -54,4 +54,9 @@ jobs:
         run: |
           cd packages/${{ matrix.package }}
           npx tsc -p tsconfig.build.json --noEmit
+      
+      - name: Test Publish
+        run: |
+          cd packages/${{ matrix.package }}
+          npm publish --dry-run
 

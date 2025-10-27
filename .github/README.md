@@ -1,134 +1,62 @@
-# GitHub Actions
+# CI/CD
 
-**2 workflows. That's it.**
+## Workflows
 
-## 📄 Files
+**`pr.yml`** - Validates PR title, builds & type checks packages
+**`main.yml`** - Builds, releases changed packages to NPM
 
-### `pr.yml` - Pull Request Validation
-**Trigger**: Pull requests to main
+## Setup
 
-**Does**:
-1. Validates PR title (conventional commits format)
-2. Builds both packages
-3. Runs TypeScript type check
+1. **Create NPM token** (Automation type)
+   - https://www.npmjs.com/settings/[username]/tokens
 
-**Format**: `type: lowercase description`
+2. **Add to GitHub**
+   ```bash
+   gh secret set NPM_TOKEN
+   ```
 
-Examples:
-- ✅ `feat: add new feature`
-- ✅ `fix(free): resolve bug`
-- ❌ `feat: Add new feature` (uppercase)
+3. **Test locally**
+   ```bash
+   cd packages/MuiMultiDateRangePicker
+   npm run test:release
+   # Shows what would be published without actually publishing
+   ```
 
-### `main.yml` - Build & Release
-**Trigger**: Push to main
+## Usage
 
-**Does**:
-1. Builds both packages
-2. Type checks
-3. Releases changed packages:
-   - Checks if package changed since last tag
-   - Auto-bumps patch version (0.1.0 → 0.1.1)
-   - Publishes to NPM
-   - Creates git tag
-   - Creates GitHub release
+```bash
+# Create PR with conventional title
+gh pr create --title "feat: add feature"
 
-**Manual Release**: Actions → Main → Run workflow
+# Merge to main
+gh pr merge --squash
+
+# Auto-releases if packages changed
+```
+
+## Manual Release
+
+Actions → Main → Run workflow
 - Select package (free/pro)
 - Enter version (e.g., `0.2.0`)
 
-## 🚀 Setup
+## Commit Types
 
-### 1. NPM Token
-```bash
-# Create at: https://www.npmjs.com/settings/[username]/tokens
-# Type: Automation
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation
+- `chore:` - Maintenance
+- `ci:` - CI/CD changes
 
-gh secret set NPM_TOKEN
-```
+Title must be lowercase: `feat: add thing` ✅ not `feat: Add thing` ❌
 
-### 2. Package Config
-Both `package.json` need:
-```json
-{
-  "publishConfig": {
-    "access": "public"
-  }
-}
-```
+## How It Works
 
-### 3. Use It
-```bash
-# Make changes
-git checkout -b my-changes
+Push to main → Check if packages changed → Parse commit for version bump → Build → Publish to NPM → Tag → GitHub release
 
-# Commit however you want
-git commit -m "stuff"
+**Version Bumps** (from commit message):
+- `feat:` → minor (0.x.0)
+- `feat!:` or `BREAKING CHANGE:` → major (x.0.0)
+- `fix:`, `chore:`, `docs:` → patch (0.0.x)
 
-# PR with conventional title
-gh pr create --title "feat: add feature"
-
-# Merge
-gh pr merge --squash
-
-# Releases automatically!
-```
-
-## 📊 How It Works
-
-```
-Push to main
-    ↓
-Build & test packages
-    ↓
-Check if changed since last tag
-    ↓ (yes)
-Bump patch version
-    ↓
-npm ci
-    ↓
-npm run build
-    ↓
-npm publish
-    ↓
-git tag
-    ↓
-GitHub release
-    ↓
-Done! (~3 min)
-```
-
-## 🐛 Troubleshooting
-
-**Release didn't run?**
-- Check if files in `packages/` changed
-- Verify pushed to `main` branch
-
-**NPM publish failed?**
-```bash
-# Recreate NPM token
-gh secret set NPM_TOKEN
-```
-
-**Build failed?**
-```bash
-# Test locally
-cd packages/MuiMultiDateRangePicker
-npm ci && npm run build
-```
-
-**Wrong version?**
-```bash
-# Manual release with correct version
-# Actions → Main → Run workflow → Enter version
-```
-
-## 💡 Tips
-
-- **Squash merge PRs** - Keeps history clean
-- **Test locally** - `npm run build` before pushing
-- **Manual releases** - Use workflow dispatch for specific versions
-- **Version strategy**: Auto-bump patch, manual for minor/major
-
----
-
-**Simple. Works. Done.** 🎯
+Manual: specify any version
