@@ -1,5 +1,5 @@
 {
-  "name": "@mui-date-dragger/multi-range-picker-pro",
+  "name": "@spacedevin/react-mui-pro-multi-range-picker",
   "version": "0.1.0",
   "description": "Multi-range date picker Pro component for Material-UI with drag-to-select and chip management",
   "main": "./dist/index.js",

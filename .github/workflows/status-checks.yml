@@ -1,0 +1,116 @@
+name: Status Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  required-checks:
+    name: Required Status Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check Files Exist
+        run: |
+          echo "Checking required files..."
+          
+          # Required config files
+          required_files=(
+            "packages/MuiMultiDateRangePicker/package.json"
+            "packages/MuiMultiDateRangePicker/tsconfig.json"
+            "packages/MuiMultiDateRangePickerPro/package.json"
+            "packages/MuiMultiDateRangePickerPro/tsconfig.json"
+            ".nvmrc"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required files exist"
+
+      - name: Validate Package Versions
+        run: |
+          echo "Validating package versions..."
+          
+          FREE_VERSION=$(node -p "require('./packages/MuiMultiDateRangePicker/package.json').version")
+          PRO_VERSION=$(node -p "require('./packages/MuiMultiDateRangePickerPro/package.json').version")
+          
+          # Validate semver format
+          if ! [[ "$FREE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format in free package: $FREE_VERSION"
+            exit 1
+          fi
+          
+          if ! [[ "$PRO_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format in pro package: $PRO_VERSION"
+            exit 1
+          fi
+          
+          echo "✅ Package versions are valid"
+          echo "Free: $FREE_VERSION"
+          echo "Pro: $PRO_VERSION"
+
+      - name: Check Package Names
+        run: |
+          echo "Validating package names..."
+          
+          FREE_NAME=$(node -p "require('./packages/MuiMultiDateRangePicker/package.json').name")
+          PRO_NAME=$(node -p "require('./packages/MuiMultiDateRangePickerPro/package.json').name")
+          
+          EXPECTED_FREE="@spacedevin/react-mui-multi-range-picker"
+          EXPECTED_PRO="@spacedevin/react-mui-pro-multi-range-picker"
+          
+          if [ "$FREE_NAME" != "$EXPECTED_FREE" ]; then
+            echo "⚠️ Free package name: $FREE_NAME"
+            echo "⚠️ Expected: $EXPECTED_FREE"
+          fi
+          
+          if [ "$PRO_NAME" != "$EXPECTED_PRO" ]; then
+            echo "⚠️ Pro package name: $PRO_NAME"
+            echo "⚠️ Expected: $EXPECTED_PRO"
+          fi
+          
+          echo "✅ Package names validated"
+
+      - name: Check PublishConfig
+        run: |
+          echo "Checking publish configuration..."
+          
+          FREE_ACCESS=$(node -p "require('./packages/MuiMultiDateRangePicker/package.json').publishConfig?.access || 'undefined'")
+          PRO_ACCESS=$(node -p "require('./packages/MuiMultiDateRangePickerPro/package.json').publishConfig?.access || 'undefined'")
+          
+          if [ "$FREE_ACCESS" != "public" ]; then
+            echo "⚠️ Free package publishConfig.access should be 'public', got: $FREE_ACCESS"
+          fi
+          
+          if [ "$PRO_ACCESS" != "public" ]; then
+            echo "⚠️ Pro package publishConfig.access should be 'public', got: $PRO_ACCESS"
+          fi
+          
+          echo "✅ Publish configuration checked"
+
+      - name: Summary
+        run: |
+          echo "📊 Status Check Summary"
+          echo "======================="
+          echo "✅ All required files present"
+          echo "✅ Package versions valid"
+          echo "✅ Package names validated"
+          echo "✅ Publish configuration checked"
+          echo ""
+          echo "Ready for release! 🚀"
+

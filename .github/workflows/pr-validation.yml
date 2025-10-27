@@ -1,0 +1,223 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          scopes: |
+            free
+            pro
+            picker
+            deps
+            build
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.
+
+  pr-size:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate PR Size
+        run: |
+          # Get changed files count
+          FILES_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
+          
+          # Get lines changed
+          LINES_CHANGED=$(git diff --shortstat origin/${{ github.base_ref }}...HEAD | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | awk '{s+=$1} END {print s}')
+          
+          echo "📊 PR Statistics:"
+          echo "Files changed: $FILES_CHANGED"
+          echo "Lines changed: $LINES_CHANGED"
+          
+          # Warning thresholds
+          if [ $FILES_CHANGED -gt 50 ]; then
+            echo "⚠️ This PR changes more than 50 files. Consider breaking it into smaller PRs."
+          fi
+          
+          if [ $LINES_CHANGED -gt 1000 ]; then
+            echo "⚠️ This PR changes more than 1000 lines. Consider breaking it into smaller PRs."
+          fi
+
+  package-changes:
+    name: Detect Package Changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Changed Packages
+        run: |
+          # Check which packages changed
+          FREE_CHANGES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "^packages/MuiMultiDateRangePicker/" | wc -l)
+          PRO_CHANGES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "^packages/MuiMultiDateRangePickerPro/" | wc -l)
+          
+          echo "📦 Package Changes:"
+          echo ""
+          
+          if [ $FREE_CHANGES -gt 0 ]; then
+            echo "✅ Free package will be affected"
+            echo "   Files changed: $FREE_CHANGES"
+          else
+            echo "⚪ Free package not affected"
+          fi
+          
+          if [ $PRO_CHANGES -gt 0 ]; then
+            echo "✅ Pro package will be affected"
+            echo "   Files changed: $PRO_CHANGES"
+          else
+            echo "⚪ Pro package not affected"
+          fi
+          
+          if [ $FREE_CHANGES -eq 0 ] && [ $PRO_CHANGES -eq 0 ]; then
+            echo ""
+            echo "ℹ️ No package changes detected. This PR may only affect documentation or CI."
+          fi
+
+  comment-preview:
+    name: Preview Release Info
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze Release Impact
+        id: analyze
+        run: |
+          # Get commits in PR
+          COMMITS=$(git log --pretty=format:"%s" origin/${{ github.base_ref }}..HEAD)
+          
+          # Determine version bump
+          BUMP_TYPE="patch"
+          if echo "$COMMITS" | grep -qE "^(feat|fix|perf).*!:|BREAKING CHANGE:"; then
+            BUMP_TYPE="major"
+          elif echo "$COMMITS" | grep -qE "^feat(\(|:)"; then
+            BUMP_TYPE="minor"
+          fi
+          
+          # Get current versions
+          FREE_VERSION=$(node -p "require('./packages/MuiMultiDateRangePicker/package.json').version" 2>/dev/null || echo "0.1.0")
+          PRO_VERSION=$(node -p "require('./packages/MuiMultiDateRangePickerPro/package.json').version" 2>/dev/null || echo "0.1.0")
+          
+          # Calculate new versions
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$FREE_VERSION"
+          case $BUMP_TYPE in
+            major) NEW_FREE_VERSION="$((MAJOR + 1)).0.0" ;;
+            minor) NEW_FREE_VERSION="$MAJOR.$((MINOR + 1)).0" ;;
+            patch) NEW_FREE_VERSION="$MAJOR.$MINOR.$((PATCH + 1))" ;;
+          esac
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$PRO_VERSION"
+          case $BUMP_TYPE in
+            major) NEW_PRO_VERSION="$((MAJOR + 1)).0.0" ;;
+            minor) NEW_PRO_VERSION="$MAJOR.$((MINOR + 1)).0" ;;
+            patch) NEW_PRO_VERSION="$MAJOR.$MINOR.$((PATCH + 1))" ;;
+          esac
+          
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "free_version=$FREE_VERSION" >> $GITHUB_OUTPUT
+          echo "pro_version=$PRO_VERSION" >> $GITHUB_OUTPUT
+          echo "new_free_version=$NEW_FREE_VERSION" >> $GITHUB_OUTPUT
+          echo "new_pro_version=$NEW_PRO_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const bumpType = '${{ steps.analyze.outputs.bump_type }}';
+            const freeVersion = '${{ steps.analyze.outputs.free_version }}';
+            const proVersion = '${{ steps.analyze.outputs.pro_version }}';
+            const newFreeVersion = '${{ steps.analyze.outputs.new_free_version }}';
+            const newProVersion = '${{ steps.analyze.outputs.new_pro_version }}';
+            
+            const body = `## 📦 Release Preview
+            
+            When this PR is merged, the following packages may be released:
+            
+            ### Free Package
+            - Current: \`${freeVersion}\`
+            - Next: \`${newFreeVersion}\` **(${bumpType})**
+            
+            ### Pro Package
+            - Current: \`${proVersion}\`
+            - Next: \`${newProVersion}\` **(${bumpType})**
+            
+            > 💡 Actual releases depend on which packages have changes. Only affected packages will be published.
+            
+            ### Version Bump Type: **${bumpType.toUpperCase()}**
+            
+            ${bumpType === 'major' ? '⚠️ **This will be a BREAKING CHANGE release**' : ''}
+            ${bumpType === 'minor' ? '✨ **This will be a FEATURE release**' : ''}
+            ${bumpType === 'patch' ? '🐛 **This will be a PATCH release**' : ''}
+            
+            ---
+            <sub>This comment is automatically generated and updated on each push.</sub>`;
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('## 📦 Release Preview')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
