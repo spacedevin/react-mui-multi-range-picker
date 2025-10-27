@@ -19,6 +19,7 @@ jobs:
             fix
             docs
             chore
+            ci
           requireScope: false
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
