@@ -1,6 +1,6 @@
 {
   "name": "@spacedevin/react-mui-multi-range-picker",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Multi-range date picker component for Material-UI with drag-to-select functionality",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
