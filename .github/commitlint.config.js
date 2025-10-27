@@ -31,8 +31,8 @@ module.exports = {
         'release' // Release process
       ]
     ],
-    'scope-empty': [1, 'never'], // Warn if scope is missing (not error)
-    'subject-case': [2, 'always', 'sentence-case'],
+    'scope-empty': [0], // Scope is optional
+    'subject-case': [2, 'always', 'lower-case'], // Must start with lowercase
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'type-case': [2, 'always', 'lower-case'],
