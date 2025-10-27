@@ -46,7 +46,7 @@ Check both package.json files have correct settings:
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/mui-date-dragger.git",
+    "url": "https://github.com/spacedevin/react-mui-multi-range-picker.git",
     "directory": "packages/MuiMultiDateRangePicker"
   },
   "publishConfig": {

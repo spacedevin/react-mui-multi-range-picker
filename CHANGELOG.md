@@ -62,6 +62,6 @@ This changelog is automatically generated from conventional commits. Each entry 
 
 ---
 
-[unreleased]: https://github.com/yourusername/mui-date-dragger/compare/main...HEAD
-[0.1.0]: https://github.com/yourusername/mui-date-dragger/releases/tag/@spacedevin/react-mui-multi-range-picker@0.1.0
+[unreleased]: https://github.com/spacedevin/react-mui-multi-range-picker/compare/main...HEAD
+[0.1.0]: https://github.com/yourusername/react-mui-multi-range-picker/releases/tag/@spacedevin/react-mui-multi-range-picker@0.1.0
 

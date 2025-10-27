@@ -27,7 +27,7 @@ This project follows a standard code of conduct. Be respectful, inclusive, and c
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mui-date-dragger.git
+git clone https://github.com/spacedevin/react-mui-multi-range-picker.git
 cd mui-date-dragger
 
 # Install dependencies for a package
