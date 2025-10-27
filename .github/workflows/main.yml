@@ -60,41 +60,35 @@ jobs:
           
           # Free Package
           cd packages/MuiMultiDateRangePicker
-          TAG=$(git tag -l "@spacedevin/react-mui-multi-range-picker@*" | sort -V | tail -1)
-          if [ -z "$TAG" ] || [ $(git diff --name-only $TAG HEAD . | wc -l) -gt 0 ]; then
-            LATEST=$(npm view @spacedevin/react-mui-multi-range-picker version 2>/dev/null || echo "0.0.0")
-            IFS='.' read -r M N P <<< "$LATEST"
-            case $BUMP in
-              major) VER="$((M + 1)).0.0" ;;
-              minor) VER="$M.$((N + 1)).0" ;;
-              patch) VER="$M.$N.$((P + 1))" ;;
-            esac
-            echo "Free: $LATEST → $VER"
-            npm ci
-            npm version $VER --no-git-tag-version
-            npm run build
-            npm publish --access public
-            TAGS="$TAGS @spacedevin/react-mui-multi-range-picker@$VER"
-          fi
+          LATEST=$(npm view @spacedevin/react-mui-multi-range-picker version 2>/dev/null || echo "0.0.0")
+          IFS='.' read -r M N P <<< "$LATEST"
+          case $BUMP in
+            major) VER="$((M + 1)).0.0" ;;
+            minor) VER="$M.$((N + 1)).0" ;;
+            patch) VER="$M.$N.$((P + 1))" ;;
+          esac
+          echo "Free: $LATEST → $VER"
+          npm ci
+          npm version $VER --no-git-tag-version
+          npm run build
+          npm publish --access public
+          TAGS="$TAGS @spacedevin/react-mui-multi-range-picker@$VER"
           
           # Pro Package
           cd ../MuiMultiDateRangePickerPro
-          TAG=$(git tag -l "@spacedevin/react-mui-pro-multi-range-picker@*" | sort -V | tail -1)
-          if [ -z "$TAG" ] || [ $(git diff --name-only $TAG HEAD . | wc -l) -gt 0 ]; then
-            LATEST=$(npm view @spacedevin/react-mui-pro-multi-range-picker version 2>/dev/null || echo "0.0.0")
-            IFS='.' read -r M N P <<< "$LATEST"
-            case $BUMP in
-              major) VER="$((M + 1)).0.0" ;;
-              minor) VER="$M.$((N + 1)).0" ;;
-              patch) VER="$M.$N.$((P + 1))" ;;
-            esac
-            echo "Pro: $LATEST → $VER"
-            npm ci
-            npm version $VER --no-git-tag-version
-            npm run build
-            npm publish --access public
-            TAGS="$TAGS @spacedevin/react-mui-pro-multi-range-picker@$VER"
-          fi
+          LATEST=$(npm view @spacedevin/react-mui-pro-multi-range-picker version 2>/dev/null || echo "0.0.0")
+          IFS='.' read -r M N P <<< "$LATEST"
+          case $BUMP in
+            major) VER="$((M + 1)).0.0" ;;
+            minor) VER="$M.$((N + 1)).0" ;;
+            patch) VER="$M.$N.$((P + 1))" ;;
+          esac
+          echo "Pro: $LATEST → $VER"
+          npm ci
+          npm version $VER --no-git-tag-version
+          npm run build
+          npm publish --access public
+          TAGS="$TAGS @spacedevin/react-mui-pro-multi-range-picker@$VER"
           
           # Single commit for all version bumps
           cd ../..
