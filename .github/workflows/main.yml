@@ -1,0 +1,132 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to release'
+        required: true
+        type: choice
+        options:
+          - free
+          - pro
+      version:
+        description: 'Version (e.g., 0.2.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [MuiMultiDateRangePicker, MuiMultiDateRangePickerPro]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
+      
+      - name: Install & Build
+        run: |
+          cd packages/${{ matrix.package }}
+          npm ci
+          npm run build
+      
+      - name: Type Check
+        run: |
+          cd packages/${{ matrix.package }}
+          npx tsc --noEmit
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - package-name: '@spacedevin/react-mui-multi-range-picker'
+            package-dir: MuiMultiDateRangePicker
+            package-key: free
+          - package-name: '@spacedevin/react-mui-pro-multi-range-picker'
+            package-dir: MuiMultiDateRangePickerPro
+            package-key: pro
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Check if changed
+        if: github.event_name == 'push'
+        id: changed
+        run: |
+          LAST_TAG=$(git tag -l "${{ matrix.package-name }}@*" | sort -V | tail -1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            CHANGES=$(git diff --name-only $LAST_TAG HEAD -- packages/${{ matrix.package-dir }} | wc -l)
+            [ "$CHANGES" -gt "0" ] && echo "changed=true" >> $GITHUB_OUTPUT || echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Release
+        if: (github.event_name == 'push' && steps.changed.outputs.changed == 'true') || (github.event_name == 'workflow_dispatch' && inputs.package == matrix.package-key)
+        id: release
+        run: |
+          cd packages/${{ matrix.package-dir }}
+          
+          # Determine version
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            CURRENT=$(node -p "require('./package.json').version")
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+          fi
+          
+          echo "Releasing ${{ matrix.package-dir }} version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Build and publish
+          npm ci
+          npm version $VERSION --no-git-tag-version
+          npm run build
+          npm publish --access public
+          
+          # Tag and push
+          cd ../..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TAG="${{ matrix.package-name }}@$VERSION"
+          git add packages/${{ matrix.package-dir }}/package*.json
+          git commit -m "chore(release): $TAG" || true
+          git tag -a "$TAG" -m "$TAG"
+          git push origin main --follow-tags || true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: (github.event_name == 'push' && steps.changed.outputs.changed == 'true') || (github.event_name == 'workflow_dispatch' && inputs.package == matrix.package-key)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "${{ matrix.package-name }}@${{ steps.release.outputs.version }}"
+          name: "${{ matrix.package-dir }} v${{ steps.release.outputs.version }}"
+          body: |
+            ```bash
+            npm install ${{ matrix.package-name }}@${{ steps.release.outputs.version }}
+            ```
