@@ -1,30 +1,32 @@
 # Examples
 
-Demonstrates using the published npm packages in both ESM and CJS environments.
+Demonstrations of the published NPM packages.
 
-## ESM (Vite)
+## ESM Example (Vite)
+
+Modern ES modules setup using Vite.
 
 ```bash
 cd esm
 npm install
-npm run dev
-# Opens http://localhost:5173
+npm run dev    # Development server on http://localhost:5173
+npm run build  # Production build
 ```
 
-## CJS (Webpack)
+## CJS Example (Webpack)
+
+CommonJS setup using Webpack.
 
 ```bash
 cd cjs
 npm install
-npm start
-# Opens http://localhost:3001
+npm start      # Development server on http://localhost:3001
+npm run build  # Production build
 ```
 
-## What's Demonstrated
+## Packages Used
 
-Both examples show:
-- Installing packages from npm
-- Using Free version (`@spacedevin/react-mui-multi-range-picker`)
-- Using Pro version (`@spacedevin/react-mui-pro-multi-range-picker`)
-- Identical functionality, different module systems
+- `@spacedevin/react-mui-multi-range-picker` - Free version
+- `@spacedevin/react-mui-pro-multi-range-picker` - Pro version
 
+Both examples demonstrate the same functionality using packages installed from NPM.
