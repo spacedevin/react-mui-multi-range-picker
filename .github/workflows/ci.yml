@@ -23,30 +23,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Validate Commit Messages
+      - name: Info Message
         if: github.event_name == 'pull_request'
         run: |
-          # Get all commits in PR
-          COMMITS=$(git log --pretty=format:"%s" origin/${{ github.base_ref }}..HEAD)
-          
-          echo "Validating commit messages..."
-          echo "$COMMITS" | while read -r commit; do
-            if [[ ! "$commit" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.*\))?!?:\ .+ ]]; then
-              echo "❌ Invalid commit message: $commit"
-              echo "Commit messages must follow Conventional Commits format:"
-              echo "  <type>[optional scope]: <description>"
-              echo ""
-              echo "Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
-              echo ""
-              echo "Examples:"
-              echo "  feat(picker): add drag threshold option"
-              echo "  fix(pro): resolve chip rendering issue"
-              echo "  docs: update README installation steps"
-              exit 1
-            fi
-          done
-          
-          echo "✅ All commit messages are valid"
+          echo "ℹ️  Individual commit messages are NOT validated"
+          echo "ℹ️  Only the PR title needs to follow conventional format"
+          echo "ℹ️  When you squash merge, the PR title becomes the commit message"
+          echo ""
+          echo "✅ Validation skipped - develop freely!"
 
   build-free:
     name: Build Free Package
@@ -171,14 +155,13 @@ jobs:
 
   summary:
     name: CI Summary
-    needs: [validate, build-free, build-pro, lint]
+    needs: [build-free, build-pro, lint]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check Results
         run: |
-          if [ "${{ needs.validate.result }}" != "success" ] || \
-             [ "${{ needs.build-free.result }}" != "success" ] || \
+          if [ "${{ needs.build-free.result }}" != "success" ] || \
              [ "${{ needs.build-pro.result }}" != "success" ] || \
              [ "${{ needs.lint.result }}" != "success" ]; then
             echo "❌ CI checks failed"
