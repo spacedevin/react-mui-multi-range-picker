@@ -46,7 +46,7 @@ jobs:
       - name: Type Check
         run: |
           cd packages/${{ matrix.package }}
-          npx tsc --noEmit
+          npx tsc -p tsconfig.build.json --noEmit
 
   release:
     name: Release
