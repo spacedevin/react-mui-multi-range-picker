@@ -1,0 +1,57 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            chore
+            ci
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            Subject must start with lowercase.
+            
+            ✅ feat: add feature
+            ✅ fix: resolve bug
+            ❌ feat: Add feature
+
+  build:
+    name: Build Packages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [MuiMultiDateRangePicker, MuiMultiDateRangePickerPro]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
+      
+      - name: Install & Build
+        run: |
+          cd packages/${{ matrix.package }}
+          npm ci
+          npm run build
+      
+      - name: Type Check
+        run: |
+          cd packages/${{ matrix.package }}
+          npx tsc -p tsconfig.build.json --noEmit
+

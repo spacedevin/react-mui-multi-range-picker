@@ -1,5 +1,5 @@
 {
-  "name": "@mui-date-dragger/multi-range-picker",
+  "name": "@spacedevin/react-mui-multi-range-picker",
   "version": "0.1.0",
   "description": "Multi-range date picker component for Material-UI with drag-to-select functionality",
   "main": "./dist/index.js",
@@ -68,6 +68,6 @@
     "url": "https://github.com/yourusername/mui-date-dragger.git",
     "directory": "packages/MuiMultiDateRangePicker"
   },
-  "license": "MIT",
-  "author": "Your Name"
+  "license": "PIF",
+  "author": "Space"
 }
