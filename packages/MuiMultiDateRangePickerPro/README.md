@@ -1,4 +1,4 @@
-# MUI Multi-Range Date Picker Pro
+# @spacedevin/react-mui-pro-multi-range-picker
 
 A React date picker component that allows selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's `@mui/x-date-pickers-pro` with a professional UI including text input field and chip-based range management.
 
@@ -16,29 +16,22 @@ A React date picker component that allows selecting multiple non-contiguous date
 ## Installation
 
 ```bash
-npm install @mui/material @mui/x-date-pickers @mui/x-date-pickers-pro @emotion/react @emotion/styled date-fns
+npm install @spacedevin/react-mui-pro-multi-range-picker
 ```
 
-⚠️ **Note**: This component requires `@mui/x-date-pickers-pro`, which is a commercial library requiring a license for production use.
+### Peer Dependencies
 
-## Dependencies
+```bash
+npm install @mui/material @mui/x-date-pickers @mui/x-date-pickers-pro @emotion/react @emotion/styled date-fns react react-dom
+```
 
-This component requires the following peer dependencies:
+⚠️ **Note**: This component requires `@mui/x-date-pickers-pro`, which is a commercial library requiring a license for production use. Learn more at [MUI X Pricing](https://mui.com/x/introduction/licensing/).
 
-- `react` >= 18.0.0
-- `react-dom` >= 18.0.0
-- `@mui/material` >= 5.0.0
-- `@mui/x-date-pickers` >= 6.0.0
-- `@mui/x-date-pickers-pro` >= 6.0.0 (requires license)
-- `@emotion/react` >= 11.0.0
-- `@emotion/styled` >= 11.0.0
-- `date-fns` >= 2.0.0
-
-## Basic Usage
+## Quick Start
 
 ```tsx
-import React, { useState } from 'react';
-import MultiRangeDatePicker from './components/MultiRangeDatePicker';
+import { MultiRangeDatePicker } from '@spacedevin/react-mui-pro-multi-range-picker';
+import { useState } from 'react';
 
 interface DateRange {
   start: Date;
@@ -46,24 +39,15 @@ interface DateRange {
 }
 
 function App() {
-  const [selectedRanges, setSelectedRanges] = useState<DateRange[]>([]);
-
-  const handleRangeChange = (ranges: DateRange[]) => {
-    console.log('Selected ranges:', ranges);
-    setSelectedRanges(ranges);
-  };
+  const [ranges, setRanges] = useState<DateRange[]>([]);
 
   return (
-    <div>
-      <MultiRangeDatePicker onChange={handleRangeChange} />
-    </div>
+    <MultiRangeDatePicker onChange={setRanges} />
   );
 }
 ```
 
 ## Props
-
-### `MultiRangeDatePickerProps`
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -72,176 +56,73 @@ function App() {
 | `mergeRanges` | `boolean` | `false` | When `true`, adjacent or overlapping ranges are automatically merged |
 | `returnIndividualDates` | `boolean` | `false` | When `true`, triggers `onIndividualDatesChange` callback |
 
-### `DateRange` Interface
-
-```tsx
-interface DateRange {
-  start: Date;  // Start date of the range (inclusive)
-  end: Date;    // End date of the range (inclusive)
-}
-```
-
-## Advanced Examples
+## Examples
 
 ### Auto-Merge Adjacent Ranges
 
-Automatically merge adjacent or overlapping date ranges:
-
 ```tsx
 <MultiRangeDatePicker 
-  onChange={handleRangeChange}
+  onChange={setRanges}
   mergeRanges={true}
 />
 ```
 
 ### Get Individual Dates
 
-Receive all selected dates as a flat array:
-
 ```tsx
-const [individualDates, setIndividualDates] = useState<Date[]>([]);
+const [dates, setDates] = useState<Date[]>([]);
 
 <MultiRangeDatePicker 
-  onChange={handleRangeChange}
-  onIndividualDatesChange={setIndividualDates}
+  onChange={setRanges}
+  onIndividualDatesChange={setDates}
   returnIndividualDates={true}
 />
 
-console.log(`Total selected days: ${individualDates.length}`);
+console.log(`Total days: ${dates.length}`);
 ```
 
-### With Theme Integration
+### Dark Mode
 
 ```tsx
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material';
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
+const darkTheme = createTheme({ palette: { mode: 'dark' } });
 
-function App() {
-  return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <MultiRangeDatePicker onChange={handleRangeChange} />
-    </ThemeProvider>
-  );
-}
+<ThemeProvider theme={darkTheme}>
+  <MultiRangeDatePicker onChange={setRanges} />
+</ThemeProvider>
 ```
 
 ## UI Components
 
-### Date Range Input Field
-The component includes a text input field (using `SingleInputDateRangeField`) for manual date entry and range selection.
-
 ### Range Chips
-Selected ranges are displayed as chips with delete buttons for easy management:
-
-```tsx
-// Ranges are automatically displayed as chips
-// Click the X button to remove a range
-// Format: "MM/DD/YYYY - MM/DD/YYYY"
-```
+Selected ranges are displayed as chips with delete buttons:
+- Format: "MM/DD/YYYY - MM/DD/YYYY"
+- Click X button to remove a range
 
 ### Calendar View
 Full calendar with visual range highlighting and drag-to-select functionality.
 
-## MUI Component Compatibility
-
-This component is built as an extension of MUI Pro's `DateRangePicker` and maintains compatibility with MUI's theming system:
-
-### Similar to MUI DateRangePicker
-- Uses `LocalizationProvider` for date formatting
-- Supports `AdapterDateFns` and other MUI date adapters
-- Includes text input field via `SingleInputDateRangeField`
-- Uses MUI's `PickersDay` component for calendar days
-- Respects MUI theme palette colors
-- Works with `ThemeProvider` for light/dark mode
-
-### Key Differences
-- **Multi-range selection** instead of single range
-- **Drag interaction** on calendar for quick selection
-- **Chip-based UI** for managing multiple ranges
-- **Custom props** for range management (`mergeRanges`, etc.)
-- Returns `DateRange[]` array instead of single range
-
-### Migration from MUI DateRangePicker
-
-If you're currently using `DateRangePicker`:
-
-```tsx
-// Before (MUI DateRangePicker)
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-
-<DateRangePicker 
-  value={dateRange}
-  onChange={(newValue) => setDateRange(newValue)}
-/>
-
-// After (MultiRangeDatePicker)
-import MultiRangeDatePicker from './components/MultiRangeDatePicker';
-
-<MultiRangeDatePicker 
-  onChange={(ranges) => setSelectedRanges(ranges)}
-/>
-```
-
-**Key Migration Notes:**
-- Change `value` to `onChange` callback pattern
-- Single range `[Date, Date]` becomes array of ranges `DateRange[]`
-- Add range management logic to handle multiple ranges
-- Text input now creates ranges that persist as chips
-
 ## How It Works
 
-### Multiple Selection Methods
-
-1. **Text Input**: Type dates in the input field
-2. **Click Calendar Dates**: Click start and end dates in calendar
-3. **Drag Selection**: Click and drag across dates for quick range selection
+### Selection Methods
+1. **Drag Selection**: Click and drag across dates for quick range selection
+2. **Click/Drag Over Range**: Remove existing ranges
 
 ### Range Management
-
-- **Add Range**: Complete a selection via input or calendar
+- **Add Range**: Complete a selection via calendar
 - **Delete Range**: Click the X button on any chip
-- **Override Range**: Drag over existing range to remove it
 - **Merge Ranges**: Enable `mergeRanges` prop for auto-merging
 
-## Styling
-
-The component uses MUI's `sx` prop system and respects your theme:
+## TypeScript
 
 ```tsx
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',  // Selected ranges and chips use this color
-    },
-  },
-});
-```
+import type { DateRange } from '@spacedevin/react-mui-pro-multi-range-picker';
 
-### Component Structure
-
-```tsx
-<LocalizationProvider>
-  <Stack spacing={2}>
-    {/* Chips showing selected ranges */}
-    <Paper>
-      <Stack direction="row">
-        <Chip label="Date Range 1" onDelete={...} />
-        <Chip label="Date Range 2" onDelete={...} />
-      </Stack>
-    </Paper>
-    
-    {/* DateRangePicker with custom day rendering */}
-    <DateRangePicker
-      slots={{ field: SingleInputDateRangeField, day: CustomDay }}
-    />
-  </Stack>
-</LocalizationProvider>
+interface DateRange {
+  start: Date;  // Start date of the range (inclusive)
+  end: Date;    // End date of the range (inclusive)
+}
 ```
 
 ## License Requirements
@@ -270,10 +151,10 @@ const theme = createTheme({
 | Click to delete chips | ❌ | ✅ |
 | License required | ❌ | ⚠️ MUI X Pro |
 
-## Related Components
-
-For a free version without Pro UI features, see [@mui-multi-date-range-picker](../MuiMultiDateRangePicker).
-
 ## License
 
-MIT (Note: Requires MUI X Pro license for production use)
+PIF (Note: Requires MUI X Pro license for `@mui/x-date-pickers-pro`)
+
+## Related
+
+For a free version without Pro UI features, see [@spacedevin/react-mui-multi-range-picker](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker).
