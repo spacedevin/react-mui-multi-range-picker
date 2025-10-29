@@ -135,12 +135,14 @@ jobs:
         run: |
           # Build ESM demo (Vite)
           cd examples/esm
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           npm run build
           
           # Build CJS demo (Webpack)
           cd ../cjs
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           npm run build
           
           # Create gh-pages directory structure
