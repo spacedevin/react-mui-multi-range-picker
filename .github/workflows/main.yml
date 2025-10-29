@@ -27,9 +27,37 @@ jobs:
             echo "should_release=true" >> $GITHUB_OUTPUT
           fi
 
+  test:
+    name: Run Tests
+    needs: check
+    if: needs.check.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Test Free Package
+        run: |
+          cd packages/MuiMultiDateRangePicker
+          bun install
+          bun test --coverage
+
+      - name: Test Pro Package
+        run: |
+          cd packages/MuiMultiDateRangePickerPro
+          bun install
+          bun test --coverage
+
   release:
     name: Release Packages
-    needs: check
+    needs: [check, test]
     if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     outputs:
