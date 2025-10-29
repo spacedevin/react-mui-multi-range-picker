@@ -362,6 +362,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
             sx={{
               backgroundColor: isSelected ? 'primary.main' : undefined,
               color: isSelected ? 'primary.contrastText' : undefined,
+              transition: 'none',
               '&:hover': {
                 backgroundColor: isSelected ? 'primary.dark' : undefined,
               },

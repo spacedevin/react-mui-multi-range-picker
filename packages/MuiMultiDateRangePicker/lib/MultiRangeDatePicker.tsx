@@ -43,6 +43,29 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     [dateRanges]
   );
 
+  const areDatesInSameRange = useCallback(
+    (date1: Date, date2: Date) => {
+      if (!date1 || !date2 || !isValid(date1) || !isValid(date2)) return false;
+      return dateRanges.some((range) => {
+        try {
+          if (!isValid(range.start) || !isValid(range.end)) return false;
+          const inRange1 = isWithinInterval(startOfDay(date1), {
+            start: startOfDay(range.start),
+            end: startOfDay(range.end),
+          });
+          const inRange2 = isWithinInterval(startOfDay(date2), {
+            start: startOfDay(range.start),
+            end: startOfDay(range.end),
+          });
+          return inRange1 && inRange2;
+        } catch {
+          return false;
+        }
+      });
+    },
+    [dateRanges]
+  );
+
   const hasAdjacentSelectedDate = useCallback(
     (date: Date, direction: 'left' | 'right') => {
       if (!date || !isValid(date)) return false;
@@ -233,19 +256,21 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     const hasLeftSelected = hasAdjacentSelectedDate(day, 'left');
     const hasRightSelected = hasAdjacentSelectedDate(day, 'right');
     
-    // For hover state, check if adjacent dates are also in the drag selection
+    // Check if adjacent dates are in the SAME range as this day
+    const leftDate = new Date(day);
+    leftDate.setDate(leftDate.getDate() - 1);
+    const rightDate = new Date(day);
+    rightDate.setDate(rightDate.getDate() + 1);
+    
+    // Check if adjacent dates are in the hover selection
     let hasLeftHovered = false;
     let hasRightHovered = false;
+    let hasLeftHoveredAdjacent = false;
+    let hasRightHoveredAdjacent = false;
     
-    if (isHovered && dragStart && dragEnd) {
+    if (isDraggingRef.current && dragStart && dragEnd) {
       const start = dragStart < dragEnd ? dragStart : dragEnd;
       const end = dragStart < dragEnd ? dragEnd : dragStart;
-      
-      const leftDate = new Date(day);
-      leftDate.setDate(leftDate.getDate() - 1);
-      const rightDate = new Date(day);
-      rightDate.setDate(rightDate.getDate() + 1);
-      
       try {
         hasLeftHovered = isWithinInterval(startOfDay(leftDate), {
           start: startOfDay(start),
@@ -255,29 +280,28 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
           start: startOfDay(start),
           end: startOfDay(end),
         });
+        
+        // For permanent ranges adjacent to hover, check if we should connect
+        if (isInRange && !isHovered) {
+          hasLeftHoveredAdjacent = hasLeftHovered;
+          hasRightHoveredAdjacent = hasRightHovered;
+        }
       } catch {}
     }
     
-    // For permanent ranges, check if adjacent to hovered dates
-    let hasLeftHoveredAdjacent = false;
-    let hasRightHoveredAdjacent = false;
-    if (isInRange && !isHovered && dragStart && dragEnd && isDraggingRef.current) {
-      const start = dragStart < dragEnd ? dragStart : dragEnd;
-      const end = dragStart < dragEnd ? dragEnd : dragStart;
-      
-      const leftDate = new Date(day);
-      leftDate.setDate(leftDate.getDate() - 1);
-      const rightDate = new Date(day);
-      rightDate.setDate(rightDate.getDate() + 1);
-      
-      try {
-        hasLeftHoveredAdjacent = isWithinInterval(startOfDay(leftDate), { start: startOfDay(start), end: startOfDay(end) });
-        hasRightHoveredAdjacent = isWithinInterval(startOfDay(rightDate), { start: startOfDay(start), end: startOfDay(end) });
-      } catch {}
-    }
+    // Determine if adjacent dates are in same range (only when not hovering)
+    const leftInSameRange = !isHovered && hasLeftSelected && areDatesInSameRange(day, leftDate);
+    const rightInSameRange = !isHovered && hasRightSelected && areDatesInSameRange(day, rightDate);
     
-    const shouldRoundLeft = (isInRange || isHovered) && !hasLeftSelected && !hasLeftHovered && !hasLeftHoveredAdjacent;
-    const shouldRoundRight = (isInRange || isHovered) && !hasRightSelected && !hasRightHovered && !hasRightHoveredAdjacent;
+    // Determine if we should round edges
+    // When mergeRanges is true: connect hovered to adjacent ranges
+    // When mergeRanges is false: never connect hovered to adjacent ranges
+    const shouldRoundLeft = isHovered 
+      ? !hasLeftHovered && !(mergeRanges && hasLeftSelected)
+      : (isInRange && !leftInSameRange && !(mergeRanges && hasLeftHoveredAdjacent));
+    const shouldRoundRight = isHovered 
+      ? !hasRightHovered && !(mergeRanges && hasRightSelected)
+      : (isInRange && !rightInSameRange && !(mergeRanges && hasRightHoveredAdjacent));
 
     return (
       <Box
@@ -351,7 +375,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
         {day.getDate()}
       </Box>
     );
-  }, [isDateInRange, handlePointerDown, hasAdjacentSelectedDate]);
+  }, [isDateInRange, handlePointerDown, hasAdjacentSelectedDate, areDatesInSameRange]);
 
   return (
     <Box

@@ -30,6 +30,7 @@ type ThemeMode = 'light' | 'dark';
 function App() {
   const [selectedRanges, setSelectedRanges] = useState<DateRange[]>([]);
   const [individualDates, setIndividualDates] = useState<Date[]>([]);
+  const [mergedRanges, setMergedRanges] = useState<DateRange[]>([]);
   const [mode, setMode] = useState<ThemeMode>('light');
 
   const theme = useMemo(
@@ -118,6 +119,9 @@ function App() {
                     <Typography variant="subtitle2" gutterBottom>
                       Total Selected Days: {individualDates.length}
                     </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                      Individual dates: {individualDates.map(d => d.toLocaleDateString()).join(', ')}
+                    </Typography>
                   </Box>
                 )}
               </Box>
@@ -135,28 +139,22 @@ function App() {
             <Box display="flex" justifyContent="center">
               <MultiRangeDatePicker 
                 mergeRanges={true}
+                onChange={setMergedRanges}
               />
             </Box>
-          </Paper>
-
-          {/* Responsive Grid */}
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Responsive Examples
-            </Typography>
-            <Typography variant="body2" color="text.secondary" mb={2}>
-              Multiple calendars for easier range selection on larger screens
-            </Typography>
-            <Stack spacing={3}>
-              <Box>
+            {mergedRanges.length > 0 && (
+              <Box mt={3}>
+                <Divider sx={{ mb: 2 }} />
                 <Typography variant="subtitle2" gutterBottom>
-                  Single Calendar
+                  Merged Ranges ({mergedRanges.length}):
                 </Typography>
-                <Box display="flex" justifyContent="center">
-                  <MultiRangeDatePicker />
-                </Box>
+                {mergedRanges.map((range, index) => (
+                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  </Typography>
+                ))}
               </Box>
-            </Stack>
+            )}
           </Paper>
 
           {/* Feature Showcase */}
