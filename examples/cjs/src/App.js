@@ -99,8 +99,7 @@ function App() {
             { display: 'flex', justifyContent: 'center' },
             React.createElement(MultiRangeDatePicker, {
               onChange: setFreeRanges,
-              onIndividualDatesChange: setFreeDates,
-              returnIndividualDates: true
+              onIndividualDatesChange: setFreeDates
             })
           ),
           freeRanges.length > 0 && React.createElement(
@@ -164,8 +163,7 @@ function App() {
             { display: 'flex', justifyContent: 'center' },
             React.createElement(ProPicker, {
               onChange: setProRanges,
-              onIndividualDatesChange: setProDates,
-              returnIndividualDates: true
+              onIndividualDatesChange: setProDates
             })
           ),
           proDates.length > 0 && React.createElement(

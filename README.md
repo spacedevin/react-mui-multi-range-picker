@@ -1,6 +1,6 @@
 # MUI Multi-Range Date Picker
 
-[![codecov](https://codecov.io/gh/spacedevin/mui-date-dragger/branch/main/graph/badge.svg)](https://codecov.io/gh/spacedevin/mui-date-dragger)
+[![codecov](https://codecov.io/gh/spacedevin/react-mui-multi-range-picker/branch/main/graph/badge.svg)](https://codecov.io/gh/spacedevin/react-mui-multi-range-picker)
 
 React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
 
@@ -140,14 +140,14 @@ cd examples/cjs  # Webpack + CJS
 bun install && bun run dev
 ```
 
-**Live Demos:** [View on GitHub Pages](https://spacedevin.github.io/mui-date-dragger/)
+**Live Demos:** [View on GitHub Pages](https://spacedevin.github.io/react-mui-multi-range-picker/)
 
 ## 📦 Package Structure
 
 This monorepo contains two npm packages with identical APIs:
 
 ```
-mui-date-dragger/
+react-mui-multi-range-picker/
 ├── packages/
 │   ├── MuiMultiDateRangePicker/     # Free version
 │   │   ├── lib/                      # Source code
