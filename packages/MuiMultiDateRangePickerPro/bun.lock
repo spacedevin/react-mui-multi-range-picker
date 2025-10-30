@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "@mui-date-dragger/multi-range-picker-pro",
+      "name": "@react-mui-multi-range-picker/multi-range-picker-pro",
       "devDependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",

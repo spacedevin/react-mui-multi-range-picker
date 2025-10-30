@@ -91,7 +91,6 @@ export default function App() {
                 onChange={setBasicRanges}
                 onIndividualDatesChange={setBasicDates}
                 mergeRanges={false}
-                returnIndividualDates={true}
               />
             </Box>
             {basicRanges.length > 0 && (
@@ -160,7 +159,6 @@ export default function App() {
               <ProPicker
                 onChange={setProRanges}
                 onIndividualDatesChange={setProDates}
-                returnIndividualDates={true}
               />
             </Box>
             {proRanges.length > 0 && (

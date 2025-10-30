@@ -32,8 +32,8 @@ powershell -c "irm bun.sh/install.ps1 | iex"
 
 ```bash
 # Clone repository
-git clone https://github.com/spacedevin/mui-date-dragger.git
-cd mui-date-dragger
+git clone https://github.com/spacedevin/react-mui-multi-range-picker.git
+cd react-mui-multi-range-picker
 
 # Install dependencies (use Bun, not npm!)
 cd packages/MuiMultiDateRangePicker
@@ -188,7 +188,7 @@ Tests are colocated with source files:
 This monorepo contains two npm packages with identical APIs:
 
 ```
-mui-date-dragger/
+react-mui-multi-range-picker/
 ├── packages/
 │   ├── MuiMultiDateRangePicker/     # Free version
 │   │   ├── lib/                      # Source code
