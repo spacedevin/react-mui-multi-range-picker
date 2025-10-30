@@ -4,8 +4,8 @@
 A monorepo containing React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's date picker components with full theme integration.
 
 <p align="center">
-  <img src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" width="300">
-  <img src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" width="300">
+  <img src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" height="250">
+  <img src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" height="250">
 
 </p>
 
