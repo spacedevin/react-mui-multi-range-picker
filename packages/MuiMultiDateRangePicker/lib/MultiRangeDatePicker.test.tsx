@@ -1,6 +1,5 @@
 import '../test-utils/setup';
 import { describe, test, expect } from 'bun:test';
-// Shared functions from /lib
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
@@ -8,12 +7,10 @@ import {
   findOverlappingRanges,
   updateRangesWithSelection,
   getAdjacentDate,
-  findDateElementFromPoint,
   shouldUpdateDragDate,
   handlePointerDownLogic,
   handlePointerMoveLogic,
 } from '../../../lib';
-// Package-specific functions
 import {
   areDatesInSameRange,
   hasAdjacentSelectedDate,
@@ -159,7 +156,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = areDatesInSameRange(
         new Date('2025-01-02'),
         new Date('2025-01-04'),
-        ranges
+        ranges,
       );
       expect(result).toBe(true);
     });
@@ -168,7 +165,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = areDatesInSameRange(
         new Date('2025-01-02'),
         new Date('2025-01-12'),
-        ranges
+        ranges,
       );
       expect(result).toBe(false);
     });
@@ -177,7 +174,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = areDatesInSameRange(
         new Date('2025-01-02'),
         new Date('2025-01-20'),
-        ranges
+        ranges,
       );
       expect(result).toBe(false);
     });
@@ -186,7 +183,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = areDatesInSameRange(
         new Date('invalid'),
         new Date('2025-01-02'),
-        ranges
+        ranges,
       );
       expect(result).toBe(false);
     });
@@ -201,7 +198,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = hasAdjacentSelectedDate(
         new Date('2025-01-03'),
         'left',
-        ranges
+        ranges,
       );
       expect(result).toBe(true);
     });
@@ -210,7 +207,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = hasAdjacentSelectedDate(
         new Date('2025-01-03'),
         'right',
-        ranges
+        ranges,
       );
       expect(result).toBe(true);
     });
@@ -219,7 +216,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = hasAdjacentSelectedDate(
         new Date('2025-01-01'),
         'left',
-        ranges
+        ranges,
       );
       expect(result).toBe(false);
     });
@@ -228,7 +225,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = hasAdjacentSelectedDate(
         new Date('2025-01-05'),
         'right',
-        ranges
+        ranges,
       );
       expect(result).toBe(false);
     });
@@ -240,7 +237,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-03'),
         new Date('2025-01-01'),
         new Date('2025-01-05'),
-        true
+        true,
       );
       expect(result).toBe(true);
     });
@@ -250,7 +247,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-03'),
         new Date('2025-01-01'),
         new Date('2025-01-05'),
-        false
+        false,
       );
       expect(result).toBe(false);
     });
@@ -260,7 +257,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-10'),
         new Date('2025-01-01'),
         new Date('2025-01-05'),
-        true
+        true,
       );
       expect(result).toBe(false);
     });
@@ -270,7 +267,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-03'),
         new Date('2025-01-05'),
         new Date('2025-01-01'),
-        true
+        true,
       );
       expect(result).toBe(true);
     });
@@ -280,7 +277,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-03'),
         null,
         new Date('2025-01-05'),
-        true
+        true,
       );
       expect(result).toBe(false);
     });
@@ -297,7 +294,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-03'),
-        new Date('2025-01-12')
+        new Date('2025-01-12'),
       );
       expect(result).toEqual([0, 1]);
     });
@@ -306,16 +303,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-02'),
-        new Date('2025-01-04')
+        new Date('2025-01-04'),
       );
       expect(result).toEqual([0]);
-      });
+    });
 
     test('returns empty for non-overlapping selection', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-06'),
-        new Date('2025-01-09')
+        new Date('2025-01-09'),
       );
       expect(result).toEqual([]);
     });
@@ -330,7 +327,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-10'),
         new Date('2025-01-15'),
-        false
+        false,
       );
       expect(result.length).toBe(2);
     });
@@ -344,7 +341,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-03'),
         new Date('2025-01-12'),
-        false
+        false,
       );
       expect(result.length).toBe(0);
     });
@@ -357,7 +354,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-06'),
         new Date('2025-01-10'),
-        true
+        true,
       );
       expect(result.length).toBe(1);
     });
@@ -368,7 +365,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-10'),
         new Date('2025-01-05'),
-        false
+        false,
       );
       expect(result.length).toBe(1);
       expect(result[0].start).toEqual(new Date('2025-01-05'));
@@ -405,7 +402,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(false);
       expect(result.shouldRoundRight).toBe(false);
@@ -423,7 +420,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.isInRange).toBe(true);
     });
@@ -435,7 +432,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-15'),
         new Date('2025-01-17'),
         true,
-        false
+        false,
       );
       expect(result.isHovered).toBe(true);
     });
@@ -450,7 +447,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(true);
       expect(result.shouldRoundRight).toBe(true);
@@ -466,7 +463,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(true);
       expect(result.shouldRoundRight).toBe(false);
@@ -482,7 +479,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(false);
       expect(result.shouldRoundRight).toBe(true);
@@ -498,7 +495,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-06'),
         new Date('2025-01-10'),
         true,
-        true
+        true,
       );
       // With mergeRanges true, hovered range should connect to adjacent
       expect(result.isHovered).toBe(true);
@@ -514,7 +511,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns false when dates are same day', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15T10:00:00'),
-        new Date('2025-01-15T14:00:00')
+        new Date('2025-01-15T14:00:00'),
       );
       expect(result).toBe(false);
     });
@@ -522,7 +519,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns true when dates are different days', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15'),
-        new Date('2025-01-16')
+        new Date('2025-01-16'),
       );
       expect(result).toBe(true);
     });
@@ -530,7 +527,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns false when new date is invalid', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15'),
-        new Date('invalid')
+        new Date('invalid'),
       );
       expect(result).toBe(false);
     });
@@ -547,7 +544,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-01'),
         new Date('2025-01-05'),
         [],
-        false
+        false,
       );
       expect(result).not.toBe(null);
       expect(result?.length).toBe(1);
@@ -555,20 +552,24 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
 
     test('calls onChange callback', () => {
       let called = false;
-      const onChange = () => { called = true; };
+      const onChange = () => {
+        called = true;
+      };
       commitSelection(
         new Date('2025-01-01'),
         new Date('2025-01-05'),
         [],
         false,
-        onChange
+        onChange,
       );
       expect(called).toBe(true);
     });
 
     test('calls onIndividualDatesChange when provided', () => {
       let calledDates: Date[] = [];
-      const onIndividualDatesChange = (dates: Date[]) => { calledDates = dates; };
+      const onIndividualDatesChange = (dates: Date[]) => {
+        calledDates = dates;
+      };
       commitSelection(
         new Date('2025-01-01'),
         new Date('2025-01-03'),
@@ -576,7 +577,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         false,
         undefined,
         onIndividualDatesChange,
-        true
+        true,
       );
       expect(calledDates.length).toBe(3);
     });
@@ -602,7 +603,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-16'),
         true,
         new Date('2025-01-15'),
-        new Date('2025-01-15')
+        new Date('2025-01-15'),
       );
       expect(result).not.toBe(null);
     });
@@ -612,7 +613,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-16'),
         false,
         new Date('2025-01-15'),
-        new Date('2025-01-15')
+        new Date('2025-01-15'),
       );
       expect(result).toBe(null);
     });
@@ -622,7 +623,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-15T14:00:00'),
         true,
         new Date('2025-01-15T10:00:00'),
-        new Date('2025-01-15T10:00:00')
+        new Date('2025-01-15T10:00:00'),
       );
       expect(result).toBe(null);
     });
@@ -633,7 +634,12 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('createCommitSelectionCallback returns working callback', () => {
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-03') };
-      const fn = createCommitSelectionCallback(dragStartRef, dragEndRef, [], false);
+      const fn = createCommitSelectionCallback(
+        dragStartRef,
+        dragEndRef,
+        [],
+        false,
+      );
       const result = fn();
       expect(result).not.toBeNull();
       expect(result?.length).toBe(1);
@@ -644,18 +650,25 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: null as Date | null };
       const dragEndRef = { current: null as Date | null };
       let updateCalled = false;
-      const forceUpdate = () => { updateCalled = true; };
-      
-      const handler = createHandlePointerDown(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      const forceUpdate = () => {
+        updateCalled = true;
+      };
+
+      const handler = createHandlePointerDown(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        forceUpdate,
+      );
       const mockEvent = {
         preventDefault: () => {},
         stopPropagation: () => {},
         target: { setPointerCapture: () => {} },
-        pointerId: 1
+        pointerId: 1,
       } as any;
-      
+
       handler(new Date('2025-01-15'), mockEvent);
-      
+
       expect(isDraggingRef.current).toBe(true);
       expect(dragStartRef.current).toEqual(new Date('2025-01-15'));
       expect(updateCalled).toBe(true);
@@ -666,11 +679,18 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-01') };
       let updateCalled = false;
-      const forceUpdate = () => { updateCalled = true; };
-      
-      const handler = createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      const forceUpdate = () => {
+        updateCalled = true;
+      };
+
+      const handler = createHandlePointerMove(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        forceUpdate,
+      );
       handler(new Date('2025-01-05'));
-      
+
       expect(dragEndRef.current).toEqual(new Date('2025-01-05'));
       expect(updateCalled).toBe(true);
     });
@@ -679,22 +699,28 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: true };
       const dateButtonsRef = { current: new Map() };
       let capturedDate: Date | null = null;
-      const handlePointerMove = (date: Date) => { capturedDate = date; };
-      
-      const handler = createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove);
-      
+      const handlePointerMove = (date: Date) => {
+        capturedDate = date;
+      };
+
+      const handler = createHandleContainerPointerMove(
+        isDraggingRef,
+        dateButtonsRef,
+        handlePointerMove,
+      );
+
       // Mock document.elementFromPoint
       const mockElement = document.createElement('button');
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => mockElement;
-      
+
       const testDate = new Date('2025-01-15');
       dateButtonsRef.current.set(testDate.toISOString(), mockElement);
-      
+
       handler({ clientX: 100, clientY: 100 } as any);
-      
+
       expect(capturedDate).toEqual(testDate);
-      
+
       document.elementFromPoint = originalElementFromPoint;
     });
 
@@ -703,13 +729,24 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: new Date('2025-01-01') as Date | null };
       const dragEndRef = { current: new Date('2025-01-03') as Date | null };
       let commitCalled = false;
-      const commitCallback = () => { commitCalled = true; return null; };
+      const commitCallback = () => {
+        commitCalled = true;
+        return null;
+      };
       let updateCalled = false;
-      const forceUpdate = () => { updateCalled = true; };
-      
-      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitCallback, forceUpdate);
+      const forceUpdate = () => {
+        updateCalled = true;
+      };
+
+      const handler = createHandlePointerUp(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        commitCallback,
+        forceUpdate,
+      );
       handler();
-      
+
       expect(commitCalled).toBe(true);
       expect(isDraggingRef.current).toBe(false);
       expect(dragStartRef.current).toBeNull();
@@ -724,8 +761,10 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: false };
       const dateButtonsRef = { current: new Map() };
       let pointerDownCalled = false;
-      const handlePointerDown = () => { pointerDownCalled = true; };
-      
+      const handlePointerDown = () => {
+        pointerDownCalled = true;
+      };
+
       const renderer = createCustomDay(
         dateRanges,
         dragStartRef,
@@ -736,12 +775,12 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         2,
         { fontSize: '0.75rem' },
         dateButtonsRef,
-        handlePointerDown
+        handlePointerDown,
       );
-      
+
       const props = { day: new Date('2025-01-15') } as any;
       const result = renderer(props);
-      
+
       expect(result).not.toBeNull();
       expect(result).toBeDefined();
     });
@@ -752,7 +791,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragEndRef = { current: null };
       const isDraggingRef = { current: false };
       const dateButtonsRef = { current: new Map() };
-      
+
       const renderer = createCustomDay(
         dateRanges,
         dragStartRef,
@@ -763,9 +802,9 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         2,
         {},
         dateButtonsRef,
-        () => {}
+        () => {},
       );
-      
+
       const result = renderer({ day: null } as any);
       expect(result).toBeNull();
     });
@@ -777,8 +816,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     const captionTypography = { fontSize: '0.75rem', fontWeight: 400 };
 
     test('returns default styles when not selected', () => {
-      const styles = generateDayButtonStyles(false, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        false,
+        false,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.backgroundColor).toBe('transparent');
       expect(styles.color).toBe('text.primary');
       expect(styles.width).toBe(DAY_SIZE);
@@ -786,50 +833,106 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     });
 
     test('returns selected styles when isInRange is true', () => {
-      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        true,
+        false,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.backgroundColor).toBe('primary.main');
       expect(styles.color).toBe('primary.contrastText');
     });
 
     test('returns selected styles when isHovered is true', () => {
-      const styles = generateDayButtonStyles(false, true, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        false,
+        true,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.backgroundColor).toBe('primary.main');
       expect(styles.color).toBe('primary.contrastText');
     });
 
     test('applies left rounded border radius', () => {
-      const styles = generateDayButtonStyles(true, false, true, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        true,
+        false,
+        true,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.borderTopLeftRadius).toBe('50%');
       expect(styles.borderBottomLeftRadius).toBe('50%');
     });
 
     test('applies right rounded border radius', () => {
-      const styles = generateDayButtonStyles(true, false, false, true, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        true,
+        false,
+        false,
+        true,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.borderTopRightRadius).toBe('50%');
       expect(styles.borderBottomRightRadius).toBe('50%');
     });
 
     test('includes before pseudo-element when not rounded left and selected', () => {
-      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        true,
+        false,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles['&::before']).toBeDefined();
       expect(styles['&::before'].backgroundColor).toBe('primary.main');
     });
 
     test('includes after pseudo-element when not rounded right and selected', () => {
-      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        true,
+        false,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles['&::after']).toBeDefined();
       expect(styles['&::after'].backgroundColor).toBe('primary.main');
     });
 
     test('includes touch and user select properties', () => {
-      const styles = generateDayButtonStyles(false, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
-      
+      const styles = generateDayButtonStyles(
+        false,
+        false,
+        false,
+        false,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+      );
+
       expect(styles.touchAction).toBe('none');
       expect(styles.WebkitTapHighlightColor).toBe('transparent');
       expect(styles.WebkitUserSelect).toBe('none');
@@ -837,6 +940,3 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     });
   });
 });
-
-
-

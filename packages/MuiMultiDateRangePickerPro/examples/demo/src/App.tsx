@@ -1,23 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import type React from 'react';
+import { useState, useMemo } from 'react';
 import './App.css';
 import { MultiRangeDatePicker } from './lib';
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Paper, 
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
   Stack,
   Divider,
   ToggleButton,
   ToggleButtonGroup,
-  useMediaQuery,
   ThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
-import { 
-  LightMode as LightModeIcon, 
-  DarkMode as DarkModeIcon 
+import {
+  LightMode as LightModeIcon,
+  DarkMode as DarkModeIcon,
 } from '@mui/icons-material';
 
 interface DateRange {
@@ -40,7 +40,7 @@ function App() {
           mode: mode,
         },
       }),
-    [mode]
+    [mode],
   );
 
   const handleRangeChange = (ranges: DateRange[]) => {
@@ -51,7 +51,10 @@ function App() {
     setIndividualDates(dates);
   };
 
-  const handleThemeChange = (_event: React.MouseEvent<HTMLElement>, newMode: ThemeMode | null) => {
+  const handleThemeChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    newMode: ThemeMode | null,
+  ) => {
     if (newMode !== null) {
       setMode(newMode);
     }
@@ -61,7 +64,12 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+        >
           <Typography variant="h4" component="h1">
             Multi-Range Date Picker Examples
           </Typography>
@@ -82,8 +90,8 @@ function App() {
         </Box>
 
         <Typography variant="body1" gutterBottom color="text.secondary" mb={4}>
-          Click and drag to select multiple date ranges. Click existing ranges to delete them.
-          Works on desktop and mobile devices.
+          Click and drag to select multiple date ranges. Click existing ranges
+          to delete them. Works on desktop and mobile devices.
         </Typography>
 
         <Stack spacing={4}>
@@ -96,7 +104,7 @@ function App() {
               Standard single calendar with range selection and deletion
             </Typography>
             <Box display="flex" justifyContent="center">
-              <MultiRangeDatePicker 
+              <MultiRangeDatePicker
                 onChange={handleRangeChange}
                 onIndividualDatesChange={handleIndividualDatesChange}
                 mergeRanges={false}
@@ -109,8 +117,14 @@ function App() {
                   Selected Ranges ({selectedRanges.length}):
                 </Typography>
                 {selectedRanges.map((range, index) => (
-                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  <Typography
+                    key={index}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    • {range.start.toLocaleDateString()} -{' '}
+                    {range.end.toLocaleDateString()}
                   </Typography>
                 ))}
                 {individualDates.length > 0 && (
@@ -118,8 +132,15 @@ function App() {
                     <Typography variant="subtitle2" gutterBottom>
                       Total Selected Days: {individualDates.length}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                      Individual dates: {individualDates.map(d => d.toLocaleDateString()).join(', ')}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ml: 2 }}
+                    >
+                      Individual dates:{' '}
+                      {individualDates
+                        .map((d) => d.toLocaleDateString())
+                        .join(', ')}
                     </Typography>
                   </Box>
                 )}
@@ -133,10 +154,11 @@ function App() {
               Auto-Merge Adjacent Ranges
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
-              Adjacent date ranges are automatically merged into a single continuous range
+              Adjacent date ranges are automatically merged into a single
+              continuous range
             </Typography>
             <Box display="flex" justifyContent="center">
-              <MultiRangeDatePicker 
+              <MultiRangeDatePicker
                 mergeRanges={true}
                 onChange={setMergedRanges}
               />
@@ -148,8 +170,14 @@ function App() {
                   Merged Ranges ({mergedRanges.length}):
                 </Typography>
                 {mergedRanges.map((range, index) => (
-                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  <Typography
+                    key={index}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    • {range.start.toLocaleDateString()} -{' '}
+                    {range.end.toLocaleDateString()}
                   </Typography>
                 ))}
               </Box>
@@ -167,7 +195,8 @@ function App() {
                   ✓ Multi-Range Selection
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Select multiple non-contiguous date ranges on the same calendar
+                  Select multiple non-contiguous date ranges on the same
+                  calendar
                 </Typography>
               </Box>
               <Box>
@@ -175,7 +204,8 @@ function App() {
                   ✓ Click & Drag Support
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Works seamlessly with both mouse (desktop) and touch (mobile/tablet)
+                  Works seamlessly with both mouse (desktop) and touch
+                  (mobile/tablet)
                 </Typography>
               </Box>
               <Box>

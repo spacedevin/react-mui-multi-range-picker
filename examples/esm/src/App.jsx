@@ -10,11 +10,11 @@ import {
   ToggleButtonGroup,
   ThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import {
   LightMode as LightModeIcon,
-  DarkMode as DarkModeIcon
+  DarkMode as DarkModeIcon,
 } from '@mui/icons-material';
 import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
 import { MultiRangeDatePicker as ProPicker } from '@spacedevin/react-mui-pro-multi-range-picker';
@@ -34,7 +34,7 @@ export default function App() {
           mode: mode,
         },
       }),
-    [mode]
+    [mode],
   );
 
   const handleThemeChange = (_event, newMode) => {
@@ -47,7 +47,12 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+        >
           <Box>
             <Typography variant="h4" component="h1" gutterBottom>
               Multi-Range Date Picker Examples
@@ -73,8 +78,8 @@ export default function App() {
         </Box>
 
         <Typography variant="body1" gutterBottom color="text.secondary" mb={4}>
-          Click and drag to select multiple date ranges. Click existing ranges to delete them.
-          Works on desktop and mobile devices.
+          Click and drag to select multiple date ranges. Click existing ranges
+          to delete them. Works on desktop and mobile devices.
         </Typography>
 
         <Stack spacing={4}>
@@ -100,8 +105,14 @@ export default function App() {
                   Selected Ranges ({basicRanges.length}):
                 </Typography>
                 {basicRanges.map((range, index) => (
-                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  <Typography
+                    key={index}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    • {range.start.toLocaleDateString()} -{' '}
+                    {range.end.toLocaleDateString()}
                   </Typography>
                 ))}
                 {basicDates.length > 0 && (
@@ -109,8 +120,13 @@ export default function App() {
                     <Typography variant="subtitle2" gutterBottom>
                       Total Selected Days: {basicDates.length}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                      Individual dates: {basicDates.map(d => d.toLocaleDateString()).join(', ')}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ml: 2 }}
+                    >
+                      Individual dates:{' '}
+                      {basicDates.map((d) => d.toLocaleDateString()).join(', ')}
                     </Typography>
                   </Box>
                 )}
@@ -124,10 +140,11 @@ export default function App() {
               Free Version - Auto-Merge Adjacent Ranges
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
-              Adjacent date ranges are automatically merged into a single continuous range
+              Adjacent date ranges are automatically merged into a single
+              continuous range
             </Typography>
             <Box display="flex" justifyContent="center">
-              <MultiRangeDatePicker 
+              <MultiRangeDatePicker
                 mergeRanges={true}
                 onChange={setMergedRanges}
               />
@@ -139,8 +156,14 @@ export default function App() {
                   Merged Ranges ({mergedRanges.length}):
                 </Typography>
                 {mergedRanges.map((range, index) => (
-                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  <Typography
+                    key={index}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    • {range.start.toLocaleDateString()} -{' '}
+                    {range.end.toLocaleDateString()}
                   </Typography>
                 ))}
               </Box>
@@ -168,8 +191,14 @@ export default function App() {
                   Selected Ranges ({proRanges.length}):
                 </Typography>
                 {proRanges.map((range, index) => (
-                  <Typography key={index} variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                    • {range.start.toLocaleDateString()} - {range.end.toLocaleDateString()}
+                  <Typography
+                    key={index}
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 2 }}
+                  >
+                    • {range.start.toLocaleDateString()} -{' '}
+                    {range.end.toLocaleDateString()}
                   </Typography>
                 ))}
                 {proDates.length > 0 && (
@@ -177,8 +206,13 @@ export default function App() {
                     <Typography variant="subtitle2" gutterBottom>
                       Total Selected Days: {proDates.length}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-                      Individual dates: {proDates.map(d => d.toLocaleDateString()).join(', ')}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ml: 2 }}
+                    >
+                      Individual dates:{' '}
+                      {proDates.map((d) => d.toLocaleDateString()).join(', ')}
                     </Typography>
                   </Box>
                 )}
@@ -187,13 +221,26 @@ export default function App() {
           </Paper>
 
           {/* Installation */}
-          <Paper elevation={2} sx={{ p: 3, bgcolor: mode === 'dark' ? 'grey.900' : 'grey.50' }}>
+          <Paper
+            elevation={2}
+            sx={{ p: 3, bgcolor: mode === 'dark' ? 'grey.900' : 'grey.50' }}
+          >
             <Typography variant="h6" gutterBottom>
               Installation
             </Typography>
-            <Box component="pre" sx={{ bgcolor: 'grey.900', color: 'grey.100', p: 2, borderRadius: 1, overflow: 'auto', m: 0 }}>
+            <Box
+              component="pre"
+              sx={{
+                bgcolor: 'grey.900',
+                color: 'grey.100',
+                p: 2,
+                borderRadius: 1,
+                overflow: 'auto',
+                m: 0,
+              }}
+            >
               <code>
-{`# Free Version
+                {`# Free Version
 npm install @spacedevin/react-mui-multi-range-picker
 
 # Pro Version
@@ -213,7 +260,8 @@ npm install @spacedevin/react-mui-pro-multi-range-picker`}
                   ✓ Multi-Range Selection
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Select multiple non-contiguous date ranges on the same calendar
+                  Select multiple non-contiguous date ranges on the same
+                  calendar
                 </Typography>
               </Box>
               <Box>
@@ -221,7 +269,8 @@ npm install @spacedevin/react-mui-pro-multi-range-picker`}
                   ✓ Click & Drag Support
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Works seamlessly with both mouse (desktop) and touch (mobile/tablet)
+                  Works seamlessly with both mouse (desktop) and touch
+                  (mobile/tablet)
                 </Typography>
               </Box>
               <Box>

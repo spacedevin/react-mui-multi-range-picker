@@ -4,22 +4,21 @@ import { Window } from 'happy-dom';
 const window = new Window();
 const document = window.document;
 
-// @ts-ignore
+// @ts-expect-error
 global.window = window;
-// @ts-ignore
+// @ts-expect-error
 global.document = document;
-// @ts-ignore
+// @ts-expect-error
 global.navigator = window.navigator;
-// @ts-ignore
+// @ts-expect-error
 global.HTMLElement = window.HTMLElement;
-// @ts-ignore
+// @ts-expect-error
 global.Element = window.Element;
-// @ts-ignore
+// @ts-expect-error
 global.Event = window.Event;
-// @ts-ignore
+// @ts-expect-error
 global.PointerEvent = window.PointerEvent;
 
 // Set React testing environment flag
-// @ts-ignore
+// @ts-expect-error
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-

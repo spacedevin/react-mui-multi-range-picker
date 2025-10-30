@@ -6,16 +6,18 @@ import type { DateRange } from './date-utils';
  */
 export const mergeOverlappingRanges = (ranges: DateRange[]): DateRange[] => {
   if (ranges.length <= 1) return ranges;
-  
-  const sorted = [...ranges].sort((a, b) => a.start.getTime() - b.start.getTime());
+
+  const sorted = [...ranges].sort(
+    (a, b) => a.start.getTime() - b.start.getTime(),
+  );
   const merged: DateRange[] = [];
   let current = sorted[0];
-  
+
   for (let i = 1; i < sorted.length; i++) {
     const next = sorted[i];
     const currentEnd = new Date(current.end);
     currentEnd.setDate(currentEnd.getDate() + 1);
-    
+
     if (next.start <= currentEnd) {
       current = {
         start: current.start,
@@ -27,7 +29,7 @@ export const mergeOverlappingRanges = (ranges: DateRange[]): DateRange[] => {
     }
   }
   merged.push(current);
-  
+
   return merged;
 };
 
@@ -52,7 +54,7 @@ export const getRangesAsIndividualDates = (ranges: DateRange[]): Date[] => {
 export const findOverlappingRanges = (
   dateRanges: DateRange[],
   selectionStart: Date,
-  selectionEnd: Date
+  selectionEnd: Date,
 ): number[] => {
   const overlappingIndices: number[] = [];
   dateRanges.forEach((range, index) => {
@@ -62,11 +64,23 @@ export const findOverlappingRanges = (
       const normSelectionStart = startOfDay(selectionStart);
       const normSelectionEnd = startOfDay(selectionEnd);
 
-      const hasOverlap = 
-        isWithinInterval(normSelectionStart, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(normSelectionEnd, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(rangeStart, { start: normSelectionStart, end: normSelectionEnd }) ||
-        isWithinInterval(rangeEnd, { start: normSelectionStart, end: normSelectionEnd });
+      const hasOverlap =
+        isWithinInterval(normSelectionStart, {
+          start: rangeStart,
+          end: rangeEnd,
+        }) ||
+        isWithinInterval(normSelectionEnd, {
+          start: rangeStart,
+          end: rangeEnd,
+        }) ||
+        isWithinInterval(rangeStart, {
+          start: normSelectionStart,
+          end: normSelectionEnd,
+        }) ||
+        isWithinInterval(rangeEnd, {
+          start: normSelectionStart,
+          end: normSelectionEnd,
+        });
 
       if (hasOverlap) {
         overlappingIndices.push(index);
@@ -83,7 +97,7 @@ export const updateRangesWithSelection = (
   dateRanges: DateRange[],
   selectionStart: Date,
   selectionEnd: Date,
-  shouldMergeRanges: boolean
+  shouldMergeRanges: boolean,
 ): DateRange[] => {
   const start = selectionStart < selectionEnd ? selectionStart : selectionEnd;
   const end = selectionStart < selectionEnd ? selectionEnd : selectionStart;
@@ -91,9 +105,11 @@ export const updateRangesWithSelection = (
   const overlappingIndices = findOverlappingRanges(dateRanges, start, end);
 
   let updatedRanges: DateRange[];
-  
+
   if (overlappingIndices.length > 0) {
-    updatedRanges = dateRanges.filter((_, index) => !overlappingIndices.includes(index));
+    updatedRanges = dateRanges.filter(
+      (_, index) => !overlappingIndices.includes(index),
+    );
   } else {
     const newRange: DateRange = {
       start: startOfDay(start),
@@ -108,4 +124,3 @@ export const updateRangesWithSelection = (
 
   return updatedRanges;
 };
-

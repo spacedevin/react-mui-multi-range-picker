@@ -175,13 +175,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
 
   describe('isDateInCurrentRange', () => {
     test('returns true for date in picker range', () => {
-      const currentRange: [Date, Date] = [new Date('2025-01-01'), new Date('2025-01-05')];
+      const currentRange: [Date, Date] = [
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+      ];
       const result = isDateInCurrentRange(
         new Date('2025-01-03'),
         currentRange,
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -192,7 +195,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         new Date('2025-01-01'),
         new Date('2025-01-05'),
-        true
+        true,
       );
       expect(result).toBe(true);
     });
@@ -203,31 +206,37 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(false);
     });
 
     test('handles reversed date range', () => {
-      const currentRange: [Date, Date] = [new Date('2025-01-05'), new Date('2025-01-01')];
+      const currentRange: [Date, Date] = [
+        new Date('2025-01-05'),
+        new Date('2025-01-01'),
+      ];
       const result = isDateInCurrentRange(
         new Date('2025-01-03'),
         currentRange,
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
 
     test('handles invalid picker range gracefully', () => {
-      const currentRange: [Date, Date] = [new Date('invalid'), new Date('2025-01-05')];
+      const currentRange: [Date, Date] = [
+        new Date('invalid'),
+        new Date('2025-01-05'),
+      ];
       const result = isDateInCurrentRange(
         new Date('2025-01-03'),
         currentRange,
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(false);
     });
@@ -238,7 +247,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         new Date('invalid'),
         new Date('2025-01-05'),
-        true
+        true,
       );
       expect(result).toBe(false);
     });
@@ -257,7 +266,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -270,7 +279,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -283,7 +292,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(false);
     });
@@ -296,7 +305,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(false);
     });
@@ -313,7 +322,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-03'),
-        new Date('2025-01-12')
+        new Date('2025-01-12'),
       );
       expect(result).toEqual([0, 1]);
     });
@@ -322,7 +331,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-02'),
-        new Date('2025-01-04')
+        new Date('2025-01-04'),
       );
       expect(result).toEqual([0]);
     });
@@ -331,7 +340,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-06'),
-        new Date('2025-01-09')
+        new Date('2025-01-09'),
       );
       expect(result).toEqual([]);
     });
@@ -340,7 +349,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = findOverlappingRanges(
         ranges,
         new Date('2025-01-09'),
-        new Date('2025-01-16')
+        new Date('2025-01-16'),
       );
       expect(result).toEqual([1]);
     });
@@ -355,7 +364,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-10'),
         new Date('2025-01-15'),
-        false
+        false,
       );
       expect(result.length).toBe(2);
     });
@@ -369,7 +378,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-03'),
         new Date('2025-01-12'),
-        false
+        false,
       );
       expect(result.length).toBe(0);
     });
@@ -382,7 +391,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-06'),
         new Date('2025-01-10'),
-        true
+        true,
       );
       expect(result.length).toBe(1);
     });
@@ -393,7 +402,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         ranges,
         new Date('2025-01-10'),
         new Date('2025-01-05'),
-        false
+        false,
       );
       expect(result.length).toBe(1);
       expect(result[0].start).toEqual(new Date('2025-01-05'));
@@ -461,46 +470,46 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dateButtonsMap = new Map();
       const testDate = new Date('2025-01-15');
       const mockElement = document.createElement('div');
-      
+
       dateButtonsMap.set(testDate.toISOString(), mockElement);
-      
+
       // Mock document.elementFromPoint
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => mockElement;
-      
+
       const result = findDateElementFromPoint(100, 100, dateButtonsMap);
-      
+
       expect(result).toEqual(testDate);
-      
+
       document.elementFromPoint = originalElementFromPoint;
     });
 
     test('returns null when no element found at point', () => {
       const dateButtonsMap = new Map();
-      
+
       // Mock document.elementFromPoint to return null
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => null;
-      
+
       const result = findDateElementFromPoint(100, 100, dateButtonsMap);
-      
+
       expect(result).toBeNull();
-      
+
       document.elementFromPoint = originalElementFromPoint;
     });
 
     test('returns null when element not in map', () => {
       const dateButtonsMap = new Map();
       const mockElement = document.createElement('div');
-      
+
       // Mock document.elementFromPoint
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => mockElement;
-      
+
       const result = findDateElementFromPoint(100, 100, dateButtonsMap);
-      
+
       expect(result).toBeNull();
-      
+
       document.elementFromPoint = originalElementFromPoint;
     });
   });
@@ -516,7 +525,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -528,7 +537,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [new Date('2025-01-10'), new Date('2025-01-15')],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -540,7 +549,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         new Date('2025-01-10'),
         new Date('2025-01-15'),
-        true
+        true,
       );
       expect(result).toBe(true);
     });
@@ -552,7 +561,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [null, null],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(false);
     });
@@ -567,7 +576,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [new Date('2025-01-11'), new Date('2025-01-13')],
         null,
         null,
-        false
+        false,
       );
       expect(result).toBe(true);
     });
@@ -582,7 +591,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(false);
       expect(result.shouldRoundRight).toBe(false);
@@ -599,7 +608,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(true);
       expect(result.shouldRoundRight).toBe(true);
@@ -616,7 +625,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(true);
       expect(result.shouldRoundRight).toBe(false);
@@ -633,7 +642,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         null,
         null,
         false,
-        false
+        false,
       );
       expect(result.shouldRoundLeft).toBe(false);
       expect(result.shouldRoundRight).toBe(true);
@@ -649,7 +658,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns false when dates are same day', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15T10:00:00'),
-        new Date('2025-01-15T14:00:00')
+        new Date('2025-01-15T14:00:00'),
       );
       expect(result).toBe(false);
     });
@@ -657,7 +666,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns true when dates are different days', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15'),
-        new Date('2025-01-16')
+        new Date('2025-01-16'),
       );
       expect(result).toBe(true);
     });
@@ -665,7 +674,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns false when new date is invalid', () => {
       const result = shouldUpdateDragDate(
         new Date('2025-01-15'),
-        new Date('invalid')
+        new Date('invalid'),
       );
       expect(result).toBe(false);
     });
@@ -682,7 +691,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-01'),
         new Date('2025-01-05'),
         [],
-        false
+        false,
       );
       expect(result).not.toBe(null);
       expect(result?.length).toBe(1);
@@ -690,20 +699,24 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
 
     test('calls onChange callback', () => {
       let called = false;
-      const onChange = () => { called = true; };
+      const onChange = () => {
+        called = true;
+      };
       commitDragSelection(
         new Date('2025-01-01'),
         new Date('2025-01-05'),
         [],
         false,
-        onChange
+        onChange,
       );
       expect(called).toBe(true);
     });
 
     test('calls onIndividualDatesChange when provided', () => {
       let calledDates: Date[] = [];
-      const onIndividualDatesChange = (dates: Date[]) => { calledDates = dates; };
+      const onIndividualDatesChange = (dates: Date[]) => {
+        calledDates = dates;
+      };
       commitDragSelection(
         new Date('2025-01-01'),
         new Date('2025-01-03'),
@@ -711,7 +724,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         false,
         undefined,
         onIndividualDatesChange,
-        true
+        true,
       );
       expect(calledDates.length).toBe(3);
     });
@@ -723,7 +736,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [new Date('2025-01-01'), new Date('2025-01-05')],
         true,
         [],
-        false
+        false,
       );
       expect(result.shouldUpdate).toBe(false);
     });
@@ -733,7 +746,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [new Date('2025-01-01'), new Date('2025-01-05')],
         false,
         [],
-        false
+        false,
       );
       expect(result.shouldUpdate).toBe(true);
       expect(result.updatedRanges).toBeDefined();
@@ -744,7 +757,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         [new Date('2025-01-01'), null],
         false,
         [],
-        false
+        false,
       );
       expect(result.shouldUpdate).toBe(true);
       expect(result.updatedRanges).toBeUndefined();
@@ -753,7 +766,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('calls onIndividualDatesChange when provided', () => {
       const onChange = vi.fn();
       const onIndividualDatesChange = vi.fn();
-      
+
       const result = handleRangeChangeLogic(
         [new Date('2025-01-01'), new Date('2025-01-03')],
         false,
@@ -761,14 +774,13 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         false,
         onChange,
         onIndividualDatesChange,
-        true
+        true,
       );
-      
+
       expect(result.shouldUpdate).toBe(true);
       expect(onChange).toHaveBeenCalled();
       expect(onIndividualDatesChange).toHaveBeenCalled();
     });
-
   });
 
   describe('handlePointerDownLogic', () => {
@@ -791,7 +803,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-16'),
         true,
         new Date('2025-01-15'),
-        new Date('2025-01-15')
+        new Date('2025-01-15'),
       );
       expect(result).not.toBe(null);
     });
@@ -801,7 +813,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-16'),
         false,
         new Date('2025-01-15'),
-        new Date('2025-01-15')
+        new Date('2025-01-15'),
       );
       expect(result).toBe(null);
     });
@@ -811,7 +823,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-15T14:00:00'),
         true,
         new Date('2025-01-15T10:00:00'),
-        new Date('2025-01-15T10:00:00')
+        new Date('2025-01-15T10:00:00'),
       );
       expect(result).toBe(null);
     });
@@ -830,7 +842,9 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
 
     test('calls onChange callback', () => {
       let called = false;
-      const onChange = () => { called = true; };
+      const onChange = () => {
+        called = true;
+      };
       const ranges: DateRange[] = [
         { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
       ];
@@ -840,12 +854,20 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
 
     test('calls onIndividualDatesChange when provided', () => {
       let calledDates: Date[] = [];
-      const onIndividualDatesChange = (dates: Date[]) => { calledDates = dates; };
+      const onIndividualDatesChange = (dates: Date[]) => {
+        calledDates = dates;
+      };
       const ranges: DateRange[] = [
         { start: new Date('2025-01-01'), end: new Date('2025-01-03') },
         { start: new Date('2025-01-10'), end: new Date('2025-01-12') },
       ];
-      handleRemoveRangeLogic(0, ranges, undefined, onIndividualDatesChange, true);
+      handleRemoveRangeLogic(
+        0,
+        ranges,
+        undefined,
+        onIndividualDatesChange,
+        true,
+      );
       expect(calledDates.length).toBe(3);
     });
   });
@@ -947,17 +969,17 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragEndRef = { current: new Date('2025-01-03') };
       const dateRanges: DateRange[] = [];
       const onChange = vi.fn();
-      
+
       const callback = createCommitDragSelectionCallback(
         dragStartRef,
         dragEndRef,
         dateRanges,
         false,
-        onChange
+        onChange,
       );
-      
+
       const result = callback();
-      
+
       expect(result).toBeDefined();
       expect(result?.length).toBe(1);
       expect(onChange).toHaveBeenCalled();
@@ -967,14 +989,14 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: null };
       const dragEndRef = { current: null };
       const dateRanges: DateRange[] = [];
-      
+
       const callback = createCommitDragSelectionCallback(
         dragStartRef,
         dragEndRef,
         dateRanges,
-        false
+        false,
       );
-      
+
       const result = callback();
       expect(result).toBeNull();
     });
@@ -985,17 +1007,20 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: false };
       const dateRanges: DateRange[] = [];
       const onChange = vi.fn();
-      
+
       const handler = createHandleRangeChange(
         isDraggingRef,
         dateRanges,
         false,
-        onChange
+        onChange,
       );
-      
-      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+
+      const newRange: [Date | null, Date | null] = [
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+      ];
       const result = handler(newRange);
-      
+
       expect(result.shouldUpdate).toBe(true);
       expect(typeof result.callback).toBe('function');
     });
@@ -1003,20 +1028,26 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns shouldUpdate false when dragging', () => {
       const isDraggingRef = { current: true };
       const handler = createHandleRangeChange(isDraggingRef, [], false);
-      
-      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+
+      const newRange: [Date | null, Date | null] = [
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+      ];
       const result = handler(newRange);
-      
+
       expect(result.shouldUpdate).toBe(false);
     });
 
     test('handles incomplete range', () => {
       const isDraggingRef = { current: false };
       const handler = createHandleRangeChange(isDraggingRef, [], false);
-      
-      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), null];
+
+      const newRange: [Date | null, Date | null] = [
+        new Date('2025-01-01'),
+        null,
+      ];
       const result = handler(newRange);
-      
+
       expect(result.shouldUpdate).toBe(true);
     });
 
@@ -1024,17 +1055,20 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: false };
       const dateRanges: DateRange[] = [];
       const onChange = vi.fn();
-      
+
       const handler = createHandleRangeChange(
         isDraggingRef,
         dateRanges,
         false,
-        onChange
+        onChange,
       );
-      
-      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+
+      const newRange: [Date | null, Date | null] = [
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+      ];
       const result = handler(newRange);
-      
+
       if (result.callback) {
         const callbackResult = result.callback();
         expect(callbackResult.shouldUpdate).toBe(true);
@@ -1048,18 +1082,23 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: null };
       const dragEndRef = { current: null };
       const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerDownPro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
-      
+
+      const handler = createHandlePointerDownPro(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        forceUpdate,
+      );
+
       const mockEvent = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
         target: { setPointerCapture: vi.fn() },
-        pointerId: 1
+        pointerId: 1,
       } as any;
-      
+
       handler(new Date('2025-01-01'), mockEvent);
-      
+
       expect(isDraggingRef.current).toBe(true);
       expect(dragStartRef.current).toEqual(new Date('2025-01-01'));
       expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
@@ -1074,11 +1113,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-01') };
       const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
-      
+
+      const handler = createHandlePointerMovePro(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        forceUpdate,
+      );
+
       handler(new Date('2025-01-03'));
-      
+
       expect(dragEndRef.current).toEqual(new Date('2025-01-03'));
       expect(forceUpdate).toHaveBeenCalled();
     });
@@ -1088,11 +1132,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-01') };
       const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
-      
+
+      const handler = createHandlePointerMovePro(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        forceUpdate,
+      );
+
       handler(new Date('2025-01-03'));
-      
+
       expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
       expect(forceUpdate).not.toHaveBeenCalled();
     });
@@ -1103,22 +1152,26 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: true };
       const dateButtonsRef = { current: new Map() };
       const handlePointerMove = vi.fn();
-      
-      const handler = createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove);
-      
+
+      const handler = createHandleContainerPointerMovePro(
+        isDraggingRef,
+        dateButtonsRef,
+        handlePointerMove,
+      );
+
       // Mock document.elementFromPoint
       const originalElementFromPoint = document.elementFromPoint;
       const mockElement = document.createElement('button');
       document.elementFromPoint = vi.fn().mockReturnValue(mockElement);
-      
+
       const dateStr = new Date('2025-01-01').toISOString();
       dateButtonsRef.current.set(dateStr, mockElement);
-      
+
       const mockEvent = { clientX: 100, clientY: 100 } as any;
       handler(mockEvent);
-      
+
       expect(handlePointerMove).toHaveBeenCalledWith(new Date(dateStr));
-      
+
       document.elementFromPoint = originalElementFromPoint;
     });
 
@@ -1126,12 +1179,16 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const isDraggingRef = { current: false };
       const dateButtonsRef = { current: new Map() };
       const handlePointerMove = vi.fn();
-      
-      const handler = createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove);
-      
+
+      const handler = createHandleContainerPointerMovePro(
+        isDraggingRef,
+        dateButtonsRef,
+        handlePointerMove,
+      );
+
       const mockEvent = { clientX: 100, clientY: 100 } as any;
       handler(mockEvent);
-      
+
       expect(handlePointerMove).not.toHaveBeenCalled();
     });
   });
@@ -1143,11 +1200,17 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragEndRef = { current: new Date('2025-01-03') };
       const commitDragSelectionCallback = vi.fn();
       const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate);
-      
+
+      const handler = createHandlePointerUpPro(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        commitDragSelectionCallback,
+        forceUpdate,
+      );
+
       handler();
-      
+
       expect(commitDragSelectionCallback).toHaveBeenCalled();
       expect(isDraggingRef.current).toBe(false);
       expect(dragStartRef.current).toBeNull();
@@ -1161,11 +1224,17 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dragEndRef = { current: null };
       const commitDragSelectionCallback = vi.fn();
       const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate);
-      
+
+      const handler = createHandlePointerUpPro(
+        isDraggingRef,
+        dragStartRef,
+        dragEndRef,
+        commitDragSelectionCallback,
+        forceUpdate,
+      );
+
       handler();
-      
+
       expect(commitDragSelectionCallback).not.toHaveBeenCalled();
     });
   });
@@ -1174,13 +1243,13 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     test('returns a function that removes range', () => {
       const dateRanges: DateRange[] = [
         { start: new Date('2025-01-01'), end: new Date('2025-01-03') },
-        { start: new Date('2025-01-10'), end: new Date('2025-01-12') }
+        { start: new Date('2025-01-10'), end: new Date('2025-01-12') },
       ];
       const onChange = vi.fn();
-      
+
       const handler = createHandleRemoveRange(dateRanges, onChange);
       const result = handler(0);
-      
+
       expect(result.length).toBe(1);
       expect(onChange).toHaveBeenCalledWith(result);
     });
@@ -1196,7 +1265,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const mergeRanges = false;
       const dateButtonsRef = { current: new Map() };
       const handlePointerDown = vi.fn();
-      
+
       const CustomDay = createCustomDayPro(
         dateRanges,
         currentRange,
@@ -1205,12 +1274,12 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         isDraggingRef,
         mergeRanges,
         dateButtonsRef,
-        handlePointerDown
+        handlePointerDown,
       );
-      
+
       const props = { day: new Date('2025-01-01') } as any;
       const result = CustomDay(props);
-      
+
       expect(result).toBeDefined();
       expect(result).not.toBeNull();
     });
@@ -1224,7 +1293,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const mergeRanges = false;
       const dateButtonsRef = { current: new Map() };
       const handlePointerDown = vi.fn();
-      
+
       const CustomDay = createCustomDayPro(
         dateRanges,
         currentRange,
@@ -1233,12 +1302,12 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         isDraggingRef,
         mergeRanges,
         dateButtonsRef,
-        handlePointerDown
+        handlePointerDown,
       );
-      
+
       const props = { day: null } as any;
       const result = CustomDay(props);
-      
+
       expect(result).toBeDefined();
     });
   });

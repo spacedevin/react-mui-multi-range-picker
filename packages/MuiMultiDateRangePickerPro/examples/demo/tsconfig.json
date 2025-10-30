@@ -3,7 +3,6 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "baseUrl": "src",
     "paths": {
       "@react-mui-multi-range-picker/multi-range-picker-pro": ["../../../lib"]
     }

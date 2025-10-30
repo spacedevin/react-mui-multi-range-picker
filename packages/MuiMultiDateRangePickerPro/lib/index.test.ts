@@ -32,14 +32,14 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
   test('renders without crashing', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
-    
+
     const root = createRoot(container);
-    
+
     // Should not throw
     expect(() => {
       root.render(React.createElement(MultiRangeDatePicker));
     }).not.toThrow();
-    
+
     // Cleanup
     root.unmount();
     document.body.removeChild(container);
@@ -49,15 +49,17 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
-    
+
     const handleChange = (ranges: DateRange[]) => {
       console.log('Ranges changed:', ranges);
     };
-    
+
     expect(() => {
-      root.render(React.createElement(MultiRangeDatePicker, { onChange: handleChange }));
+      root.render(
+        React.createElement(MultiRangeDatePicker, { onChange: handleChange }),
+      );
     }).not.toThrow();
-    
+
     root.unmount();
     document.body.removeChild(container);
   });
@@ -66,11 +68,13 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
-    
+
     expect(() => {
-      root.render(React.createElement(MultiRangeDatePicker, { mergeRanges: true }));
+      root.render(
+        React.createElement(MultiRangeDatePicker, { mergeRanges: true }),
+      );
     }).not.toThrow();
-    
+
     root.unmount();
     document.body.removeChild(container);
   });
@@ -79,22 +83,21 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
-    
+
     const handleChange = (ranges: DateRange[]) => {};
     const handleIndividualDatesChange = (dates: Date[]) => {};
-    
+
     expect(() => {
       root.render(
         React.createElement(MultiRangeDatePicker, {
           onChange: handleChange,
           onIndividualDatesChange: handleIndividualDatesChange,
           mergeRanges: true,
-        })
+        }),
       );
     }).not.toThrow();
-    
+
     root.unmount();
     document.body.removeChild(container);
   });
 });
-
