@@ -1,5 +1,7 @@
 # MUI Multi-Range Date Picker
 
+[![codecov](https://codecov.io/gh/spacedevin/mui-date-dragger/branch/main/graph/badge.svg)](https://codecov.io/gh/spacedevin/mui-date-dragger)
+
 React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
 
 
@@ -16,6 +18,7 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 
 **Features:**
 - ✅ Multi-range selection with drag support
+- ✅ Individual date selection support
 - ✅ Simple calendar-only interface
 - ✅ No commercial license required
 - ✅ Perfect for basic multi-range needs
@@ -35,6 +38,7 @@ An enhanced version built on `@mui/x-date-pickers-pro`.
 
 **Features:**
 - ✅ All features from the free version
+- ✅ Multi-range and individual date selection
 - ✅ Text input field for manual date entry
 - ✅ Visual chip-based range management
 - ✅ Delete ranges with chip close buttons
@@ -58,6 +62,8 @@ npm install @spacedevin/react-mui-pro-multi-range-picker
 
 ### Usage
 
+**Basic Example - Date Ranges:**
+
 ```typescript
 import React, { useState } from 'react';
 import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
@@ -69,6 +75,44 @@ function App() {
   return (
     <MultiRangeDatePicker
       onChange={setRanges}
+      mergeRanges={false}
+    />
+  );
+}
+```
+
+**Individual Dates:**
+
+```typescript
+import React, { useState } from 'react';
+import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
+
+function App() {
+  const [dates, setDates] = useState<Date[]>([]);
+
+  return (
+    <MultiRangeDatePicker
+      onIndividualDatesChange={setDates}
+    />
+  );
+}
+```
+
+**Both Ranges and Individual Dates:**
+
+```typescript
+import React, { useState } from 'react';
+import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
+import type { DateRange } from '@spacedevin/react-mui-multi-range-picker';
+
+function App() {
+  const [ranges, setRanges] = useState<DateRange[]>([]);
+  const [dates, setDates] = useState<Date[]>([]);
+
+  return (
+    <MultiRangeDatePicker
+      onChange={setRanges}
+      onIndividualDatesChange={setDates}
       mergeRanges={false}
     />
   );
@@ -127,13 +171,16 @@ mui-date-dragger/
 
 ## ✨ Key Features
 
-### Multi-Range Selection
-Select multiple separate date ranges on a single calendar - perfect for vacation booking, availability calendars, or any scenario requiring non-contiguous date selection.
+### Multi-Range & Individual Date Selection
+Select multiple separate date ranges or individual dates on a single calendar - perfect for vacation booking, availability calendars, or any scenario requiring non-contiguous date selection. Supports both range-based and individual date selection modes.
 
 ### Click & Drag Support
 Intuitive drag-to-select interaction works seamlessly on both desktop (mouse) and mobile (touch) devices.
 
-### Range Management
+### Flexible Date Management
+- **Date Ranges**: Select start and end dates for periods
+- **Individual Dates**: Select specific dates without ranges
+- **Dual Mode**: Track both ranges and individual dates simultaneously
 - **Add ranges**: Click/drag or use text input (Pro)
 - **Remove ranges**: Drag over existing ranges or use chip close buttons (Pro)
 - **Auto-merge**: Optional automatic merging of adjacent/overlapping ranges
@@ -167,6 +214,7 @@ Built as extensions of MUI's date picker components, maintaining full compatibil
 | Feature | Free | Pro |
 |---------|------|-----|
 | Multi-range selection | ✅ | ✅ |
+| Individual date selection | ✅ | ✅ |
 | Drag to select | ✅ | ✅ |
 | Calendar view | ✅ | ✅ |
 | Theme support | ✅ | ✅ |

@@ -51,7 +51,6 @@ function App() {
 | `onChange` | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change |
 | `onIndividualDatesChange` | `(dates: Date[]) => void` | `undefined` | Callback fired with all selected dates as individual Date objects |
 | `mergeRanges` | `boolean` | `false` | When `true`, adjacent or overlapping ranges are automatically merged |
-| `returnIndividualDates` | `boolean` | `false` | When `true`, triggers `onIndividualDatesChange` callback |
 
 ## Examples
 
@@ -72,7 +71,6 @@ const [dates, setDates] = useState<Date[]>([]);
 <MultiRangeDatePicker 
   onChange={setRanges}
   onIndividualDatesChange={setDates}
-  returnIndividualDates={true}
 />
 
 console.log(`Total days: ${dates.length}`);

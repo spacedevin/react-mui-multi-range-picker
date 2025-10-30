@@ -7,5 +7,4 @@ export interface MultiRangeDatePickerProps {
   onChange?: (ranges: DateRange[]) => void;
   onIndividualDatesChange?: (dates: Date[]) => void;
   mergeRanges?: boolean;
-  returnIndividualDates?: boolean;
 }

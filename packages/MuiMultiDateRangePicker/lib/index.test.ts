@@ -75,19 +75,6 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
     document.body.removeChild(container);
   });
 
-  test('renders with returnIndividualDates prop', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root = createRoot(container);
-    
-    expect(() => {
-      root.render(React.createElement(MultiRangeDatePicker, { returnIndividualDates: true }));
-    }).not.toThrow();
-    
-    root.unmount();
-    document.body.removeChild(container);
-  });
-
   test('renders with all props', () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
@@ -102,7 +89,6 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
           onChange: handleChange,
           onIndividualDatesChange: handleIndividualDatesChange,
           mergeRanges: true,
-          returnIndividualDates: true,
         })
       );
     }).not.toThrow();

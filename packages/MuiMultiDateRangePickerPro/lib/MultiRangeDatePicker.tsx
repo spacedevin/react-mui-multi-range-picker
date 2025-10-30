@@ -261,8 +261,7 @@ export const commitDragSelection = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ): DateRange[] | null => {
   if (!dragStart || !dragEnd || !isValid(dragStart) || !isValid(dragEnd)) {
     return null;
@@ -274,11 +273,9 @@ export const commitDragSelection = (
     onChange(updatedRanges);
   }
   
-  if (onIndividualDatesChange || returnIndividualDates) {
+  if (onIndividualDatesChange) {
     const individualDates = getRangesAsIndividualDates(updatedRanges);
-    if (onIndividualDatesChange) {
-      onIndividualDatesChange(individualDates);
-    }
+    onIndividualDatesChange(individualDates);
   }
 
   return updatedRanges;
@@ -290,8 +287,7 @@ export const handleRangeChangeLogic = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ): { shouldUpdate: boolean; updatedRanges?: DateRange[] } => {
   // Only update if not dragging (to avoid interference)
   if (isDragging) {
@@ -309,11 +305,9 @@ export const handleRangeChangeLogic = (
       onChange(updatedRanges);
     }
     
-    if (onIndividualDatesChange || returnIndividualDates) {
+    if (onIndividualDatesChange) {
       const individualDates = getRangesAsIndividualDates(updatedRanges);
-      if (onIndividualDatesChange) {
-        onIndividualDatesChange(individualDates);
-      }
+      onIndividualDatesChange(individualDates);
     }
     
     return { shouldUpdate: true, updatedRanges };
@@ -353,8 +347,7 @@ export const handleRemoveRangeLogic = (
   index: number,
   dateRanges: DateRange[],
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ): DateRange[] => {
   const updatedRanges = removeRangeByIndex(dateRanges, index);
   
@@ -362,11 +355,9 @@ export const handleRemoveRangeLogic = (
     onChange(updatedRanges);
   }
   
-  if (onIndividualDatesChange || returnIndividualDates) {
+  if (onIndividualDatesChange) {
     const individualDates = getRangesAsIndividualDates(updatedRanges);
-    if (onIndividualDatesChange) {
-      onIndividualDatesChange(individualDates);
-    }
+    onIndividualDatesChange(individualDates);
   }
   
   return updatedRanges;
@@ -441,8 +432,7 @@ export const createCommitDragSelectionCallback = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ) => {
   return () => {
     const updatedRanges = commitDragSelection(
@@ -451,8 +441,7 @@ export const createCommitDragSelectionCallback = (
       dateRanges,
       mergeRanges,
       onChange,
-      onIndividualDatesChange,
-      returnIndividualDates
+      onIndividualDatesChange
     );
     return updatedRanges;
   };
@@ -463,8 +452,7 @@ export const createHandleRangeChange = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ) => {
   return (newValue: MUIDateRange<Date>) => {
     if (!isDraggingRef.current) {
@@ -478,8 +466,7 @@ export const createHandleRangeChange = (
               dateRanges,
               mergeRanges,
               onChange,
-              onIndividualDatesChange,
-              returnIndividualDates
+              onIndividualDatesChange
             );
             return result;
           }
@@ -574,16 +561,14 @@ export const createHandlePointerUpPro = (
 export const createHandleRemoveRange = (
   dateRanges: DateRange[],
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void,
-  returnIndividualDates?: boolean
+  onIndividualDatesChange?: (dates: Date[]) => void
 ) => {
   return (index: number) => {
     const updatedRanges = handleRemoveRangeLogic(
       index,
       dateRanges,
       onChange,
-      onIndividualDatesChange,
-      returnIndividualDates
+      onIndividualDatesChange
     );
     return updatedRanges;
   };
@@ -653,8 +638,7 @@ export const createCustomDayPro = (
 const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({ 
   onChange, 
   onIndividualDatesChange,
-  mergeRanges = false,
-  returnIndividualDates = false 
+  mergeRanges = false
 }) => {
   const [dateRanges, setDateRanges] = useState<DateRange[]>([]);
   const [currentRange, setCurrentRange] = useState<MUIDateRange<Date>>([null, null]);
@@ -672,14 +656,13 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateRanges,
       mergeRanges,
       onChange,
-      onIndividualDatesChange,
-      returnIndividualDates
+      onIndividualDatesChange
     );
     if (updatedRanges) {
       setDateRanges(updatedRanges);
     }
     return updatedRanges;
-  }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
+  }, [dateRanges, onChange, onIndividualDatesChange, mergeRanges]);
 
   const handleRangeChange = useCallback((newValue: MUIDateRange<Date>) => {
     if (!isDraggingRef.current) {
@@ -693,8 +676,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
             dateRanges,
             mergeRanges,
             onChange,
-            onIndividualDatesChange,
-            returnIndividualDates
+            onIndividualDatesChange
           );
           
           if (result.shouldUpdate && result.updatedRanges) {
@@ -704,7 +686,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
         }, 0);
       }
     }
-  }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
+  }, [dateRanges, onChange, onIndividualDatesChange, mergeRanges]);
 
   const handlePointerDown = useCallback(
     createHandlePointerDownPro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
@@ -731,11 +713,10 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       index,
       dateRanges,
       onChange,
-      onIndividualDatesChange,
-      returnIndividualDates
+      onIndividualDatesChange
     );
     setDateRanges(updatedRanges);
-  }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates]);
+  }, [dateRanges, onChange, onIndividualDatesChange]);
 
   const CustomDay = useCallback(
     createCustomDayPro(
