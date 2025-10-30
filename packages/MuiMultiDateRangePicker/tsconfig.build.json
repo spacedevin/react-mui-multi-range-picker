@@ -1,27 +1,11 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "module": "ESNext",
-    "target": "ES2015",
-    "lib": ["ES2015", "DOM"],
-    "jsx": "react",
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {
-      "date-fns": ["../../node_modules/date-fns"]
-    },
-    "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": false
   },
   "include": ["lib/**/*", "../../lib/**/*"],
