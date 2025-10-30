@@ -237,7 +237,7 @@ export const findDateElementFromPoint = (
   if (!element) return null;
   
   // Find which date button is under the pointer
-  for (const [dateStr, button] of dateButtonsMap.entries()) {
+  for (const [dateStr, button] of Array.from(dateButtonsMap.entries())) {
     if (button === element || button.contains(element)) {
       const date = new Date(dateStr);
       if (isValid(date)) {
@@ -679,6 +679,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     if (updatedRanges) {
       setDateRanges(updatedRanges);
     }
+    return updatedRanges;
   }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
 
   const handleRangeChange = useCallback((newValue: MUIDateRange<Date>) => {

@@ -8,5 +8,6 @@
       "@mui-date-dragger/multi-range-picker": ["../../../lib"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
 }
