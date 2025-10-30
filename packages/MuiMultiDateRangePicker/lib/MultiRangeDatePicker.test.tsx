@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect, vi } from 'bun:test';
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
@@ -15,6 +15,13 @@ import {
   commitSelection,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+  generateDayButtonStyles,
+  createCommitSelectionCallback,
+  createHandlePointerDown,
+  createHandlePointerMove,
+  createHandleContainerPointerMove,
+  createHandlePointerUp,
+  createCustomDay,
 } from './MultiRangeDatePicker';
 import type { DateRange } from './types';
 
@@ -615,4 +622,305 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       expect(result).toBe(null);
     });
   });
+
+  describe('createCommitSelectionCallback', () => {
+    test('returns a function that commits selection', () => {
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-03') };
+      const dateRanges: DateRange[] = [];
+      const onChange = vi.fn();
+      
+      const callback = createCommitSelectionCallback(
+        dragStartRef,
+        dragEndRef,
+        dateRanges,
+        false,
+        onChange
+      );
+      
+      const result = callback();
+      
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(onChange).toHaveBeenCalled();
+    });
+
+    test('returns null when drag dates are invalid', () => {
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const dateRanges: DateRange[] = [];
+      
+      const callback = createCommitSelectionCallback(
+        dragStartRef,
+        dragEndRef,
+        dateRanges,
+        false
+      );
+      
+      const result = callback();
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('createHandlePointerDown', () => {
+    test('returns a function that initializes drag state', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerDown(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        target: { setPointerCapture: vi.fn() },
+        pointerId: 1
+      } as any;
+      
+      handler(new Date('2025-01-01'), mockEvent);
+      
+      expect(isDraggingRef.current).toBe(true);
+      expect(dragStartRef.current).toEqual(new Date('2025-01-01'));
+      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandlePointerMove', () => {
+    test('returns a function that updates drag end date', () => {
+      const isDraggingRef = { current: true };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-01') };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      handler(new Date('2025-01-03'));
+      
+      expect(dragEndRef.current).toEqual(new Date('2025-01-03'));
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+
+    test('does not update when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-01') };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      handler(new Date('2025-01-03'));
+      
+      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
+      expect(forceUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandleContainerPointerMove', () => {
+    test('returns a function that finds date from point', () => {
+      const isDraggingRef = { current: true };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerMove = vi.fn();
+      
+      const handler = createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove);
+      
+      // Mock document.elementFromPoint
+      const originalElementFromPoint = document.elementFromPoint;
+      const mockElement = document.createElement('button');
+      document.elementFromPoint = vi.fn().mockReturnValue(mockElement);
+      
+      const dateStr = new Date('2025-01-01').toISOString();
+      dateButtonsRef.current.set(dateStr, mockElement);
+      
+      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      handler(mockEvent);
+      
+      expect(handlePointerMove).toHaveBeenCalledWith(new Date(dateStr));
+      
+      document.elementFromPoint = originalElementFromPoint;
+    });
+
+    test('does nothing when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerMove = vi.fn();
+      
+      const handler = createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove);
+      
+      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      handler(mockEvent);
+      
+      expect(handlePointerMove).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandlePointerUp', () => {
+    test('returns a function that commits and resets drag state', () => {
+      const isDraggingRef = { current: true };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-03') };
+      const commitSelectionCallback = vi.fn();
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitSelectionCallback, forceUpdate);
+      
+      handler();
+      
+      expect(commitSelectionCallback).toHaveBeenCalled();
+      expect(isDraggingRef.current).toBe(false);
+      expect(dragStartRef.current).toBeNull();
+      expect(dragEndRef.current).toBeNull();
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+
+    test('does nothing when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const commitSelectionCallback = vi.fn();
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitSelectionCallback, forceUpdate);
+      
+      handler();
+      
+      expect(commitSelectionCallback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createCustomDay', () => {
+    test('returns a function that renders day button', () => {
+      const dateRanges: DateRange[] = [];
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const isDraggingRef = { current: false };
+      const mergeRanges = false;
+      const DAY_SIZE = 36;
+      const DAY_MARGIN = 2;
+      const captionTypography = { fontSize: '0.75rem' };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerDown = vi.fn();
+      
+      const CustomDay = createCustomDay(
+        dateRanges,
+        dragStartRef,
+        dragEndRef,
+        isDraggingRef,
+        mergeRanges,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+        dateButtonsRef,
+        handlePointerDown
+      );
+      
+      const props = { day: new Date('2025-01-01') } as any;
+      const result = CustomDay(props);
+      
+      expect(result).toBeDefined();
+      expect(result).not.toBeNull();
+    });
+
+    test('returns null for invalid day', () => {
+      const dateRanges: DateRange[] = [];
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const isDraggingRef = { current: false };
+      const mergeRanges = false;
+      const DAY_SIZE = 36;
+      const DAY_MARGIN = 2;
+      const captionTypography = { fontSize: '0.75rem' };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerDown = vi.fn();
+      
+      const CustomDay = createCustomDay(
+        dateRanges,
+        dragStartRef,
+        dragEndRef,
+        isDraggingRef,
+        mergeRanges,
+        DAY_SIZE,
+        DAY_MARGIN,
+        captionTypography,
+        dateButtonsRef,
+        handlePointerDown
+      );
+      
+      const props = { day: null } as any;
+      const result = CustomDay(props);
+      
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('generateDayButtonStyles', () => {
+    const DAY_SIZE = 36;
+    const DAY_MARGIN = 2;
+    const captionTypography = { fontSize: '0.75rem', fontWeight: 400 };
+
+    test('returns default styles when not selected', () => {
+      const styles = generateDayButtonStyles(false, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.backgroundColor).toBe('transparent');
+      expect(styles.color).toBe('text.primary');
+      expect(styles.width).toBe(DAY_SIZE);
+      expect(styles.height).toBe(DAY_SIZE);
+    });
+
+    test('returns selected styles when isInRange is true', () => {
+      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.backgroundColor).toBe('primary.main');
+      expect(styles.color).toBe('primary.contrastText');
+    });
+
+    test('returns selected styles when isHovered is true', () => {
+      const styles = generateDayButtonStyles(false, true, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.backgroundColor).toBe('primary.main');
+      expect(styles.color).toBe('primary.contrastText');
+    });
+
+    test('applies left rounded border radius', () => {
+      const styles = generateDayButtonStyles(true, false, true, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.borderTopLeftRadius).toBe('50%');
+      expect(styles.borderBottomLeftRadius).toBe('50%');
+    });
+
+    test('applies right rounded border radius', () => {
+      const styles = generateDayButtonStyles(true, false, false, true, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.borderTopRightRadius).toBe('50%');
+      expect(styles.borderBottomRightRadius).toBe('50%');
+    });
+
+    test('includes before pseudo-element when not rounded left and selected', () => {
+      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles['&::before']).toBeDefined();
+      expect(styles['&::before'].backgroundColor).toBe('primary.main');
+    });
+
+    test('includes after pseudo-element when not rounded right and selected', () => {
+      const styles = generateDayButtonStyles(true, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles['&::after']).toBeDefined();
+      expect(styles['&::after'].backgroundColor).toBe('primary.main');
+    });
+
+    test('includes touch and user select properties', () => {
+      const styles = generateDayButtonStyles(false, false, false, false, DAY_SIZE, DAY_MARGIN, captionTypography);
+      
+      expect(styles.touchAction).toBe('none');
+      expect(styles.WebkitTapHighlightColor).toBe('transparent');
+      expect(styles.WebkitUserSelect).toBe('none');
+      expect(styles.userSelect).toBe('none');
+    });
+  });
 });
+
+
+

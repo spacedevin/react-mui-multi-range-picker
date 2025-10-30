@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect, vi } from 'bun:test';
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
@@ -17,6 +17,15 @@ import {
   handlePointerDownLogic,
   handlePointerMoveLogic,
   handleRemoveRangeLogic,
+  generatePickersDayStyles,
+  generateDayWrapperStyles,
+  createCommitDragSelectionCallback,
+  createHandlePointerDownPro,
+  createHandlePointerMovePro,
+  createHandleContainerPointerMovePro,
+  createHandlePointerUpPro,
+  createHandleRemoveRange,
+  createCustomDayPro,
 } from './MultiRangeDatePicker';
 import type { DateRange } from './types';
 
@@ -663,6 +672,337 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       ];
       handleRemoveRangeLogic(0, ranges, undefined, onIndividualDatesChange, true);
       expect(calledDates.length).toBe(3);
+    });
+  });
+
+  describe('generatePickersDayStyles', () => {
+    test('returns default styles when not selected', () => {
+      const styles = generatePickersDayStyles(false, false, false);
+      expect(styles.backgroundColor).toBeUndefined();
+      expect(styles.color).toBeUndefined();
+      expect(styles.borderRadius).toBe('50%');
+    });
+
+    test('returns selected styles when isSelected is true', () => {
+      const styles = generatePickersDayStyles(true, false, false);
+      expect(styles.backgroundColor).toBe('primary.main');
+      expect(styles.color).toBe('primary.contrastText');
+    });
+
+    test('applies no border radius when selected and no rounding', () => {
+      const styles = generatePickersDayStyles(true, false, false);
+      expect(styles.borderRadius).toBe(0);
+    });
+
+    test('applies left rounded border radius', () => {
+      const styles = generatePickersDayStyles(true, true, false);
+      expect(styles.borderRadius).toBe('50% 0 0 50%');
+    });
+
+    test('applies right rounded border radius', () => {
+      const styles = generatePickersDayStyles(true, false, true);
+      expect(styles.borderRadius).toBe('0 50% 50% 0');
+    });
+
+    test('applies full rounded border when both sides rounded', () => {
+      const styles = generatePickersDayStyles(true, true, true);
+      expect(styles.borderRadius).toBe('50%');
+    });
+
+    test('includes before pseudo-element when not rounded left and selected', () => {
+      const styles = generatePickersDayStyles(true, false, true);
+      expect(styles['&::before']).toBeDefined();
+      expect(styles['&::before']?.backgroundColor).toBe('primary.main');
+    });
+
+    test('includes after pseudo-element when not rounded right and selected', () => {
+      const styles = generatePickersDayStyles(true, true, false);
+      expect(styles['&::after']).toBeDefined();
+      expect(styles['&::after']?.backgroundColor).toBe('primary.main');
+    });
+
+    test('includes both pseudo-elements when no rounding and selected', () => {
+      const styles = generatePickersDayStyles(true, false, false);
+      expect(styles['&::before']).toBeDefined();
+      expect(styles['&::after']).toBeDefined();
+    });
+
+    test('does not include pseudo-elements when not selected', () => {
+      const styles = generatePickersDayStyles(false, false, false);
+      expect(styles['&::before']).toBeUndefined();
+      expect(styles['&::after']).toBeUndefined();
+    });
+
+    test('includes touch and user select properties', () => {
+      const styles = generatePickersDayStyles(true, false, false);
+      expect(styles.touchAction).toBe('none');
+      expect(styles.userSelect).toBe('none');
+      expect(styles.position).toBe('relative');
+    });
+
+    test('includes hover styles', () => {
+      const styles = generatePickersDayStyles(true, false, false);
+      expect(styles['&:hover']).toBeDefined();
+      expect(styles['&:hover'].backgroundColor).toBe('primary.dark');
+    });
+
+    test('hover styles are undefined when not selected', () => {
+      const styles = generatePickersDayStyles(false, false, false);
+      expect(styles['&:hover'].backgroundColor).toBeUndefined();
+    });
+  });
+
+  describe('generateDayWrapperStyles', () => {
+    test('returns correct wrapper styles', () => {
+      const styles = generateDayWrapperStyles();
+      expect(styles.display).toBe('inline-block');
+      expect(styles.position).toBe('relative');
+    });
+
+    test('returns same styles on multiple calls', () => {
+      const styles1 = generateDayWrapperStyles();
+      const styles2 = generateDayWrapperStyles();
+      expect(styles1).toEqual(styles2);
+    });
+  });
+
+  describe('createCommitDragSelectionCallback', () => {
+    test('returns a function that commits drag selection', () => {
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-03') };
+      const dateRanges: DateRange[] = [];
+      const onChange = vi.fn();
+      
+      const callback = createCommitDragSelectionCallback(
+        dragStartRef,
+        dragEndRef,
+        dateRanges,
+        false,
+        onChange
+      );
+      
+      const result = callback();
+      
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(onChange).toHaveBeenCalled();
+    });
+
+    test('returns null when drag dates are invalid', () => {
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const dateRanges: DateRange[] = [];
+      
+      const callback = createCommitDragSelectionCallback(
+        dragStartRef,
+        dragEndRef,
+        dateRanges,
+        false
+      );
+      
+      const result = callback();
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('createHandlePointerDownPro', () => {
+    test('returns a function that initializes drag state', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerDownPro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        target: { setPointerCapture: vi.fn() },
+        pointerId: 1
+      } as any;
+      
+      handler(new Date('2025-01-01'), mockEvent);
+      
+      expect(isDraggingRef.current).toBe(true);
+      expect(dragStartRef.current).toEqual(new Date('2025-01-01'));
+      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandlePointerMovePro', () => {
+    test('returns a function that updates drag end date', () => {
+      const isDraggingRef = { current: true };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-01') };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      handler(new Date('2025-01-03'));
+      
+      expect(dragEndRef.current).toEqual(new Date('2025-01-03'));
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+
+    test('does not update when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-01') };
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      
+      handler(new Date('2025-01-03'));
+      
+      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
+      expect(forceUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandleContainerPointerMovePro', () => {
+    test('returns a function that finds date from point', () => {
+      const isDraggingRef = { current: true };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerMove = vi.fn();
+      
+      const handler = createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove);
+      
+      // Mock document.elementFromPoint
+      const originalElementFromPoint = document.elementFromPoint;
+      const mockElement = document.createElement('button');
+      document.elementFromPoint = vi.fn().mockReturnValue(mockElement);
+      
+      const dateStr = new Date('2025-01-01').toISOString();
+      dateButtonsRef.current.set(dateStr, mockElement);
+      
+      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      handler(mockEvent);
+      
+      expect(handlePointerMove).toHaveBeenCalledWith(new Date(dateStr));
+      
+      document.elementFromPoint = originalElementFromPoint;
+    });
+
+    test('does nothing when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerMove = vi.fn();
+      
+      const handler = createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove);
+      
+      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      handler(mockEvent);
+      
+      expect(handlePointerMove).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandlePointerUpPro', () => {
+    test('returns a function that commits and resets drag state', () => {
+      const isDraggingRef = { current: true };
+      const dragStartRef = { current: new Date('2025-01-01') };
+      const dragEndRef = { current: new Date('2025-01-03') };
+      const commitDragSelectionCallback = vi.fn();
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate);
+      
+      handler();
+      
+      expect(commitDragSelectionCallback).toHaveBeenCalled();
+      expect(isDraggingRef.current).toBe(false);
+      expect(dragStartRef.current).toBeNull();
+      expect(dragEndRef.current).toBeNull();
+      expect(forceUpdate).toHaveBeenCalled();
+    });
+
+    test('does nothing when not dragging', () => {
+      const isDraggingRef = { current: false };
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const commitDragSelectionCallback = vi.fn();
+      const forceUpdate = vi.fn();
+      
+      const handler = createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate);
+      
+      handler();
+      
+      expect(commitDragSelectionCallback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createHandleRemoveRange', () => {
+    test('returns a function that removes range', () => {
+      const dateRanges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-03') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-12') }
+      ];
+      const onChange = vi.fn();
+      
+      const handler = createHandleRemoveRange(dateRanges, onChange);
+      const result = handler(0);
+      
+      expect(result.length).toBe(1);
+      expect(onChange).toHaveBeenCalledWith(result);
+    });
+  });
+
+  describe('createCustomDayPro', () => {
+    test('returns a function that renders day picker', () => {
+      const dateRanges: DateRange[] = [];
+      const currentRange: [Date | null, Date | null] = [null, null];
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const isDraggingRef = { current: false };
+      const mergeRanges = false;
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerDown = vi.fn();
+      
+      const CustomDay = createCustomDayPro(
+        dateRanges,
+        currentRange,
+        dragStartRef,
+        dragEndRef,
+        isDraggingRef,
+        mergeRanges,
+        dateButtonsRef,
+        handlePointerDown
+      );
+      
+      const props = { day: new Date('2025-01-01') } as any;
+      const result = CustomDay(props);
+      
+      expect(result).toBeDefined();
+      expect(result).not.toBeNull();
+    });
+
+    test('handles invalid day', () => {
+      const dateRanges: DateRange[] = [];
+      const currentRange: [Date | null, Date | null] = [null, null];
+      const dragStartRef = { current: null };
+      const dragEndRef = { current: null };
+      const isDraggingRef = { current: false };
+      const mergeRanges = false;
+      const dateButtonsRef = { current: new Map() };
+      const handlePointerDown = vi.fn();
+      
+      const CustomDay = createCustomDayPro(
+        dateRanges,
+        currentRange,
+        dragStartRef,
+        dragEndRef,
+        isDraggingRef,
+        mergeRanges,
+        dateButtonsRef,
+        handlePointerDown
+      );
+      
+      const props = { day: null } as any;
+      const result = CustomDay(props);
+      
+      expect(result).toBeDefined();
     });
   });
 });

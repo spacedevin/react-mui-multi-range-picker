@@ -315,25 +315,89 @@ export const handlePointerMoveLogic = (
   return null;
 };
 
-const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({ 
-  onChange, 
-  onIndividualDatesChange,
-  mergeRanges = false,
-  returnIndividualDates = false 
-}) => {
-  const theme = useTheme();
-  const [dateRanges, setDateRanges] = useState<DateRange[]>([]);
-  const isDraggingRef = useRef(false);
-  const dragStartRef = useRef<Date | null>(null);
-  const dragEndRef = useRef<Date | null>(null);
-  const dateButtonsRef = useRef<Map<string, HTMLElement>>(new Map());
-  const [, forceUpdate] = useState({});
+// MUI PickersDay constants - exported for testing
+export const DAY_SIZE = 36;
+export const DAY_MARGIN = 2;
 
-  // MUI PickersDay constants
-  const DAY_SIZE = 36;
-  const DAY_MARGIN = 2;
+export const generateDayButtonStyles = (
+  isInRange: boolean,
+  isHovered: boolean,
+  shouldRoundLeft: boolean,
+  shouldRoundRight: boolean,
+  DAY_SIZE: number,
+  DAY_MARGIN: number,
+  captionTypography: any
+) => {
+  return {
+    ...captionTypography,
+    width: DAY_SIZE,
+    height: DAY_SIZE,
+    borderRadius: 0,
+    border: 'none',
+    margin: `0 ${DAY_MARGIN}px`,
+    padding: 0,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    position: 'relative' as const,
+    backgroundColor: (isInRange || isHovered) ? 'primary.main' : 'transparent',
+    color: (isInRange || isHovered) ? 'primary.contrastText' : 'text.primary',
+    transition: 'none',
+    '&:hover': {
+      backgroundColor: (isInRange || isHovered) ? 'primary.dark' : 'action.hover',
+    },
+    // Fill gaps on left side for range continuity
+    ...((isInRange || isHovered) && !shouldRoundLeft && {
+      '&::before': {
+        content: '""',
+        position: 'absolute' as const,
+        left: -DAY_MARGIN,
+        top: 0,
+        width: DAY_MARGIN,
+        height: '100%',
+        backgroundColor: 'primary.main',
+      },
+    }),
+    // Fill gaps on right side for range continuity
+    ...((isInRange || isHovered) && !shouldRoundRight && {
+      '&::after': {
+        content: '""',
+        position: 'absolute' as const,
+        right: -DAY_MARGIN,
+        top: 0,
+        width: DAY_MARGIN,
+        height: '100%',
+        backgroundColor: 'primary.main',
+      },
+    }),
+    ...(shouldRoundLeft && {
+      borderTopLeftRadius: '50%',
+      borderBottomLeftRadius: '50%',
+    }),
+    ...(shouldRoundRight && {
+      borderTopRightRadius: '50%',
+      borderBottomRightRadius: '50%',
+    }),
+    ...(!isInRange && !isHovered && {
+      borderRadius: '50%',
+    }),
+    touchAction: 'none' as const,
+    WebkitTapHighlightColor: 'transparent',
+    WebkitUserSelect: 'none' as const,
+    userSelect: 'none' as const,
+  };
+};
 
-  const commitSelectionCallback = useCallback(() => {
+// Export ALL the logic functions that were inside useCallback
+export const createCommitSelectionCallback = (
+  dragStartRef: React.RefObject<Date | null>,
+  dragEndRef: React.RefObject<Date | null>,
+  dateRanges: DateRange[],
+  mergeRanges: boolean,
+  onChange?: (ranges: DateRange[]) => void,
+  onIndividualDatesChange?: (dates: Date[]) => void,
+  returnIndividualDates?: boolean
+) => {
+  return () => {
     const updatedRanges = commitSelection(
       dragStartRef.current,
       dragEndRef.current,
@@ -343,13 +407,17 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       onIndividualDatesChange,
       returnIndividualDates
     );
-    
-    if (updatedRanges) {
-      setDateRanges(updatedRanges);
-    }
-  }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
+    return updatedRanges;
+  };
+};
 
-  const handlePointerDown = useCallback((date: Date, e: React.PointerEvent) => {
+export const createHandlePointerDown = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  forceUpdate: () => void
+) => {
+  return (date: Date, e: React.PointerEvent) => {
     const result = handlePointerDownLogic(date);
     if (!result) return;
     
@@ -361,10 +429,17 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     dragEndRef.current = result.dragEnd;
     
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    forceUpdate({});
-  }, []);
+    forceUpdate();
+  };
+};
 
-  const handlePointerMove = useCallback((date: Date) => {
+export const createHandlePointerMove = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  forceUpdate: () => void
+) => {
+  return (date: Date) => {
     const newDragEnd = handlePointerMoveLogic(
       date,
       isDraggingRef.current,
@@ -374,20 +449,34 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     
     if (newDragEnd) {
       dragEndRef.current = newDragEnd;
-      forceUpdate({});
+      forceUpdate();
     }
-  }, []);
+  };
+};
 
-  const handleContainerPointerMove = useCallback((e: React.PointerEvent) => {
+export const createHandleContainerPointerMove = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
+  handlePointerMove: (date: Date) => void
+) => {
+  return (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     
     const date = findDateElementFromPoint(e.clientX, e.clientY, dateButtonsRef.current);
     if (date) {
       handlePointerMove(date);
     }
-  }, [handlePointerMove]);
+  };
+};
 
-  const handlePointerUp = useCallback(() => {
+export const createHandlePointerUp = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  commitSelectionCallback: () => DateRange[] | null,
+  forceUpdate: () => void
+) => {
+  return () => {
     if (!isDraggingRef.current) return;
     
     commitSelectionCallback();
@@ -395,10 +484,23 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     isDraggingRef.current = false;
     dragStartRef.current = null;
     dragEndRef.current = null;
-    forceUpdate({});
-  }, [commitSelectionCallback]);
+    forceUpdate();
+  };
+};
 
-  const CustomDay = useCallback((props: PickersDayProps) => {
+export const createCustomDay = (
+  dateRanges: DateRange[],
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  isDraggingRef: React.MutableRefObject<boolean>,
+  mergeRanges: boolean,
+  DAY_SIZE: number,
+  DAY_MARGIN: number,
+  captionTypography: any,
+  dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
+  handlePointerDown: (date: Date, e: React.PointerEvent) => void
+) => {
+  return (props: PickersDayProps) => {
     const { day } = props;
     
     if (!day || !isValid(day)) {
@@ -414,6 +516,16 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       mergeRanges
     );
 
+    const styles = generateDayButtonStyles(
+      isInRange,
+      isHovered,
+      shouldRoundLeft,
+      shouldRoundRight,
+      DAY_SIZE,
+      DAY_MARGIN,
+      captionTypography
+    );
+
     return (
       <Box
         component="button"
@@ -425,68 +537,80 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
         }}
         data-date={day.toISOString()}
         onPointerDown={(e) => handlePointerDown(day, e)}
-        sx={{
-          ...theme.typography.caption,
-          width: DAY_SIZE,
-          height: DAY_SIZE,
-          borderRadius: 0,
-          border: 'none',
-          margin: `0 ${DAY_MARGIN}px`,
-          padding: 0,
-          fontFamily: 'inherit',
-          cursor: 'pointer',
-          position: 'relative',
-          backgroundColor: (isInRange || isHovered) ? 'primary.main' : 'transparent',
-          color: (isInRange || isHovered) ? 'primary.contrastText' : 'text.primary',
-          transition: 'none',
-          '&:hover': {
-            backgroundColor: (isInRange || isHovered) ? 'primary.dark' : 'action.hover',
-          },
-          // Fill gaps on left side for range continuity
-          ...((isInRange || isHovered) && !shouldRoundLeft && {
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              left: -DAY_MARGIN,
-              top: 0,
-              width: DAY_MARGIN,
-              height: '100%',
-              backgroundColor: 'primary.main',
-            },
-          }),
-          // Fill gaps on right side for range continuity
-          ...((isInRange || isHovered) && !shouldRoundRight && {
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              right: -DAY_MARGIN,
-              top: 0,
-              width: DAY_MARGIN,
-              height: '100%',
-              backgroundColor: 'primary.main',
-            },
-          }),
-          ...(shouldRoundLeft && {
-            borderTopLeftRadius: '50%',
-            borderBottomLeftRadius: '50%',
-          }),
-          ...(shouldRoundRight && {
-            borderTopRightRadius: '50%',
-            borderBottomRightRadius: '50%',
-          }),
-          ...(!isInRange && !isHovered && {
-            borderRadius: '50%',
-          }),
-          touchAction: 'none',
-          WebkitTapHighlightColor: 'transparent',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-        }}
+        sx={styles}
       >
         {day.getDate()}
       </Box>
     );
-  }, [dateRanges, handlePointerDown, mergeRanges]);
+  };
+};
+
+const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({ 
+  onChange, 
+  onIndividualDatesChange,
+  mergeRanges = false,
+  returnIndividualDates = false 
+}) => {
+  const theme = useTheme();
+  const [dateRanges, setDateRanges] = useState<DateRange[]>([]);
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef<Date | null>(null);
+  const dragEndRef = useRef<Date | null>(null);
+  const dateButtonsRef = useRef<Map<string, HTMLElement>>(new Map());
+  const [, setForceUpdateState] = useState({});
+  const forceUpdate = useCallback(() => setForceUpdateState({}), []);
+
+  const commitSelectionCallback = useCallback(() => {
+    const factory = createCommitSelectionCallback(
+      dragStartRef,
+      dragEndRef,
+      dateRanges,
+      mergeRanges,
+      onChange,
+      onIndividualDatesChange,
+      returnIndividualDates
+    );
+    const updatedRanges = factory();
+    if (updatedRanges) {
+      setDateRanges(updatedRanges);
+    }
+  }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
+
+  const handlePointerDown = useCallback(
+    createHandlePointerDown(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
+    [forceUpdate]
+  );
+
+  const handlePointerMove = useCallback(
+    createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
+    [forceUpdate]
+  );
+
+  const handleContainerPointerMove = useCallback(
+    createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove),
+    [handlePointerMove]
+  );
+
+  const handlePointerUp = useCallback(
+    createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitSelectionCallback, forceUpdate),
+    [commitSelectionCallback, forceUpdate]
+  );
+
+  const CustomDay = useCallback(
+    createCustomDay(
+      dateRanges,
+      dragStartRef,
+      dragEndRef,
+      isDraggingRef,
+      mergeRanges,
+      DAY_SIZE,
+      DAY_MARGIN,
+      theme.typography.caption,
+      dateButtonsRef,
+      handlePointerDown
+    ),
+    [dateRanges, mergeRanges, theme.typography.caption, handlePointerDown]
+  );
 
   return (
     <Box

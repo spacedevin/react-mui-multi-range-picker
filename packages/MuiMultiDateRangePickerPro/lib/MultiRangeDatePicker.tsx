@@ -372,6 +372,284 @@ export const handleRemoveRangeLogic = (
   return updatedRanges;
 };
 
+// MUI PickersDay constants - exported for testing
+export const DAY_SIZE_PRO = 36;
+export const DAY_MARGIN_PRO = 2;
+
+export const generatePickersDayStyles = (
+  isSelected: boolean,
+  shouldRoundLeft: boolean,
+  shouldRoundRight: boolean
+) => {
+  return {
+    backgroundColor: isSelected ? 'primary.main' : undefined,
+    color: isSelected ? 'primary.contrastText' : undefined,
+    transition: 'none',
+    '&:hover': {
+      backgroundColor: isSelected ? 'primary.dark' : undefined,
+    },
+    borderRadius: '50%',
+    ...(isSelected && !shouldRoundLeft && !shouldRoundRight && {
+      borderRadius: 0,
+    }),
+    ...(shouldRoundLeft && !shouldRoundRight && {
+      borderRadius: '50% 0 0 50%',
+    }),
+    ...(shouldRoundRight && !shouldRoundLeft && {
+      borderRadius: '0 50% 50% 0',
+    }),
+    position: 'relative' as const,
+    touchAction: 'none' as const,
+    userSelect: 'none' as const,
+    // Fill gaps for range continuity
+    ...(!shouldRoundLeft && isSelected && {
+      '&::before': {
+        content: '""',
+        position: 'absolute' as const,
+        left: -2,
+        top: 0,
+        width: 2,
+        height: '100%',
+        backgroundColor: 'primary.main',
+      },
+    }),
+    ...(!shouldRoundRight && isSelected && {
+      '&::after': {
+        content: '""',
+        position: 'absolute' as const,
+        right: -2,
+        top: 0,
+        width: 2,
+        height: '100%',
+        backgroundColor: 'primary.main',
+      },
+    }),
+  };
+};
+
+export const generateDayWrapperStyles = () => {
+  return {
+    display: 'inline-block',
+    position: 'relative' as const,
+  };
+};
+
+// Export ALL the logic functions that were inside useCallback
+export const createCommitDragSelectionCallback = (
+  dragStartRef: React.RefObject<Date | null>,
+  dragEndRef: React.RefObject<Date | null>,
+  dateRanges: DateRange[],
+  mergeRanges: boolean,
+  onChange?: (ranges: DateRange[]) => void,
+  onIndividualDatesChange?: (dates: Date[]) => void,
+  returnIndividualDates?: boolean
+) => {
+  return () => {
+    const updatedRanges = commitDragSelection(
+      dragStartRef.current,
+      dragEndRef.current,
+      dateRanges,
+      mergeRanges,
+      onChange,
+      onIndividualDatesChange,
+      returnIndividualDates
+    );
+    return updatedRanges;
+  };
+};
+
+export const createHandleRangeChange = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dateRanges: DateRange[],
+  mergeRanges: boolean,
+  onChange?: (ranges: DateRange[]) => void,
+  onIndividualDatesChange?: (dates: Date[]) => void,
+  returnIndividualDates?: boolean
+) => {
+  return (newValue: MUIDateRange<Date>) => {
+    if (!isDraggingRef.current) {
+      if (newValue[0] && newValue[1]) {
+        return {
+          shouldUpdate: true,
+          callback: () => {
+            const result = handleRangeChangeLogic(
+              newValue,
+              isDraggingRef.current,
+              dateRanges,
+              mergeRanges,
+              onChange,
+              onIndividualDatesChange,
+              returnIndividualDates
+            );
+            return result;
+          }
+        };
+      }
+      return { shouldUpdate: true, newRange: newValue };
+    }
+    return { shouldUpdate: false };
+  };
+};
+
+export const createHandlePointerDownPro = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  forceUpdate: () => void
+) => {
+  return (date: Date, e: React.PointerEvent) => {
+    const result = handlePointerDownLogic(date);
+    if (!result) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isDraggingRef.current = true;
+    dragStartRef.current = result.dragStart;
+    dragEndRef.current = result.dragEnd;
+    
+    const target = e.target as HTMLElement;
+    if (target.setPointerCapture) {
+      target.setPointerCapture(e.pointerId);
+    }
+    forceUpdate();
+  };
+};
+
+export const createHandlePointerMovePro = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  forceUpdate: () => void
+) => {
+  return (date: Date) => {
+    const newDragEnd = handlePointerMoveLogic(
+      date,
+      isDraggingRef.current,
+      dragStartRef.current,
+      dragEndRef.current
+    );
+    
+    if (newDragEnd) {
+      dragEndRef.current = newDragEnd;
+      forceUpdate();
+    }
+  };
+};
+
+export const createHandleContainerPointerMovePro = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
+  handlePointerMove: (date: Date) => void
+) => {
+  return (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    
+    const date = findDateElementFromPoint(e.clientX, e.clientY, dateButtonsRef.current);
+    if (date) {
+      handlePointerMove(date);
+    }
+  };
+};
+
+export const createHandlePointerUpPro = (
+  isDraggingRef: React.MutableRefObject<boolean>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  commitDragSelectionCallback: () => DateRange[] | null,
+  forceUpdate: () => void
+) => {
+  return () => {
+    if (!isDraggingRef.current) return;
+    
+    commitDragSelectionCallback();
+    
+    isDraggingRef.current = false;
+    dragStartRef.current = null;
+    dragEndRef.current = null;
+    forceUpdate();
+  };
+};
+
+export const createHandleRemoveRange = (
+  dateRanges: DateRange[],
+  onChange?: (ranges: DateRange[]) => void,
+  onIndividualDatesChange?: (dates: Date[]) => void,
+  returnIndividualDates?: boolean
+) => {
+  return (index: number) => {
+    const updatedRanges = handleRemoveRangeLogic(
+      index,
+      dateRanges,
+      onChange,
+      onIndividualDatesChange,
+      returnIndividualDates
+    );
+    return updatedRanges;
+  };
+};
+
+export const createCustomDayPro = (
+  dateRanges: DateRange[],
+  currentRange: MUIDateRange<Date>,
+  dragStartRef: React.MutableRefObject<Date | null>,
+  dragEndRef: React.MutableRefObject<Date | null>,
+  isDraggingRef: React.MutableRefObject<boolean>,
+  mergeRanges: boolean,
+  dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
+  handlePointerDown: (date: Date, e: React.PointerEvent) => void
+) => {
+  return (props: PickersDayProps) => {
+    const { day, ...other } = props;
+    
+    if (!day || !isValid(day)) {
+      return <PickersDay day={day} {...other} />;
+    }
+
+    const isInSavedRange = isDateInRanges(day, dateRanges);
+    const isInCurrent = isDateInCurrentRange(
+      day,
+      currentRange,
+      dragStartRef.current,
+      dragEndRef.current,
+      isDraggingRef.current
+    );
+    const isSelected = isInSavedRange || isInCurrent;
+
+    const { shouldRoundLeft, shouldRoundRight } = calculateDayRoundingStyle(
+      day,
+      dateRanges,
+      currentRange,
+      dragStartRef.current,
+      dragEndRef.current,
+      isDraggingRef.current,
+      mergeRanges
+    );
+
+    const wrapperStyles = generateDayWrapperStyles();
+    const dayStyles = generatePickersDayStyles(isSelected, shouldRoundLeft, shouldRoundRight);
+
+    return (
+      <Box
+        component="span"
+        ref={(el: HTMLElement | null) => {
+          if (el) {
+            dateButtonsRef.current.set(day.toISOString(), el);
+          }
+        }}
+        onPointerDown={(e) => handlePointerDown(day, e)}
+        sx={wrapperStyles}
+      >
+        <PickersDay
+          {...other}
+          day={day}
+          sx={dayStyles}
+        />
+      </Box>
+    );
+  };
+};
+
 const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({ 
   onChange, 
   onIndividualDatesChange,
@@ -384,19 +662,20 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   const dragStartRef = useRef<Date | null>(null);
   const dragEndRef = useRef<Date | null>(null);
   const dateButtonsRef = useRef<Map<string, HTMLElement>>(new Map());
-  const [, forceUpdate] = useState({});
+  const [, setForceUpdateState] = useState({});
+  const forceUpdate = useCallback(() => setForceUpdateState({}), []);
 
   const commitDragSelectionCallback = useCallback(() => {
-    const updatedRanges = commitDragSelection(
-      dragStartRef.current,
-      dragEndRef.current,
+    const factory = createCommitDragSelectionCallback(
+      dragStartRef,
+      dragEndRef,
       dateRanges,
       mergeRanges,
       onChange,
       onIndividualDatesChange,
       returnIndividualDates
     );
-    
+    const updatedRanges = factory();
     if (updatedRanges) {
       setDateRanges(updatedRanges);
     }
@@ -427,163 +706,49 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     }
   }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates, mergeRanges]);
 
-  const handlePointerDown = useCallback((date: Date, e: React.PointerEvent) => {
-    const result = handlePointerDownLogic(date);
-    if (!result) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    isDraggingRef.current = true;
-    dragStartRef.current = result.dragStart;
-    dragEndRef.current = result.dragEnd;
-    
-    const target = e.target as HTMLElement;
-    if (target.setPointerCapture) {
-      target.setPointerCapture(e.pointerId);
-    }
-    forceUpdate({});
-  }, []);
+  const handlePointerDown = useCallback(
+    createHandlePointerDownPro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
+    [forceUpdate]
+  );
 
-  const handlePointerMove = useCallback((date: Date) => {
-    const newDragEnd = handlePointerMoveLogic(
-      date,
-      isDraggingRef.current,
-      dragStartRef.current,
-      dragEndRef.current
-    );
-    
-    if (newDragEnd) {
-      dragEndRef.current = newDragEnd;
-      forceUpdate({});
-    }
-  }, []);
+  const handlePointerMove = useCallback(
+    createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
+    [forceUpdate]
+  );
 
-  const handleContainerPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    
-    const date = findDateElementFromPoint(e.clientX, e.clientY, dateButtonsRef.current);
-    if (date) {
-      handlePointerMove(date);
-    }
-  }, [handlePointerMove]);
+  const handleContainerPointerMove = useCallback(
+    createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove),
+    [handlePointerMove]
+  );
 
-  const handlePointerUp = useCallback(() => {
-    if (!isDraggingRef.current) return;
-    
-    commitDragSelectionCallback();
-    
-    isDraggingRef.current = false;
-    dragStartRef.current = null;
-    dragEndRef.current = null;
-    forceUpdate({});
-  }, [commitDragSelectionCallback]);
+  const handlePointerUp = useCallback(
+    createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate),
+    [commitDragSelectionCallback, forceUpdate]
+  );
 
   const handleRemoveRange = useCallback((index: number) => {
-    const updatedRanges = handleRemoveRangeLogic(
-      index,
+    const factory = createHandleRemoveRange(
       dateRanges,
       onChange,
       onIndividualDatesChange,
       returnIndividualDates
     );
+    const updatedRanges = factory(index);
     setDateRanges(updatedRanges);
   }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates]);
 
   const CustomDay = useCallback(
-    (props: PickersDayProps) => {
-      const { day, ...other } = props;
-      
-      if (!day || !isValid(day)) {
-        return <PickersDay day={day} {...other} />;
-      }
-
-      const isInSavedRange = isDateInRanges(day, dateRanges);
-      const isInCurrent = isDateInCurrentRange(
-        day,
-        currentRange,
-        dragStartRef.current,
-        dragEndRef.current,
-        isDraggingRef.current
-      );
-      const isSelected = isInSavedRange || isInCurrent;
-
-      const { shouldRoundLeft, shouldRoundRight } = calculateDayRoundingStyle(
-        day,
-        dateRanges,
-        currentRange,
-        dragStartRef.current,
-        dragEndRef.current,
-        isDraggingRef.current,
-        mergeRanges
-      );
-
-      return (
-        <Box
-          component="span"
-          ref={(el: HTMLElement | null) => {
-            if (el) {
-              dateButtonsRef.current.set(day.toISOString(), el);
-            }
-          }}
-          onPointerDown={(e) => handlePointerDown(day, e)}
-          sx={{
-            display: 'inline-block',
-            position: 'relative',
-          }}
-        >
-          <PickersDay
-            {...other}
-            day={day}
-            sx={{
-              backgroundColor: isSelected ? 'primary.main' : undefined,
-              color: isSelected ? 'primary.contrastText' : undefined,
-              transition: 'none',
-              '&:hover': {
-                backgroundColor: isSelected ? 'primary.dark' : undefined,
-              },
-              borderRadius: '50%',
-              ...(isSelected && !shouldRoundLeft && !shouldRoundRight && {
-                borderRadius: 0,
-              }),
-              ...(shouldRoundLeft && !shouldRoundRight && {
-                borderRadius: '50% 0 0 50%',
-              }),
-              ...(shouldRoundRight && !shouldRoundLeft && {
-                borderRadius: '0 50% 50% 0',
-              }),
-              position: 'relative',
-              touchAction: 'none',
-              userSelect: 'none',
-              // Fill gaps for range continuity
-              ...(!shouldRoundLeft && isSelected && {
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  left: -2,
-                  top: 0,
-                  width: 2,
-                  height: '100%',
-                  backgroundColor: 'primary.main',
-                },
-              }),
-              ...(!shouldRoundRight && isSelected && {
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  right: -2,
-                  top: 0,
-                  width: 2,
-                  height: '100%',
-                  backgroundColor: 'primary.main',
-                },
-              }),
-            }}
-          />
-        </Box>
-      );
-    },
-    [dateRanges, currentRange, handlePointerDown, mergeRanges]
+    createCustomDayPro(
+      dateRanges,
+      currentRange,
+      dragStartRef,
+      dragEndRef,
+      isDraggingRef,
+      mergeRanges,
+      dateButtonsRef,
+      handlePointerDown
+    ),
+    [dateRanges, currentRange, mergeRanges, handlePointerDown]
   );
 
   return (
