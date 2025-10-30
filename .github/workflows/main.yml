@@ -32,6 +32,9 @@ jobs:
     needs: check
     if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [MuiMultiDateRangePicker, MuiMultiDateRangePickerPro]
     steps:
       - uses: actions/checkout@v4
 
@@ -43,17 +46,24 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Test Free Package
+      - name: Install Dependencies
         run: |
-          cd packages/MuiMultiDateRangePicker
+          cd packages/${{ matrix.package }}
           bun install
-          bun test --coverage
 
-      - name: Test Pro Package
+      - name: Run Tests with Coverage
         run: |
-          cd packages/MuiMultiDateRangePickerPro
-          bun install
-          bun test --coverage
+          cd packages/${{ matrix.package }}
+          bun test --coverage --coverage-reporter=lcov
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./packages/${{ matrix.package }}/coverage/lcov.info
+          flags: ${{ matrix.package }}
+          name: ${{ matrix.package }}-coverage
+          fail_ci_if_error: false
 
   release:
     name: Release Packages

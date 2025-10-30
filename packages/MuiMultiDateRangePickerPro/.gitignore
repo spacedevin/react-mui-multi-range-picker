@@ -25,7 +25,8 @@ yarn-error.log*
 *~
 
 # Testing
-coverage
+coverage/
+*.lcov
 
 # Misc
 .env.local
