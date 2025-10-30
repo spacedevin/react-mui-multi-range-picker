@@ -9,8 +9,8 @@ import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import type { DateRange as MUIDateRange } from '@mui/x-date-pickers-pro/models';
 import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
 import { isValid, isWithinInterval, startOfDay } from 'date-fns';
-import type React from 'react';
-import { useCallback, useRef, useState } from 'react';
+// biome-ignore lint/style/useImportType: React must be imported as a value for JSX
+import React, { useCallback, useRef, useState } from 'react';
 import {
   findDateElementFromPoint,
   getRangesAsIndividualDates,

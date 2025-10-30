@@ -4,8 +4,8 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import { isValid, isWithinInterval, startOfDay } from 'date-fns';
-import type React from 'react';
-import { useCallback, useRef, useState } from 'react';
+// biome-ignore lint/style/useImportType: React must be imported as a value for JSX
+import React, { useCallback, useRef, useState } from 'react';
 import {
   findDateElementFromPoint,
   getAdjacentDate,
