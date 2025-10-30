@@ -1,20 +1,24 @@
 # MUI Multi-Range Date Picker
 
-🚧 Initial
+[![codecov](https://codecov.io/gh/spacedevin/mui-date-dragger/branch/main/graph/badge.svg)](https://codecov.io/gh/spacedevin/mui-date-dragger)
 
-A monorepo containing React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's date picker components with full theme integration.
+React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
+
 
 ## 📦 Packages
 
-### [MuiMultiDateRangePicker](./packages/MuiMultiDateRangePicker) (Free)
+### [MuiMultiDateRangePicker](./packages/MuiMultiDateRangePicker)
 
 [![npm version](https://img.shields.io/npm/v/@spacedevin/react-mui-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker)
 [![npm downloads](https://img.shields.io/npm/dm/@spacedevin/react-mui-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker)
+
+<img align="right" src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" height="250">
 
 A free multi-range date picker built on `@mui/x-date-pickers`.
 
 **Features:**
 - ✅ Multi-range selection with drag support
+- ✅ Individual date selection support
 - ✅ Simple calendar-only interface
 - ✅ No commercial license required
 - ✅ Perfect for basic multi-range needs
@@ -23,15 +27,18 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 - 📦 [NPM Package](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker)
 - 📖 [Documentation](./packages/MuiMultiDateRangePicker/README.md)
 
-### [MuiMultiDateRangePickerPro](./packages/MuiMultiDateRangePickerPro) (Pro)
+### [MuiMultiDateRangePickerPro](./packages/MuiMultiDateRangePickerPro) (MUI X Pro)
 
 [![npm version](https://img.shields.io/npm/v/@spacedevin/react-mui-pro-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-pro-multi-range-picker)
 [![npm downloads](https://img.shields.io/npm/dm/@spacedevin/react-mui-pro-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-pro-multi-range-picker)
 
-An enhanced version built on `@mui/x-date-pickers-pro` with professional UI features.
+<img align="right" src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" height="250">
+
+An enhanced version built on `@mui/x-date-pickers-pro`.
 
 **Features:**
 - ✅ All features from the free version
+- ✅ Multi-range and individual date selection
 - ✅ Text input field for manual date entry
 - ✅ Visual chip-based range management
 - ✅ Delete ranges with chip close buttons
@@ -55,6 +62,8 @@ npm install @spacedevin/react-mui-pro-multi-range-picker
 
 ### Usage
 
+**Basic Example - Date Ranges:**
+
 ```typescript
 import React, { useState } from 'react';
 import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
@@ -66,6 +75,44 @@ function App() {
   return (
     <MultiRangeDatePicker
       onChange={setRanges}
+      mergeRanges={false}
+    />
+  );
+}
+```
+
+**Individual Dates:**
+
+```typescript
+import React, { useState } from 'react';
+import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
+
+function App() {
+  const [dates, setDates] = useState<Date[]>([]);
+
+  return (
+    <MultiRangeDatePicker
+      onIndividualDatesChange={setDates}
+    />
+  );
+}
+```
+
+**Both Ranges and Individual Dates:**
+
+```typescript
+import React, { useState } from 'react';
+import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
+import type { DateRange } from '@spacedevin/react-mui-multi-range-picker';
+
+function App() {
+  const [ranges, setRanges] = useState<DateRange[]>([]);
+  const [dates, setDates] = useState<Date[]>([]);
+
+  return (
+    <MultiRangeDatePicker
+      onChange={setRanges}
+      onIndividualDatesChange={setDates}
       mergeRanges={false}
     />
   );
@@ -124,13 +171,16 @@ mui-date-dragger/
 
 ## ✨ Key Features
 
-### Multi-Range Selection
-Select multiple separate date ranges on a single calendar - perfect for vacation booking, availability calendars, or any scenario requiring non-contiguous date selection.
+### Multi-Range & Individual Date Selection
+Select multiple separate date ranges or individual dates on a single calendar - perfect for vacation booking, availability calendars, or any scenario requiring non-contiguous date selection. Supports both range-based and individual date selection modes.
 
 ### Click & Drag Support
 Intuitive drag-to-select interaction works seamlessly on both desktop (mouse) and mobile (touch) devices.
 
-### Range Management
+### Flexible Date Management
+- **Date Ranges**: Select start and end dates for periods
+- **Individual Dates**: Select specific dates without ranges
+- **Dual Mode**: Track both ranges and individual dates simultaneously
 - **Add ranges**: Click/drag or use text input (Pro)
 - **Remove ranges**: Drag over existing ranges or use chip close buttons (Pro)
 - **Auto-merge**: Optional automatic merging of adjacent/overlapping ranges
@@ -164,6 +214,7 @@ Built as extensions of MUI's date picker components, maintaining full compatibil
 | Feature | Free | Pro |
 |---------|------|-----|
 | Multi-range selection | ✅ | ✅ |
+| Individual date selection | ✅ | ✅ |
 | Drag to select | ✅ | ✅ |
 | Calendar view | ✅ | ✅ |
 | Theme support | ✅ | ✅ |
@@ -176,174 +227,17 @@ Built as extensions of MUI's date picker components, maintaining full compatibil
 
 ## 🤝 Contributing
 
-This is a monorepo project. Each package is self-contained with its own dependencies and build configuration.
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
 
-### Development Setup
-
-**Prerequisites:**
-- [Bun](https://bun.sh) - Fast all-in-one JavaScript runtime
-- Node.js 20+ (for npm publish only)
-
-**Install Bun:**
-```bash
-# macOS/Linux
-curl -fsSL https://bun.sh/install | bash
-
-# Windows
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
-**Setup Project:**
-```bash
-# Clone repository
-git clone https://github.com/spacedevin/mui-date-dragger.git
-cd mui-date-dragger
-
-# Install dependencies (use Bun, not npm!)
-cd packages/MuiMultiDateRangePicker
-bun install
-
-# Run tests
-bun test
-bun test --coverage
-
-# Build packages
-bun run build
-```
-
-**Why Bun?**
-- ⚡ 10-20x faster installs than npm
-- 🧪 Built-in test runner (no Jest/Vitest needed)
-- 📦 Better dependency resolution
-- 🔒 Binary lockfiles (fewer merge conflicts)
-
-**Troubleshooting:**
-
-If you encounter errors:
-```bash
-# Clean install
-rm -rf node_modules bun.lock
-bun install
-
-# If you accidentally used npm
-rm -rf node_modules package-lock.json
-bun install
-```
-
-### Commit Conventions
-
-We use [Conventional Commits](https://www.conventionalcommits.org/) for automatic versioning:
-
-- `feat:` - New feature (minor version bump)
-- `fix:` - Bug fix (patch version bump)
-- `docs:` - Documentation changes (patch version bump)
-- `chore:` - Maintenance tasks (patch version bump)
-- `ci:` - CI/CD changes (patch version bump)
-- `feat!:` or `BREAKING CHANGE:` - Breaking changes (major version bump)
-
-**Format:** `type: description` (lowercase, no period at end)
-
-**Examples:**
-- ✅ `feat: add keyboard navigation`
-- ✅ `fix: resolve drag selection bug`
-- ❌ `feat: Add feature` (uppercase)
-- ❌ `feat: add feature.` (period at end)
-
-### Release Process
-
-**Automatic (Recommended):**
-1. Create PR with conventional commit title
-2. Merge to `main` branch
-3. GitHub Actions automatically:
-   - Runs all tests (93 tests)
-   - Builds packages
-   - Publishes to NPM
-   - Creates GitHub release
-   - Deploys demos to GitHub Pages
-
-**Manual Release:**
-```bash
-# Via GitHub Actions
-# Go to: Actions → Main → Run workflow
-# - Select package (free/pro)
-# - Enter version (e.g., 0.2.0)
-```
-
-### CI/CD Setup
-
-**For Maintainers:**
-
-1. **Create NPM token** (Automation type)
-   - Visit: https://www.npmjs.com/settings/[username]/tokens
-
-2. **Add to GitHub Secrets**
-   ```bash
-   gh secret set NPM_TOKEN
-   gh secret set CODECOV_TOKEN
-   ```
-
-3. **Test locally before publishing**
-   ```bash
-   cd packages/MuiMultiDateRangePicker
-   npm publish --dry-run
-   ```
-
-### Workflows
-
-**`.github/workflows/pr.yml` - Pull Request Checks**
-Runs on every PR:
-- Validates conventional commit title
-- Runs all 93 tests with coverage
-- Builds both packages (ESM + CJS + types)
-- Type checks with TypeScript
-- Dry-run npm publish
-- Uploads coverage to Codecov
-
-**`.github/workflows/main.yml` - Release & Deploy**
-Runs on push to main:
-- Checks if release needed (skips release commits)
-- Runs all tests with coverage
-- Determines version from commit message
-- Builds packages
-- Publishes to NPM (both packages same version)
-- Creates Git tag and GitHub release
-- Deploys demos to GitHub Pages
-
-## 🧪 Testing
-
-We use [Bun](https://bun.sh) as the test runner with [@testing-library/react](https://testing-library.com/) for component testing.
-
-### Running Tests
-
-```bash
-# Run all tests
-cd packages/MuiMultiDateRangePicker
-bun test
-
-# With coverage report
-bun test --coverage
-
-# Watch mode for development
-bun test --watch
-```
-
-### Test Environment
-
-- **Runner:** Bun (fast, built-in TypeScript support)
-- **DOM:** happy-dom (lightweight DOM implementation)
-- **Testing Library:** @testing-library/react v16
-- **Coverage Format:** LCOV (for Codecov integration)
-
-### Writing Tests
-
-Tests are colocated with source files:
-- `lib/MultiRangeDatePicker.test.tsx` - Component tests
-- `lib/types.test.ts` - Type tests
-- `lib/index.test.ts` - Export tests
+- Development setup
+- Commit conventions
+- Release process
+- Testing guidelines
 
 ## 📄 License
 
 [PIF](https://payitforwardlicense.com/)
+
 Note: Pro version requires MUI X Pro license for production use
 
 
@@ -351,4 +245,3 @@ Note: Pro version requires MUI X Pro license for production use
 
 - [MUI Documentation](https://mui.com/)
 - [MUI X Date Pickers](https://mui.com/x/react-date-pickers/)
-- [MUI X Pricing](https://mui.com/x/introduction/licensing/)

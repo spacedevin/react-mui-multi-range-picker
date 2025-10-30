@@ -1,6 +1,6 @@
 # @spacedevin/react-mui-pro-multi-range-picker
 
-A React date picker component that allows selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's `@mui/x-date-pickers-pro` with a professional UI including text input field and chip-based range management.
+A React date picker component that allows selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's `@mui/x-date-pickers-pro` with text input field and chip-based range management.
 
 ## Features
 
@@ -54,7 +54,6 @@ function App() {
 | `onChange` | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change |
 | `onIndividualDatesChange` | `(dates: Date[]) => void` | `undefined` | Callback fired with all selected dates as individual Date objects |
 | `mergeRanges` | `boolean` | `false` | When `true`, adjacent or overlapping ranges are automatically merged |
-| `returnIndividualDates` | `boolean` | `false` | When `true`, triggers `onIndividualDatesChange` callback |
 
 ## Examples
 
@@ -75,7 +74,6 @@ const [dates, setDates] = useState<Date[]>([]);
 <MultiRangeDatePicker 
   onChange={setRanges}
   onIndividualDatesChange={setDates}
-  returnIndividualDates={true}
 />
 
 console.log(`Total days: ${dates.length}`);
@@ -124,14 +122,6 @@ interface DateRange {
   end: Date;    // End date of the range (inclusive)
 }
 ```
-
-## License Requirements
-
-⚠️ **Important**: This component uses `@mui/x-date-pickers-pro`, which requires a commercial license for production use.
-
-- **Free**: Development and evaluation
-- **Commercial**: Requires MUI X Pro or Premium license
-- Learn more: [MUI X Pricing](https://mui.com/x/introduction/licensing/)
 
 ## Browser Support
 

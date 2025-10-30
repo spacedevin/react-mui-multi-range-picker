@@ -100,7 +100,6 @@ function App() {
                 onChange={handleRangeChange}
                 onIndividualDatesChange={handleIndividualDatesChange}
                 mergeRanges={false}
-                returnIndividualDates={true}
               />
             </Box>
             {selectedRanges.length > 0 && (

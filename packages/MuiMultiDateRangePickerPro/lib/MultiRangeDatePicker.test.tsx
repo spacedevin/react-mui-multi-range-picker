@@ -696,22 +696,6 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       expect(onIndividualDatesChange).toHaveBeenCalled();
     });
 
-    test('calls onIndividualDatesChange even when returnIndividualDates is false', () => {
-      const onIndividualDatesChange = vi.fn();
-      
-      const result = handleRangeChangeLogic(
-        [new Date('2025-01-01'), new Date('2025-01-03')],
-        false,
-        [],
-        false,
-        undefined,
-        onIndividualDatesChange,
-        false
-      );
-      
-      expect(result.shouldUpdate).toBe(true);
-      expect(onIndividualDatesChange).toHaveBeenCalled();
-    });
   });
 
   describe('handlePointerDownLogic', () => {

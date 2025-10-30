@@ -1,0 +1,25 @@
+name: "CodeQL Config"
+
+# Paths to include in the scan
+paths:
+  - packages/*/lib
+  - examples/*/src
+
+# Paths to exclude from the scan
+paths-ignore:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/test-utils/**'
+  - '**/coverage/**'
+  - '**/*.min.js'
+  - '**/*.bundle.js'
+  - '**/examples/*/node_modules/**'
+  - '**/examples/*/dist/**'
+  - '**/examples/*/build/**'
+
+# Disable default paths behavior
+disable-default-queries: false
+

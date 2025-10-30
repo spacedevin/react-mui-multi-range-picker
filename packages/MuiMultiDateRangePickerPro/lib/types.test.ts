@@ -79,18 +79,6 @@ describe('Types', () => {
       expect(typeof props2.mergeRanges).toBe('boolean');
     });
 
-    test('returnIndividualDates prop is boolean', () => {
-      const props1: MultiRangeDatePickerProps = {
-        returnIndividualDates: true,
-      };
-      const props2: MultiRangeDatePickerProps = {
-        returnIndividualDates: false,
-      };
-
-      expect(typeof props1.returnIndividualDates).toBe('boolean');
-      expect(typeof props2.returnIndividualDates).toBe('boolean');
-    });
-
     test('can combine all props', () => {
       const onChange = (ranges: DateRange[]) => {};
       const onIndividualDatesChange = (dates: Date[]) => {};
@@ -99,13 +87,11 @@ describe('Types', () => {
         onChange,
         onIndividualDatesChange,
         mergeRanges: true,
-        returnIndividualDates: true,
       };
 
       expect(typeof props.onChange).toBe('function');
       expect(typeof props.onIndividualDatesChange).toBe('function');
       expect(props.mergeRanges).toBe(true);
-      expect(props.returnIndividualDates).toBe(true);
     });
   });
 });
