@@ -9,6 +9,7 @@ build
 
 # Synced demo files
 examples/demo/src/lib
+examples/demo/package-lock.json
 
 # Development
 .DS_Store

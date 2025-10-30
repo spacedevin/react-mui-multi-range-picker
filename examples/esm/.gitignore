@@ -1,0 +1,11 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build
+dist
+.vite
+
+# Dev
+.DS_Store
+
