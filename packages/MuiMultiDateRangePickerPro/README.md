@@ -1,6 +1,6 @@
 # @spacedevin/react-mui-pro-multi-range-picker
 
-A React date picker component that allows selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's `@mui/x-date-pickers-pro` with a professional UI including text input field and chip-based range management.
+A React date picker component that allows selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's `@mui/x-date-pickers-pro` with text input field and chip-based range management.
 
 ## Features
 
@@ -124,14 +124,6 @@ interface DateRange {
   end: Date;    // End date of the range (inclusive)
 }
 ```
-
-## License Requirements
-
-⚠️ **Important**: This component uses `@mui/x-date-pickers-pro`, which requires a commercial license for production use.
-
-- **Free**: Development and evaluation
-- **Commercial**: Requires MUI X Pro or Premium license
-- Learn more: [MUI X Pricing](https://mui.com/x/introduction/licensing/)
 
 ## Browser Support
 

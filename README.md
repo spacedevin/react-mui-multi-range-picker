@@ -1,6 +1,6 @@
 # MUI Multi-Range Date Picker
 
-React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's date picker components with full theme integration and mobile support.
+React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
 
 
 ## 📦 Packages
@@ -31,7 +31,7 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 
 <img align="right" src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" height="250">
 
-An enhanced version built on `@mui/x-date-pickers-pro` with professional UI features.
+An enhanced version built on `@mui/x-date-pickers-pro`.
 
 **Features:**
 - ✅ All features from the free version
