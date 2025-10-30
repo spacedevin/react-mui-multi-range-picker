@@ -30,9 +30,9 @@
     "prepublishOnly": "npm run build",
     "test:release": "npm run build && npm publish --dry-run",
     "demo:sync": "mkdir -p examples/demo/src/lib && cp -r lib/* examples/demo/src/lib/",
-    "dev": "npm run demo:sync && cd examples/demo && npm start",
-    "demo:install": "cd examples/demo && npm install",
-    "demo:build": "npm run demo:sync && cd examples/demo && npm run build"
+    "dev": "bun run demo:sync && cd examples/demo && bun start",
+    "demo:install": "cd examples/demo && bun install",
+    "demo:build": "bun run demo:sync && cd examples/demo && bun run build"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",
