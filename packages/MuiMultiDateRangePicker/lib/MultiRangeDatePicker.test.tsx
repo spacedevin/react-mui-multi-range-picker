@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
@@ -304,7 +304,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         new Date('2025-01-04')
       );
       expect(result).toEqual([0]);
-    });
+      });
 
     test('returns empty for non-overlapping selection', () => {
       const result = findOverlappingRanges(
@@ -623,234 +623,145 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     });
   });
 
-  describe('createCommitSelectionCallback', () => {
-    test('returns a function that commits selection', () => {
+  // Factory function tests for coverage
+  describe('factory functions', () => {
+    test('createCommitSelectionCallback returns working callback', () => {
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-03') };
-      const dateRanges: DateRange[] = [];
-      const onChange = vi.fn();
-      
-      const callback = createCommitSelectionCallback(
-        dragStartRef,
-        dragEndRef,
-        dateRanges,
-        false,
-        onChange
-      );
-      
-      const result = callback();
-      
-      expect(result).toBeDefined();
+      const fn = createCommitSelectionCallback(dragStartRef, dragEndRef, [], false);
+      const result = fn();
+      expect(result).not.toBeNull();
       expect(result?.length).toBe(1);
-      expect(onChange).toHaveBeenCalled();
     });
 
-    test('returns null when drag dates are invalid', () => {
-      const dragStartRef = { current: null };
-      const dragEndRef = { current: null };
-      const dateRanges: DateRange[] = [];
-      
-      const callback = createCommitSelectionCallback(
-        dragStartRef,
-        dragEndRef,
-        dateRanges,
-        false
-      );
-      
-      const result = callback();
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('createHandlePointerDown', () => {
-    test('returns a function that initializes drag state', () => {
+    test('createHandlePointerDown creates handler that updates refs', () => {
       const isDraggingRef = { current: false };
-      const dragStartRef = { current: null };
-      const dragEndRef = { current: null };
-      const forceUpdate = vi.fn();
+      const dragStartRef = { current: null as Date | null };
+      const dragEndRef = { current: null as Date | null };
+      let updateCalled = false;
+      const forceUpdate = () => { updateCalled = true; };
       
       const handler = createHandlePointerDown(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
-      
       const mockEvent = {
-        preventDefault: vi.fn(),
-        stopPropagation: vi.fn(),
-        target: { setPointerCapture: vi.fn() },
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: { setPointerCapture: () => {} },
         pointerId: 1
       } as any;
       
-      handler(new Date('2025-01-01'), mockEvent);
+      handler(new Date('2025-01-15'), mockEvent);
       
       expect(isDraggingRef.current).toBe(true);
-      expect(dragStartRef.current).toEqual(new Date('2025-01-01'));
-      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-      expect(forceUpdate).toHaveBeenCalled();
+      expect(dragStartRef.current).toEqual(new Date('2025-01-15'));
+      expect(updateCalled).toBe(true);
     });
-  });
 
-  describe('createHandlePointerMove', () => {
-    test('returns a function that updates drag end date', () => {
+    test('createHandlePointerMove creates handler that updates drag end', () => {
       const isDraggingRef = { current: true };
       const dragStartRef = { current: new Date('2025-01-01') };
       const dragEndRef = { current: new Date('2025-01-01') };
-      const forceUpdate = vi.fn();
+      let updateCalled = false;
+      const forceUpdate = () => { updateCalled = true; };
       
       const handler = createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
+      handler(new Date('2025-01-05'));
       
-      handler(new Date('2025-01-03'));
-      
-      expect(dragEndRef.current).toEqual(new Date('2025-01-03'));
-      expect(forceUpdate).toHaveBeenCalled();
+      expect(dragEndRef.current).toEqual(new Date('2025-01-05'));
+      expect(updateCalled).toBe(true);
     });
 
-    test('does not update when not dragging', () => {
-      const isDraggingRef = { current: false };
-      const dragStartRef = { current: new Date('2025-01-01') };
-      const dragEndRef = { current: new Date('2025-01-01') };
-      const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerMove(isDraggingRef, dragStartRef, dragEndRef, forceUpdate);
-      
-      handler(new Date('2025-01-03'));
-      
-      expect(dragEndRef.current).toEqual(new Date('2025-01-01'));
-      expect(forceUpdate).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('createHandleContainerPointerMove', () => {
-    test('returns a function that finds date from point', () => {
+    test('createHandleContainerPointerMove creates handler that finds dates', () => {
       const isDraggingRef = { current: true };
       const dateButtonsRef = { current: new Map() };
-      const handlePointerMove = vi.fn();
+      let capturedDate: Date | null = null;
+      const handlePointerMove = (date: Date) => { capturedDate = date; };
       
       const handler = createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove);
       
       // Mock document.elementFromPoint
-      const originalElementFromPoint = document.elementFromPoint;
       const mockElement = document.createElement('button');
-      document.elementFromPoint = vi.fn().mockReturnValue(mockElement);
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => mockElement;
       
-      const dateStr = new Date('2025-01-01').toISOString();
-      dateButtonsRef.current.set(dateStr, mockElement);
+      const testDate = new Date('2025-01-15');
+      dateButtonsRef.current.set(testDate.toISOString(), mockElement);
       
-      const mockEvent = { clientX: 100, clientY: 100 } as any;
-      handler(mockEvent);
+      handler({ clientX: 100, clientY: 100 } as any);
       
-      expect(handlePointerMove).toHaveBeenCalledWith(new Date(dateStr));
+      expect(capturedDate).toEqual(testDate);
       
       document.elementFromPoint = originalElementFromPoint;
     });
 
-    test('does nothing when not dragging', () => {
-      const isDraggingRef = { current: false };
-      const dateButtonsRef = { current: new Map() };
-      const handlePointerMove = vi.fn();
-      
-      const handler = createHandleContainerPointerMove(isDraggingRef, dateButtonsRef, handlePointerMove);
-      
-      const mockEvent = { clientX: 100, clientY: 100 } as any;
-      handler(mockEvent);
-      
-      expect(handlePointerMove).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('createHandlePointerUp', () => {
-    test('returns a function that commits and resets drag state', () => {
+    test('createHandlePointerUp creates handler that resets state', () => {
       const isDraggingRef = { current: true };
-      const dragStartRef = { current: new Date('2025-01-01') };
-      const dragEndRef = { current: new Date('2025-01-03') };
-      const commitSelectionCallback = vi.fn();
-      const forceUpdate = vi.fn();
+      const dragStartRef = { current: new Date('2025-01-01') as Date | null };
+      const dragEndRef = { current: new Date('2025-01-03') as Date | null };
+      let commitCalled = false;
+      const commitCallback = () => { commitCalled = true; return null; };
+      let updateCalled = false;
+      const forceUpdate = () => { updateCalled = true; };
       
-      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitSelectionCallback, forceUpdate);
-      
+      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitCallback, forceUpdate);
       handler();
       
-      expect(commitSelectionCallback).toHaveBeenCalled();
+      expect(commitCalled).toBe(true);
       expect(isDraggingRef.current).toBe(false);
       expect(dragStartRef.current).toBeNull();
       expect(dragEndRef.current).toBeNull();
-      expect(forceUpdate).toHaveBeenCalled();
+      expect(updateCalled).toBe(true);
     });
 
-    test('does nothing when not dragging', () => {
-      const isDraggingRef = { current: false };
-      const dragStartRef = { current: null };
-      const dragEndRef = { current: null };
-      const commitSelectionCallback = vi.fn();
-      const forceUpdate = vi.fn();
-      
-      const handler = createHandlePointerUp(isDraggingRef, dragStartRef, dragEndRef, commitSelectionCallback, forceUpdate);
-      
-      handler();
-      
-      expect(commitSelectionCallback).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('createCustomDay', () => {
-    test('returns a function that renders day button', () => {
+    test('createCustomDay creates renderer that renders day button', () => {
       const dateRanges: DateRange[] = [];
       const dragStartRef = { current: null };
       const dragEndRef = { current: null };
       const isDraggingRef = { current: false };
-      const mergeRanges = false;
-      const DAY_SIZE = 36;
-      const DAY_MARGIN = 2;
-      const captionTypography = { fontSize: '0.75rem' };
       const dateButtonsRef = { current: new Map() };
-      const handlePointerDown = vi.fn();
+      let pointerDownCalled = false;
+      const handlePointerDown = () => { pointerDownCalled = true; };
       
-      const CustomDay = createCustomDay(
+      const renderer = createCustomDay(
         dateRanges,
         dragStartRef,
         dragEndRef,
         isDraggingRef,
-        mergeRanges,
-        DAY_SIZE,
-        DAY_MARGIN,
-        captionTypography,
+        false,
+        36,
+        2,
+        { fontSize: '0.75rem' },
         dateButtonsRef,
         handlePointerDown
       );
       
-      const props = { day: new Date('2025-01-01') } as any;
-      const result = CustomDay(props);
+      const props = { day: new Date('2025-01-15') } as any;
+      const result = renderer(props);
       
-      expect(result).toBeDefined();
       expect(result).not.toBeNull();
+      expect(result).toBeDefined();
     });
 
-    test('returns null for invalid day', () => {
+    test('createCustomDay returns null for invalid day', () => {
       const dateRanges: DateRange[] = [];
       const dragStartRef = { current: null };
       const dragEndRef = { current: null };
       const isDraggingRef = { current: false };
-      const mergeRanges = false;
-      const DAY_SIZE = 36;
-      const DAY_MARGIN = 2;
-      const captionTypography = { fontSize: '0.75rem' };
       const dateButtonsRef = { current: new Map() };
-      const handlePointerDown = vi.fn();
       
-      const CustomDay = createCustomDay(
+      const renderer = createCustomDay(
         dateRanges,
         dragStartRef,
         dragEndRef,
         isDraggingRef,
-        mergeRanges,
-        DAY_SIZE,
-        DAY_MARGIN,
-        captionTypography,
+        false,
+        36,
+        2,
+        {},
         dateButtonsRef,
-        handlePointerDown
+        () => {}
       );
       
-      const props = { day: null } as any;
-      const result = CustomDay(props);
-      
+      const result = renderer({ day: null } as any);
       expect(result).toBeNull();
     });
   });

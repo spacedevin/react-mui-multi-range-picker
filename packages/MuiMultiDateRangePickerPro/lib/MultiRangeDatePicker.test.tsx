@@ -20,6 +20,7 @@ import {
   generatePickersDayStyles,
   generateDayWrapperStyles,
   createCommitDragSelectionCallback,
+  createHandleRangeChange,
   createHandlePointerDownPro,
   createHandlePointerMovePro,
   createHandleContainerPointerMovePro,
@@ -802,6 +803,68 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       
       const result = callback();
       expect(result).toBeNull();
+    });
+  });
+
+  describe('createHandleRangeChange', () => {
+    test('returns handler that processes complete range', () => {
+      const isDraggingRef = { current: false };
+      const dateRanges: DateRange[] = [];
+      const onChange = vi.fn();
+      
+      const handler = createHandleRangeChange(
+        isDraggingRef,
+        dateRanges,
+        false,
+        onChange
+      );
+      
+      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+      const result = handler(newRange);
+      
+      expect(result.shouldUpdate).toBe(true);
+      expect(typeof result.callback).toBe('function');
+    });
+
+    test('returns shouldUpdate false when dragging', () => {
+      const isDraggingRef = { current: true };
+      const handler = createHandleRangeChange(isDraggingRef, [], false);
+      
+      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+      const result = handler(newRange);
+      
+      expect(result.shouldUpdate).toBe(false);
+    });
+
+    test('handles incomplete range', () => {
+      const isDraggingRef = { current: false };
+      const handler = createHandleRangeChange(isDraggingRef, [], false);
+      
+      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), null];
+      const result = handler(newRange);
+      
+      expect(result.shouldUpdate).toBe(true);
+    });
+
+    test('callback executes range change logic', () => {
+      const isDraggingRef = { current: false };
+      const dateRanges: DateRange[] = [];
+      const onChange = vi.fn();
+      
+      const handler = createHandleRangeChange(
+        isDraggingRef,
+        dateRanges,
+        false,
+        onChange
+      );
+      
+      const newRange: [Date | null, Date | null] = [new Date('2025-01-01'), new Date('2025-01-05')];
+      const result = handler(newRange);
+      
+      if (result.callback) {
+        const callbackResult = result.callback();
+        expect(callbackResult.shouldUpdate).toBe(true);
+      }
     });
   });
 
