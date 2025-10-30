@@ -72,6 +72,10 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Bump & Publish
         id: publish
         run: |
@@ -101,23 +105,23 @@ jobs:
           
           # Free Package
           cd packages/MuiMultiDateRangePicker
-          npm ci
+          bun install
           npm version $VER --no-git-tag-version
-          npm run build
+          bun run build
           npm publish --access public
           
           # Pro Package
           cd ../MuiMultiDateRangePickerPro
-          npm ci
+          bun install
           npm version $VER --no-git-tag-version
-          npm run build
+          bun run build
           npm publish --access public
           
           # Commit and tag
           cd ../..
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/*/package*.json
+          git add packages/*/package*.json packages/*/bun.lock
           git commit -m "chore: release v$VER"
           git tag -a "v$VER" -m "Release v$VER"
           git push origin main --follow-tags
@@ -159,19 +163,21 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Build Demo Pages
         run: |
           # Build ESM demo (Vite)
           cd examples/esm
-          rm -rf node_modules package-lock.json
-          npm install
-          npm run build
+          bun install
+          bun run build
           
           # Build CJS demo (Webpack)
           cd ../cjs
-          rm -rf node_modules package-lock.json
-          npm install
-          npm run build
+          bun install
+          bun run build
           
           # Create gh-pages directory structure
           cd ../..
