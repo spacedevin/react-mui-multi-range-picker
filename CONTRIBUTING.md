@@ -4,12 +4,12 @@ Thank you for your interest in contributing! This is a monorepo project with two
 
 ## 📋 Table of Contents
 
-- [Development Setup](#development-setup)
-- [Commit Conventions](#commit-conventions)
-- [Release Process](#release-process)
-- [CI/CD Setup](#cicd-setup)
-- [Workflows](#workflows)
-- [Testing](#testing)
+- [Development Setup](#-development-setup)
+- [Commit Conventions](#-commit-conventions)
+- [Release Process](#-release-process)
+- [CI/CD Setup](#-cicd-setup)
+- [Workflows](#️-workflows)
+- [Testing](#-testing)
 
 ## 🚀 Development Setup
 
