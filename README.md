@@ -5,6 +5,8 @@ A monorepo containing React date picker components that allow selecting multiple
 
 <p align="center">
   <img src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" width="300">
+  <img src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" width="300">
+
 </p>
 
 ## 📦 Packages
