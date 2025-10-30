@@ -10,6 +10,10 @@
     "lib": ["ES2015", "DOM"],
     "jsx": "react",
     "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "date-fns": ["../../node_modules/date-fns"]
+    },
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "esModuleInterop": true,
