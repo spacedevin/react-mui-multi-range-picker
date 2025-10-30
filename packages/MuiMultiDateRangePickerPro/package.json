@@ -2,14 +2,14 @@
   "name": "@spacedevin/react-mui-pro-multi-range-picker",
   "version": "0.9.4",
   "description": "Multi-range date picker Pro component for Material-UI with drag-to-select and chip management",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/packages/MuiMultiDateRangePickerPro/lib/index.js",
+  "module": "./dist/esm/packages/MuiMultiDateRangePickerPro/lib/index.js",
+  "types": "./dist/packages/MuiMultiDateRangePickerPro/lib/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/packages/MuiMultiDateRangePickerPro/lib/index.js",
+      "require": "./dist/cjs/packages/MuiMultiDateRangePickerPro/lib/index.js",
+      "types": "./dist/packages/MuiMultiDateRangePickerPro/lib/index.d.ts"
     }
   },
   "files": [
