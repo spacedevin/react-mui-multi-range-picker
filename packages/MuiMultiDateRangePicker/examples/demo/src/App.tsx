@@ -1,24 +1,24 @@
 import type React from 'react';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import './App.css';
-import { MultiRangeDatePicker } from './lib';
+import {
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
+} from '@mui/icons-material';
 import {
   Box,
-  Typography,
   Container,
+  CssBaseline,
+  createTheme,
+  Divider,
   Paper,
   Stack,
-  Divider,
+  ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
+  Typography,
 } from '@mui/material';
-import {
-  LightMode as LightModeIcon,
-  DarkMode as DarkModeIcon,
-} from '@mui/icons-material';
+import { MultiRangeDatePicker } from './lib';
 
 interface DateRange {
   start: Date;

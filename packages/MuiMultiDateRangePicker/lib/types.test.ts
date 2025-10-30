@@ -1,5 +1,5 @@
 import '../test-utils/setup';
-import { describe, test, expect } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import type { DateRange, MultiRangeDatePickerProps } from './types';
 
 describe('Types', () => {

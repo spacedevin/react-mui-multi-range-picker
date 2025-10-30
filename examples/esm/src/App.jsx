@@ -1,23 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import {
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
+} from '@mui/icons-material';
 import {
   Box,
-  Typography,
   Container,
+  CssBaseline,
+  createTheme,
+  Divider,
   Paper,
   Stack,
-  Divider,
+  ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
+  Typography,
 } from '@mui/material';
-import {
-  LightMode as LightModeIcon,
-  DarkMode as DarkModeIcon,
-} from '@mui/icons-material';
 import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
 import { MultiRangeDatePicker as ProPicker } from '@spacedevin/react-mui-pro-multi-range-picker';
+import React, { useMemo, useState } from 'react';
 
 export default function App() {
   const [basicRanges, setBasicRanges] = useState([]);

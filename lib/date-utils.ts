@@ -1,4 +1,4 @@
-import { isWithinInterval, startOfDay, isValid, isSameDay } from 'date-fns';
+import { isSameDay, isValid, isWithinInterval, startOfDay } from 'date-fns';
 
 export interface DateRange {
   start: Date;

@@ -1,29 +1,29 @@
 import '../test-utils/setup';
-import { describe, test, expect } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
-  mergeOverlappingRanges,
-  getRangesAsIndividualDates,
-  isDateInRanges,
   findOverlappingRanges,
-  updateRangesWithSelection,
   getAdjacentDate,
-  shouldUpdateDragDate,
+  getRangesAsIndividualDates,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+  isDateInRanges,
+  mergeOverlappingRanges,
+  shouldUpdateDragDate,
+  updateRangesWithSelection,
 } from '../../../lib';
 import {
   areDatesInSameRange,
-  hasAdjacentSelectedDate,
-  isDateInHoverRange,
   calculateDayRoundingStyleForCalendar,
   commitSelection,
-  generateDayButtonStyles,
   createCommitSelectionCallback,
+  createCustomDay,
+  createHandleContainerPointerMove,
   createHandlePointerDown,
   createHandlePointerMove,
-  createHandleContainerPointerMove,
   createHandlePointerUp,
-  createCustomDay,
+  generateDayButtonStyles,
+  hasAdjacentSelectedDate,
+  isDateInHoverRange,
 } from './MultiRangeDatePicker';
 import type { DateRange } from './types';
 

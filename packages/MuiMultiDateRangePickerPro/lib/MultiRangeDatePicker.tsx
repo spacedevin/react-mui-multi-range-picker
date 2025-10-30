@@ -1,25 +1,25 @@
-import type React from 'react';
-import { useState, useCallback, useRef } from 'react';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { Box, Chip, Paper, Stack } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
   PickersDay,
   type PickersDayProps,
 } from '@mui/x-date-pickers/PickersDay';
-import { Box, Chip, Stack, Paper } from '@mui/material';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import type { DateRange as MUIDateRange } from '@mui/x-date-pickers-pro/models';
-import { isWithinInterval, startOfDay, isValid } from 'date-fns';
-import type { DateRange, MultiRangeDatePickerProps } from './types';
+import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
+import { isValid, isWithinInterval, startOfDay } from 'date-fns';
+import type React from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
-  getRangesAsIndividualDates,
-  isDateInRanges,
-  updateRangesWithSelection,
   findDateElementFromPoint,
+  getRangesAsIndividualDates,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+  isDateInRanges,
+  updateRangesWithSelection,
 } from '../../../lib';
+import type { DateRange, MultiRangeDatePickerProps } from './types';
 
 export const isDateInCurrentRange = (
   date: Date,

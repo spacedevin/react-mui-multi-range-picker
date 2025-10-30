@@ -1,21 +1,21 @@
-import type React from 'react';
-import { useState, useCallback, useRef } from 'react';
+import { Box, useTheme } from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { Box, useTheme } from '@mui/material';
-import { isWithinInterval, startOfDay, isValid } from 'date-fns';
-import type { DateRange, MultiRangeDatePickerProps } from './types';
+import { isValid, isWithinInterval, startOfDay } from 'date-fns';
+import type React from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
-  getRangesAsIndividualDates,
-  isDateInRanges,
-  updateRangesWithSelection,
-  getAdjacentDate,
   findDateElementFromPoint,
+  getAdjacentDate,
+  getRangesAsIndividualDates,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+  isDateInRanges,
+  updateRangesWithSelection,
 } from '../../../lib';
+import type { DateRange, MultiRangeDatePickerProps } from './types';
 
 export const areDatesInSameRange = (
   date1: Date,

@@ -1,9 +1,9 @@
 import '../test-utils/setup';
-import { describe, test, expect } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MultiRangeDatePicker } from './index';
 import type { DateRange } from './index';
+import { MultiRangeDatePicker } from './index';
 
 describe('Package Exports', () => {
   test('exports MultiRangeDatePicker as named export', () => {

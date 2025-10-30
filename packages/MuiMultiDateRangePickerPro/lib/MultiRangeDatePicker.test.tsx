@@ -1,38 +1,38 @@
 import '../test-utils/setup';
-import { describe, test, expect, vi } from 'bun:test';
+import { describe, expect, test, vi } from 'bun:test';
 // Shared functions from /lib
 import {
-  mergeOverlappingRanges,
-  getRangesAsIndividualDates,
-  isDateInRanges,
-  findOverlappingRanges,
-  updateRangesWithSelection,
-  getAdjacentDate,
   findDateElementFromPoint,
-  shouldUpdateDragDate,
+  findOverlappingRanges,
+  getAdjacentDate,
+  getRangesAsIndividualDates,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+  isDateInRanges,
+  mergeOverlappingRanges,
+  shouldUpdateDragDate,
+  updateRangesWithSelection,
 } from '../../../lib';
 // Package-specific functions
 import {
-  isDateInCurrentRange,
-  hasAdjacentSelectedDate,
-  removeRangeByIndex,
   calculateDayRoundingStyle,
   calculateDaySelection,
   commitDragSelection,
-  handleRangeChangeLogic,
-  handleRemoveRangeLogic,
-  generatePickersDayStyles,
-  generateDayWrapperStyles,
   createCommitDragSelectionCallback,
-  createHandleRangeChange,
+  createCustomDayPro,
+  createHandleContainerPointerMovePro,
   createHandlePointerDownPro,
   createHandlePointerMovePro,
-  createHandleContainerPointerMovePro,
   createHandlePointerUpPro,
+  createHandleRangeChange,
   createHandleRemoveRange,
-  createCustomDayPro,
+  generateDayWrapperStyles,
+  generatePickersDayStyles,
+  handleRangeChangeLogic,
+  handleRemoveRangeLogic,
+  hasAdjacentSelectedDate,
+  isDateInCurrentRange,
+  removeRangeByIndex,
 } from './MultiRangeDatePicker';
 import type { DateRange } from './types';
 
