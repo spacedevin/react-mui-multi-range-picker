@@ -1,3 +1,4 @@
+import '../test-utils/setup';
 import { describe, test, expect, vi } from 'bun:test';
 import {
   mergeOverlappingRanges,
@@ -157,6 +158,14 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const result = isDateInRanges(new Date('2025-01-01'), []);
       expect(result).toBe(false);
     });
+
+    test('handles corrupt date ranges gracefully', () => {
+      const badRanges: DateRange[] = [
+        { start: new Date('invalid'), end: new Date('2025-01-05') },
+      ];
+      const result = isDateInRanges(new Date('2025-01-03'), badRanges);
+      expect(result).toBe(false);
+    });
   });
 
   describe('isDateInCurrentRange', () => {
@@ -204,6 +213,29 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         false
       );
       expect(result).toBe(true);
+    });
+
+    test('handles invalid picker range gracefully', () => {
+      const currentRange: [Date, Date] = [new Date('invalid'), new Date('2025-01-05')];
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        currentRange,
+        null,
+        null,
+        false
+      );
+      expect(result).toBe(false);
+    });
+
+    test('handles invalid drag range gracefully', () => {
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        [null, null],
+        new Date('invalid'),
+        new Date('2025-01-05'),
+        true
+      );
+      expect(result).toBe(false);
     });
   });
 
@@ -419,6 +451,55 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     });
   });
 
+  describe('findDateElementFromPoint', () => {
+    test('returns date when element is found', () => {
+      const dateButtonsMap = new Map();
+      const testDate = new Date('2025-01-15');
+      const mockElement = document.createElement('div');
+      
+      dateButtonsMap.set(testDate.toISOString(), mockElement);
+      
+      // Mock document.elementFromPoint
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => mockElement;
+      
+      const result = findDateElementFromPoint(100, 100, dateButtonsMap);
+      
+      expect(result).toEqual(testDate);
+      
+      document.elementFromPoint = originalElementFromPoint;
+    });
+
+    test('returns null when no element found at point', () => {
+      const dateButtonsMap = new Map();
+      
+      // Mock document.elementFromPoint to return null
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => null;
+      
+      const result = findDateElementFromPoint(100, 100, dateButtonsMap);
+      
+      expect(result).toBeNull();
+      
+      document.elementFromPoint = originalElementFromPoint;
+    });
+
+    test('returns null when element not in map', () => {
+      const dateButtonsMap = new Map();
+      const mockElement = document.createElement('div');
+      
+      // Mock document.elementFromPoint
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => mockElement;
+      
+      const result = findDateElementFromPoint(100, 100, dateButtonsMap);
+      
+      expect(result).toBeNull();
+      
+      document.elementFromPoint = originalElementFromPoint;
+    });
+  });
+
   describe('calculateDayRoundingStyle', () => {
     test('returns false for both when date not selected', () => {
       const result = calculateDayRoundingStyle(
@@ -594,6 +675,42 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       );
       expect(result.shouldUpdate).toBe(true);
       expect(result.updatedRanges).toBeUndefined();
+    });
+
+    test('calls onIndividualDatesChange when provided', () => {
+      const onChange = vi.fn();
+      const onIndividualDatesChange = vi.fn();
+      
+      const result = handleRangeChangeLogic(
+        [new Date('2025-01-01'), new Date('2025-01-03')],
+        false,
+        [],
+        false,
+        onChange,
+        onIndividualDatesChange,
+        true
+      );
+      
+      expect(result.shouldUpdate).toBe(true);
+      expect(onChange).toHaveBeenCalled();
+      expect(onIndividualDatesChange).toHaveBeenCalled();
+    });
+
+    test('calls onIndividualDatesChange even when returnIndividualDates is false', () => {
+      const onIndividualDatesChange = vi.fn();
+      
+      const result = handleRangeChangeLogic(
+        [new Date('2025-01-01'), new Date('2025-01-03')],
+        false,
+        [],
+        false,
+        undefined,
+        onIndividualDatesChange,
+        false
+      );
+      
+      expect(result.shouldUpdate).toBe(true);
+      expect(onIndividualDatesChange).toHaveBeenCalled();
     });
   });
 

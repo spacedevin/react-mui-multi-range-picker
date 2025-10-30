@@ -666,16 +666,15 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   const forceUpdate = useCallback(() => setForceUpdateState({}), []);
 
   const commitDragSelectionCallback = useCallback(() => {
-    const factory = createCommitDragSelectionCallback(
-      dragStartRef,
-      dragEndRef,
+    const updatedRanges = commitDragSelection(
+      dragStartRef.current,
+      dragEndRef.current,
       dateRanges,
       mergeRanges,
       onChange,
       onIndividualDatesChange,
       returnIndividualDates
     );
-    const updatedRanges = factory();
     if (updatedRanges) {
       setDateRanges(updatedRanges);
     }
@@ -728,13 +727,13 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   );
 
   const handleRemoveRange = useCallback((index: number) => {
-    const factory = createHandleRemoveRange(
+    const updatedRanges = handleRemoveRangeLogic(
+      index,
       dateRanges,
       onChange,
       onIndividualDatesChange,
       returnIndividualDates
     );
-    const updatedRanges = factory(index);
     setDateRanges(updatedRanges);
   }, [dateRanges, onChange, onIndividualDatesChange, returnIndividualDates]);
 

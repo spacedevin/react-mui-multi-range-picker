@@ -1,3 +1,4 @@
+import '../test-utils/setup';
 import { describe, test, expect } from 'bun:test';
 import {
   mergeOverlappingRanges,
