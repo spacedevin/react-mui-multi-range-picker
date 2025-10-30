@@ -199,7 +199,10 @@ export const generateDayButtonStyles = (
   shouldRoundRight: boolean,
   DAY_SIZE: number,
   DAY_MARGIN: number,
-  captionTypography: any,
+  captionTypography: {
+    fontSize?: string | number;
+    fontWeight?: string | number;
+  },
 ) => {
   return {
     ...captionTypography,
@@ -374,7 +377,10 @@ export const createCustomDay = (
   mergeRanges: boolean,
   DAY_SIZE: number,
   DAY_MARGIN: number,
-  captionTypography: any,
+  captionTypography: {
+    fontSize?: string | number;
+    fontWeight?: string | number;
+  },
   dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
   handlePointerDown: (date: Date, e: React.PointerEvent) => void,
 ) => {
@@ -461,7 +467,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dragEndRef,
       forceUpdate,
     ),
-    [forceUpdate],
+    [],
   );
 
   const handlePointerMove = useCallback(
@@ -471,7 +477,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dragEndRef,
       forceUpdate,
     ),
-    [forceUpdate],
+    [],
   );
 
   const handleContainerPointerMove = useCallback(
@@ -480,7 +486,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateButtonsRef,
       handlePointerMove,
     ),
-    [handlePointerMove],
+    [],
   );
 
   const handlePointerUp = useCallback(
@@ -491,7 +497,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       commitSelectionCallback,
       forceUpdate,
     ),
-    [commitSelectionCallback, forceUpdate],
+    [],
   );
 
   const CustomDay = useCallback(
@@ -507,7 +513,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateButtonsRef,
       handlePointerDown,
     ),
-    [dateRanges, mergeRanges, theme.typography.caption, handlePointerDown],
+    [],
   );
 
   return (

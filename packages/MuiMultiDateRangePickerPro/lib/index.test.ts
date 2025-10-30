@@ -84,8 +84,8 @@ describe('MultiRangeDatePicker - DOM Rendering (happy-dom)', () => {
     document.body.appendChild(container);
     const root = createRoot(container);
 
-    const handleChange = (ranges: DateRange[]) => {};
-    const handleIndividualDatesChange = (dates: Date[]) => {};
+    const handleChange = (_ranges: DateRange[]) => {};
+    const handleIndividualDatesChange = (_dates: Date[]) => {};
 
     expect(() => {
       root.render(

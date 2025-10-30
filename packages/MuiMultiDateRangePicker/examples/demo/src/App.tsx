@@ -116,9 +116,9 @@ function App() {
                 <Typography variant="subtitle2" gutterBottom>
                   Selected Ranges ({selectedRanges.length}):
                 </Typography>
-                {selectedRanges.map((range, index) => (
+                {selectedRanges.map((range) => (
                   <Typography
-                    key={index}
+                    key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                     variant="body2"
                     color="text.secondary"
                     sx={{ ml: 2 }}
@@ -169,9 +169,9 @@ function App() {
                 <Typography variant="subtitle2" gutterBottom>
                   Merged Ranges ({mergedRanges.length}):
                 </Typography>
-                {mergedRanges.map((range, index) => (
+                {mergedRanges.map((range) => (
                   <Typography
-                    key={index}
+                    key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                     variant="body2"
                     color="text.secondary"
                     sx={{ ml: 2 }}

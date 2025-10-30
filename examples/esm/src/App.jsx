@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
 import { MultiRangeDatePicker as ProPicker } from '@spacedevin/react-mui-pro-multi-range-picker';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export default function App() {
   const [basicRanges, setBasicRanges] = useState([]);
@@ -104,9 +104,9 @@ export default function App() {
                 <Typography variant="subtitle2" gutterBottom>
                   Selected Ranges ({basicRanges.length}):
                 </Typography>
-                {basicRanges.map((range, index) => (
+                {basicRanges.map((range) => (
                   <Typography
-                    key={index}
+                    key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                     variant="body2"
                     color="text.secondary"
                     sx={{ ml: 2 }}
@@ -155,9 +155,9 @@ export default function App() {
                 <Typography variant="subtitle2" gutterBottom>
                   Merged Ranges ({mergedRanges.length}):
                 </Typography>
-                {mergedRanges.map((range, index) => (
+                {mergedRanges.map((range) => (
                   <Typography
-                    key={index}
+                    key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                     variant="body2"
                     color="text.secondary"
                     sx={{ ml: 2 }}
@@ -190,9 +190,9 @@ export default function App() {
                 <Typography variant="subtitle2" gutterBottom>
                   Selected Ranges ({proRanges.length}):
                 </Typography>
-                {proRanges.map((range, index) => (
+                {proRanges.map((range) => (
                   <Typography
-                    key={index}
+                    key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                     variant="body2"
                     color="text.secondary"
                     sx={{ ml: 2 }}

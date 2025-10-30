@@ -80,8 +80,8 @@ describe('Types', () => {
     });
 
     test('can combine all props', () => {
-      const onChange = (ranges: DateRange[]) => {};
-      const onIndividualDatesChange = (dates: Date[]) => {};
+      const onChange = (_ranges: DateRange[]) => {};
+      const onIndividualDatesChange = (_dates: Date[]) => {};
 
       const props: MultiRangeDatePickerProps = {
         onChange,

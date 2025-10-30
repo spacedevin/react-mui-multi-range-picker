@@ -5,6 +5,6 @@
     "date-fns": "^4.1.0"
   },
   "scripts": {
-    "lint": "oxlint --fix"
+    "lint": "biome check --write"
   }
 }

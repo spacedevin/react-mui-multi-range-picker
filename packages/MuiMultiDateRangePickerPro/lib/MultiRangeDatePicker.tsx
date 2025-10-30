@@ -101,7 +101,7 @@ export const calculateDayRoundingStyle = (
   dragStart: Date | null,
   dragEnd: Date | null,
   isDragging: boolean,
-  mergeRanges: boolean,
+  _mergeRanges: boolean,
 ): { shouldRoundLeft: boolean; shouldRoundRight: boolean } => {
   const isInSavedRange = isDateInRanges(day, dateRanges);
   const isInCurrent = isDateInCurrentRange(
@@ -585,11 +585,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
         if (result.callback) {
           setTimeout(() => {
             const logicResult = result.callback();
-            if (
-              logicResult &&
-              logicResult.shouldUpdate &&
-              logicResult.updatedRanges
-            ) {
+            if (logicResult?.shouldUpdate && logicResult.updatedRanges) {
               setDateRanges(logicResult.updatedRanges);
               setCurrentRange([null, null]);
             }
@@ -607,7 +603,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dragEndRef,
       forceUpdate,
     ),
-    [forceUpdate],
+    [],
   );
 
   const handlePointerMove = useCallback(
@@ -617,7 +613,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dragEndRef,
       forceUpdate,
     ),
-    [forceUpdate],
+    [],
   );
 
   const handleContainerPointerMove = useCallback(
@@ -626,7 +622,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateButtonsRef,
       handlePointerMove,
     ),
-    [handlePointerMove],
+    [],
   );
 
   const handlePointerUp = useCallback(
@@ -637,7 +633,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       commitDragSelectionCallback,
       forceUpdate,
     ),
-    [commitDragSelectionCallback, forceUpdate],
+    [],
   );
 
   const handleRemoveRange = useCallback(
@@ -664,7 +660,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateButtonsRef,
       handlePointerDown,
     ),
-    [dateRanges, currentRange, mergeRanges, handlePointerDown],
+    [],
   );
 
   return (
@@ -676,7 +672,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               {dateRanges.map((range, index) => (
                 <Chip
-                  key={index}
+                  key={`${range.start.toISOString()}-${range.end.toISOString()}`}
                   label={`${range.start.toLocaleDateString()} - ${range.end.toLocaleDateString()}`}
                   onDelete={() => handleRemoveRange(index)}
                   color="primary"

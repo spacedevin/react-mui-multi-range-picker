@@ -1095,7 +1095,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         stopPropagation: vi.fn(),
         target: { setPointerCapture: vi.fn() },
         pointerId: 1,
-      } as any;
+      } as React.PointerEvent;
 
       handler(new Date('2025-01-01'), mockEvent);
 
@@ -1167,7 +1167,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       const dateStr = new Date('2025-01-01').toISOString();
       dateButtonsRef.current.set(dateStr, mockElement);
 
-      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      const mockEvent = { clientX: 100, clientY: 100 } as React.PointerEvent;
       handler(mockEvent);
 
       expect(handlePointerMove).toHaveBeenCalledWith(new Date(dateStr));
@@ -1186,7 +1186,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         handlePointerMove,
       );
 
-      const mockEvent = { clientX: 100, clientY: 100 } as any;
+      const mockEvent = { clientX: 100, clientY: 100 } as React.PointerEvent;
       handler(mockEvent);
 
       expect(handlePointerMove).not.toHaveBeenCalled();
@@ -1277,7 +1277,9 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         handlePointerDown,
       );
 
-      const props = { day: new Date('2025-01-01') } as any;
+      const props = {
+        day: new Date('2025-01-01'),
+      } as unknown as PickersDayProps;
       const result = CustomDay(props);
 
       expect(result).toBeDefined();
@@ -1305,7 +1307,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
         handlePointerDown,
       );
 
-      const props = { day: null } as any;
+      const props = { day: null } as unknown as PickersDayProps;
       const result = CustomDay(props);
 
       expect(result).toBeDefined();
