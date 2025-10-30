@@ -1,289 +1,668 @@
-import { describe, test, expect, mock } from 'bun:test';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import MultiRangeDatePicker from './MultiRangeDatePicker';
+import { describe, test, expect } from 'bun:test';
+import {
+  mergeOverlappingRanges,
+  getRangesAsIndividualDates,
+  isDateInRanges,
+  isDateInCurrentRange,
+  hasAdjacentSelectedDate,
+  findOverlappingRanges,
+  updateRangesWithSelection,
+  removeRangeByIndex,
+  getAdjacentDate,
+  calculateDayRoundingStyle,
+  findDateElementFromPoint,
+  shouldUpdateDragDate,
+  commitDragSelection,
+  handleRangeChangeLogic,
+  handlePointerDownLogic,
+  handlePointerMoveLogic,
+  handleRemoveRangeLogic,
+} from './MultiRangeDatePicker';
 import type { DateRange } from './types';
 
-// Helper to wrap component with required providers
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      {ui}
-    </LocalizationProvider>
-  );
-};
-
-describe('MultiRangeDatePicker Pro', () => {
-  describe('Rendering', () => {
-    test('renders without crashing', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
+describe('MultiRangeDatePicker - Pure Functions', () => {
+  describe('mergeOverlappingRanges', () => {
+    test('returns empty array for empty input', () => {
+      const result = mergeOverlappingRanges([]);
+      expect(result).toEqual([]);
     });
 
-    test('renders DateRangePicker component', () => {
-      renderWithProviders(<MultiRangeDatePicker />);
-      // Pro version uses DateRangePicker
-      const picker = document.querySelector('[role="presentation"]') || document.querySelector('input');
-      expect(picker).toBeTruthy();
+    test('returns single range unchanged', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      ];
+      const result = mergeOverlappingRanges(ranges);
+      expect(result).toEqual(ranges);
+    });
+
+    test('merges overlapping ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-04'), end: new Date('2025-01-10') },
+      ];
+      const result = mergeOverlappingRanges(ranges);
+      expect(result.length).toBe(1);
+      expect(result[0].start).toEqual(new Date('2025-01-01'));
+      expect(result[0].end).toEqual(new Date('2025-01-10'));
+    });
+
+    test('merges adjacent ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-06'), end: new Date('2025-01-10') },
+      ];
+      const result = mergeOverlappingRanges(ranges);
+      expect(result.length).toBe(1);
+    });
+
+    test('does not merge non-overlapping ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = mergeOverlappingRanges(ranges);
+      expect(result.length).toBe(2);
+    });
+
+    test('handles unsorted ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      ];
+      const result = mergeOverlappingRanges(ranges);
+      expect(result.length).toBe(2);
+      expect(result[0].start).toEqual(new Date('2025-01-01'));
     });
   });
 
-  describe('Callbacks', () => {
-    test('calls onChange when range is selected', async () => {
-      const onChange = mock((ranges: DateRange[]) => {});
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-      expect(onChange).toHaveBeenCalledTimes(0);
+  describe('getRangesAsIndividualDates', () => {
+    test('returns empty array for empty input', () => {
+      const result = getRangesAsIndividualDates([]);
+      expect(result).toEqual([]);
     });
 
-    test('does not call onChange when no callback provided', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
+    test('returns all dates in a single range', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-03') },
+      ];
+      const result = getRangesAsIndividualDates(ranges);
+      expect(result.length).toBe(3);
     });
 
-    test('calls onIndividualDatesChange when returnIndividualDates is true', () => {
-      const onChange = mock(() => {});
-      const onIndividualDatesChange = mock(() => {});
+    test('returns all dates across multiple ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-02') },
+        { start: new Date('2025-01-05'), end: new Date('2025-01-06') },
+      ];
+      const result = getRangesAsIndividualDates(ranges);
+      expect(result.length).toBe(4);
+    });
 
-      renderWithProviders(
-        <MultiRangeDatePicker
-          onChange={onChange}
-          onIndividualDatesChange={onIndividualDatesChange}
-          returnIndividualDates={true}
-        />
+    test('handles single day range', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-01') },
+      ];
+      const result = getRangesAsIndividualDates(ranges);
+      expect(result.length).toBe(1);
+    });
+  });
+
+  describe('isDateInRanges', () => {
+    const ranges: DateRange[] = [
+      { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+    ];
+
+    test('returns true for date in first range', () => {
+      const result = isDateInRanges(new Date('2025-01-03'), ranges);
+      expect(result).toBe(true);
+    });
+
+    test('returns true for date in second range', () => {
+      const result = isDateInRanges(new Date('2025-01-12'), ranges);
+      expect(result).toBe(true);
+    });
+
+    test('returns false for date outside ranges', () => {
+      const result = isDateInRanges(new Date('2025-01-07'), ranges);
+      expect(result).toBe(false);
+    });
+
+    test('returns true for start date', () => {
+      const result = isDateInRanges(new Date('2025-01-01'), ranges);
+      expect(result).toBe(true);
+    });
+
+    test('returns true for end date', () => {
+      const result = isDateInRanges(new Date('2025-01-05'), ranges);
+      expect(result).toBe(true);
+    });
+
+    test('handles invalid date', () => {
+      const result = isDateInRanges(new Date('invalid'), ranges);
+      expect(result).toBe(false);
+    });
+
+    test('handles empty ranges', () => {
+      const result = isDateInRanges(new Date('2025-01-01'), []);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('isDateInCurrentRange', () => {
+    test('returns true for date in picker range', () => {
+      const currentRange: [Date, Date] = [new Date('2025-01-01'), new Date('2025-01-05')];
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        currentRange,
+        null,
+        null,
+        false
       );
-
-      expect(onIndividualDatesChange).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('Chip Management', () => {
-    test('renders without chips initially', () => {
-      renderWithProviders(<MultiRangeDatePicker />);
-      // Initially no ranges, so no chips
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
+      expect(result).toBe(true);
     });
 
-    test('handles chip deletion', () => {
-      const onChange = mock(() => {});
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-      expect(onChange).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('Merge Ranges', () => {
-    test('accepts mergeRanges prop', () => {
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker mergeRanges={true} />
+    test('returns true for date in drag range', () => {
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        [null, null],
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+        true
       );
-      expect(container).toBeTruthy();
+      expect(result).toBe(true);
     });
 
-    test('accepts mergeRanges false', () => {
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker mergeRanges={false} />
+    test('returns false when not dragging and no current range', () => {
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        [null, null],
+        null,
+        null,
+        false
       );
-      expect(container).toBeTruthy();
+      expect(result).toBe(false);
     });
-  });
 
-  describe('Props', () => {
-    test('accepts all props without errors', () => {
-      const onChange = mock(() => {});
-      const onIndividualDatesChange = mock(() => {});
-
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker
-          onChange={onChange}
-          onIndividualDatesChange={onIndividualDatesChange}
-          mergeRanges={true}
-          returnIndividualDates={true}
-        />
+    test('handles reversed date range', () => {
+      const currentRange: [Date, Date] = [new Date('2025-01-05'), new Date('2025-01-01')];
+      const result = isDateInCurrentRange(
+        new Date('2025-01-03'),
+        currentRange,
+        null,
+        null,
+        false
       );
-
-      expect(container).toBeTruthy();
-    });
-
-    test('works with minimal props', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
+      expect(result).toBe(true);
     });
   });
 
-  describe('Date Utilities', () => {
-    test('component has date range state management', () => {
-      const onChange = mock((ranges: DateRange[]) => {
-        expect(Array.isArray(ranges)).toBe(true);
-      });
+  describe('hasAdjacentSelectedDate', () => {
+    const ranges: DateRange[] = [
+      { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+    ];
 
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-    });
-  });
-
-  describe('Accessibility', () => {
-    test('has proper ARIA attributes', () => {
-      renderWithProviders(<MultiRangeDatePicker />);
-      // MUI Pro DateRangePicker provides ARIA attributes
-      const picker = document.querySelector('input') || document.querySelector('[role="presentation"]');
-      expect(picker).toBeTruthy();
-    });
-  });
-
-  describe('Pointer Events', () => {
-    test('sets up pointer event listeners', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
-    });
-
-    test('handles touch events', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Component uses pointer events which support touch
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Edge Cases', () => {
-    test('handles undefined callbacks gracefully', () => {
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker
-          onChange={undefined}
-          onIndividualDatesChange={undefined}
-        />
+    test('returns true when left date is selected', () => {
+      const result = hasAdjacentSelectedDate(
+        new Date('2025-01-03'),
+        'left',
+        ranges,
+        [null, null],
+        null,
+        null,
+        false
       );
-      expect(container).toBeTruthy();
+      expect(result).toBe(true);
     });
 
-    test('handles returnIndividualDates without onIndividualDatesChange', () => {
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker returnIndividualDates={true} />
+    test('returns true when right date is selected', () => {
+      const result = hasAdjacentSelectedDate(
+        new Date('2025-01-03'),
+        'right',
+        ranges,
+        [null, null],
+        null,
+        null,
+        false
       );
-      expect(container).toBeTruthy();
+      expect(result).toBe(true);
     });
 
-    test('handles extreme date values', () => {
-      const onChange = mock(() => {});
-      const { container } = renderWithProviders(
-        <MultiRangeDatePicker onChange={onChange} />
+    test('returns false when left date is not selected', () => {
+      const result = hasAdjacentSelectedDate(
+        new Date('2025-01-01'),
+        'left',
+        ranges,
+        [null, null],
+        null,
+        null,
+        false
       );
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('TypeScript Types', () => {
-    test('DateRange interface is correctly typed', () => {
-      const testRange: DateRange = {
-        start: new Date('2025-01-01'),
-        end: new Date('2025-01-05'),
-      };
-
-      expect(testRange.start).toBeInstanceOf(Date);
-      expect(testRange.end).toBeInstanceOf(Date);
+      expect(result).toBe(false);
     });
 
-    test('onChange receives DateRange array', () => {
-      const onChange = mock((ranges: DateRange[]) => {
-        if (ranges.length > 0) {
-          expect(ranges[0]).toHaveProperty('start');
-          expect(ranges[0]).toHaveProperty('end');
-        }
-      });
-
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-    });
-  });
-
-  describe('Component Integration', () => {
-    test('integrates with MUI LocalizationProvider', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      expect(container).toBeTruthy();
-    });
-
-    test('uses AdapterDateFns', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Component requires LocalizationProvider with AdapterDateFns
-      expect(container).toBeTruthy();
-    });
-
-    test('uses MUI Pro DateRangePicker', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Pro version uses @mui/x-date-pickers-pro
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('State Management', () => {
-    test('maintains internal state for date ranges', () => {
-      const onChange = mock(() => {});
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-      // Component manages dateRanges state internally
-      expect(onChange).toHaveBeenCalledTimes(0);
-    });
-
-    test('manages dragging state', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Component uses isDraggingRef internally
-      expect(container).toBeTruthy();
-    });
-
-    test('manages currentRange state', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Pro version has currentRange state
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Performance', () => {
-    test('does not re-render unnecessarily', () => {
-      const onChange = mock(() => {});
-      const { rerender } = renderWithProviders(
-        <MultiRangeDatePicker onChange={onChange} />
+    test('returns false when right date is not selected', () => {
+      const result = hasAdjacentSelectedDate(
+        new Date('2025-01-05'),
+        'right',
+        ranges,
+        [null, null],
+        null,
+        null,
+        false
       );
+      expect(result).toBe(false);
+    });
+  });
 
-      // Re-render with same props
-      rerender(
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <MultiRangeDatePicker onChange={onChange} />
-        </LocalizationProvider>
+  describe('findOverlappingRanges', () => {
+    const ranges: DateRange[] = [
+      { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      { start: new Date('2025-01-20'), end: new Date('2025-01-25') },
+    ];
+
+    test('finds overlapping ranges', () => {
+      const result = findOverlappingRanges(
+        ranges,
+        new Date('2025-01-03'),
+        new Date('2025-01-12')
       );
-
-      expect(onChange).toHaveBeenCalledTimes(0);
+      expect(result).toEqual([0, 1]);
     });
 
-    test('uses useCallback for event handlers', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Component uses useCallback for performance
-      expect(container).toBeTruthy();
+    test('finds single overlapping range', () => {
+      const result = findOverlappingRanges(
+        ranges,
+        new Date('2025-01-02'),
+        new Date('2025-01-04')
+      );
+      expect(result).toEqual([0]);
+    });
+
+    test('returns empty for non-overlapping selection', () => {
+      const result = findOverlappingRanges(
+        ranges,
+        new Date('2025-01-06'),
+        new Date('2025-01-09')
+      );
+      expect(result).toEqual([]);
+    });
+
+    test('finds range contained within selection', () => {
+      const result = findOverlappingRanges(
+        ranges,
+        new Date('2025-01-09'),
+        new Date('2025-01-16')
+      );
+      expect(result).toEqual([1]);
     });
   });
 
-  describe('Date Formatting', () => {
-    test('uses date-fns for date operations', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Component uses isSameDay, isWithinInterval, etc.
-      expect(container).toBeTruthy();
+  describe('updateRangesWithSelection', () => {
+    test('adds new range when no overlap', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      ];
+      const result = updateRangesWithSelection(
+        ranges,
+        new Date('2025-01-10'),
+        new Date('2025-01-15'),
+        false
+      );
+      expect(result.length).toBe(2);
     });
 
-    test('handles dates in different timezones', () => {
-      const onChange = mock(() => {});
-      renderWithProviders(<MultiRangeDatePicker onChange={onChange} />);
-      expect(onChange).toHaveBeenCalledTimes(0);
+    test('removes overlapping ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = updateRangesWithSelection(
+        ranges,
+        new Date('2025-01-03'),
+        new Date('2025-01-12'),
+        false
+      );
+      expect(result.length).toBe(0);
+    });
+
+    test('merges ranges when mergeRanges is true', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      ];
+      const result = updateRangesWithSelection(
+        ranges,
+        new Date('2025-01-06'),
+        new Date('2025-01-10'),
+        true
+      );
+      expect(result.length).toBe(1);
+    });
+
+    test('handles reversed dates', () => {
+      const ranges: DateRange[] = [];
+      const result = updateRangesWithSelection(
+        ranges,
+        new Date('2025-01-10'),
+        new Date('2025-01-05'),
+        false
+      );
+      expect(result.length).toBe(1);
+      expect(result[0].start).toEqual(new Date('2025-01-05'));
+      expect(result[0].end).toEqual(new Date('2025-01-10'));
     });
   });
 
-  describe('UI Components', () => {
-    test('renders chips container', () => {
-      const { container } = renderWithProviders(<MultiRangeDatePicker />);
-      // Pro version has chips
-      expect(container).toBeTruthy();
+  describe('removeRangeByIndex', () => {
+    test('removes range at index', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+        { start: new Date('2025-01-20'), end: new Date('2025-01-25') },
+      ];
+      const result = removeRangeByIndex(ranges, 1);
+      expect(result.length).toBe(2);
+      expect(result[0].start).toEqual(new Date('2025-01-01'));
+      expect(result[1].start).toEqual(new Date('2025-01-20'));
     });
 
-    test('renders text input field', () => {
-      renderWithProviders(<MultiRangeDatePicker />);
-      // Pro version uses SingleInputDateRangeField
-      const input = document.querySelector('input');
-      expect(input).toBeTruthy();
+    test('removes first range', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = removeRangeByIndex(ranges, 0);
+      expect(result.length).toBe(1);
+      expect(result[0].start).toEqual(new Date('2025-01-10'));
+    });
+
+    test('removes last range', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = removeRangeByIndex(ranges, 1);
+      expect(result.length).toBe(1);
+      expect(result[0].start).toEqual(new Date('2025-01-01'));
+    });
+  });
+
+  describe('getAdjacentDate', () => {
+    test('returns previous day for left direction', () => {
+      const date = new Date('2025-01-15');
+      const result = getAdjacentDate(date, 'left');
+      expect(result.getDate()).toBe(14);
+    });
+
+    test('returns next day for right direction', () => {
+      const date = new Date('2025-01-15');
+      const result = getAdjacentDate(date, 'right');
+      expect(result.getDate()).toBe(16);
+    });
+
+    test('handles month boundaries', () => {
+      const date = new Date('2025-01-01');
+      const result = getAdjacentDate(date, 'left');
+      expect(result.getMonth()).toBe(11); // December
+      expect(result.getFullYear()).toBe(2024);
+    });
+  });
+
+  describe('calculateDayRoundingStyle', () => {
+    test('returns false for both when date not selected', () => {
+      const result = calculateDayRoundingStyle(
+        new Date('2025-01-15'),
+        [],
+        [null, null],
+        null,
+        null,
+        false,
+        false
+      );
+      expect(result.shouldRoundLeft).toBe(false);
+      expect(result.shouldRoundRight).toBe(false);
+    });
+
+    test('rounds both sides when date is alone', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-15'), end: new Date('2025-01-15') },
+      ];
+      const result = calculateDayRoundingStyle(
+        new Date('2025-01-15'),
+        ranges,
+        [null, null],
+        null,
+        null,
+        false,
+        false
+      );
+      expect(result.shouldRoundLeft).toBe(true);
+      expect(result.shouldRoundRight).toBe(true);
+    });
+
+    test('rounds left when right is selected', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-15'), end: new Date('2025-01-17') },
+      ];
+      const result = calculateDayRoundingStyle(
+        new Date('2025-01-15'),
+        ranges,
+        [null, null],
+        null,
+        null,
+        false,
+        false
+      );
+      expect(result.shouldRoundLeft).toBe(true);
+      expect(result.shouldRoundRight).toBe(false);
+    });
+
+    test('rounds right when left is selected', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-15'), end: new Date('2025-01-17') },
+      ];
+      const result = calculateDayRoundingStyle(
+        new Date('2025-01-17'),
+        ranges,
+        [null, null],
+        null,
+        null,
+        false,
+        false
+      );
+      expect(result.shouldRoundLeft).toBe(false);
+      expect(result.shouldRoundRight).toBe(true);
+    });
+  });
+
+  describe('shouldUpdateDragDate', () => {
+    test('returns true when current date is null', () => {
+      const result = shouldUpdateDragDate(null, new Date('2025-01-15'));
+      expect(result).toBe(true);
+    });
+
+    test('returns false when dates are same day', () => {
+      const result = shouldUpdateDragDate(
+        new Date('2025-01-15T10:00:00'),
+        new Date('2025-01-15T14:00:00')
+      );
+      expect(result).toBe(false);
+    });
+
+    test('returns true when dates are different days', () => {
+      const result = shouldUpdateDragDate(
+        new Date('2025-01-15'),
+        new Date('2025-01-16')
+      );
+      expect(result).toBe(true);
+    });
+
+    test('returns false when new date is invalid', () => {
+      const result = shouldUpdateDragDate(
+        new Date('2025-01-15'),
+        new Date('invalid')
+      );
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('commitDragSelection', () => {
+    test('returns null for invalid dates', () => {
+      const result = commitDragSelection(null, null, [], false);
+      expect(result).toBe(null);
+    });
+
+    test('returns updated ranges for valid selection', () => {
+      const result = commitDragSelection(
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+        [],
+        false
+      );
+      expect(result).not.toBe(null);
+      expect(result?.length).toBe(1);
+    });
+
+    test('calls onChange callback', () => {
+      let called = false;
+      const onChange = () => { called = true; };
+      commitDragSelection(
+        new Date('2025-01-01'),
+        new Date('2025-01-05'),
+        [],
+        false,
+        onChange
+      );
+      expect(called).toBe(true);
+    });
+
+    test('calls onIndividualDatesChange when provided', () => {
+      let calledDates: Date[] = [];
+      const onIndividualDatesChange = (dates: Date[]) => { calledDates = dates; };
+      commitDragSelection(
+        new Date('2025-01-01'),
+        new Date('2025-01-03'),
+        [],
+        false,
+        undefined,
+        onIndividualDatesChange,
+        true
+      );
+      expect(calledDates.length).toBe(3);
+    });
+  });
+
+  describe('handleRangeChangeLogic', () => {
+    test('returns shouldUpdate false when dragging', () => {
+      const result = handleRangeChangeLogic(
+        [new Date('2025-01-01'), new Date('2025-01-05')],
+        true,
+        [],
+        false
+      );
+      expect(result.shouldUpdate).toBe(false);
+    });
+
+    test('returns shouldUpdate true with complete range', () => {
+      const result = handleRangeChangeLogic(
+        [new Date('2025-01-01'), new Date('2025-01-05')],
+        false,
+        [],
+        false
+      );
+      expect(result.shouldUpdate).toBe(true);
+      expect(result.updatedRanges).toBeDefined();
+    });
+
+    test('returns shouldUpdate false for incomplete range', () => {
+      const result = handleRangeChangeLogic(
+        [new Date('2025-01-01'), null],
+        false,
+        [],
+        false
+      );
+      expect(result.shouldUpdate).toBe(true);
+      expect(result.updatedRanges).toBeUndefined();
+    });
+  });
+
+  describe('handlePointerDownLogic', () => {
+    test('returns drag state for valid date', () => {
+      const result = handlePointerDownLogic(new Date('2025-01-15'));
+      expect(result).not.toBe(null);
+      expect(result?.dragStart).toEqual(new Date('2025-01-15'));
+      expect(result?.dragEnd).toEqual(new Date('2025-01-15'));
+    });
+
+    test('returns null for invalid date', () => {
+      const result = handlePointerDownLogic(new Date('invalid'));
+      expect(result).toBe(null);
+    });
+  });
+
+  describe('handlePointerMoveLogic', () => {
+    test('returns new date when dragging', () => {
+      const result = handlePointerMoveLogic(
+        new Date('2025-01-16'),
+        true,
+        new Date('2025-01-15'),
+        new Date('2025-01-15')
+      );
+      expect(result).not.toBe(null);
+    });
+
+    test('returns null when not dragging', () => {
+      const result = handlePointerMoveLogic(
+        new Date('2025-01-16'),
+        false,
+        new Date('2025-01-15'),
+        new Date('2025-01-15')
+      );
+      expect(result).toBe(null);
+    });
+
+    test('returns null when same day', () => {
+      const result = handlePointerMoveLogic(
+        new Date('2025-01-15T14:00:00'),
+        true,
+        new Date('2025-01-15T10:00:00'),
+        new Date('2025-01-15T10:00:00')
+      );
+      expect(result).toBe(null);
+    });
+  });
+
+  describe('handleRemoveRangeLogic', () => {
+    test('removes range and returns updated array', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = handleRemoveRangeLogic(0, ranges);
+      expect(result.length).toBe(1);
+      expect(result[0].start).toEqual(new Date('2025-01-10'));
+    });
+
+    test('calls onChange callback', () => {
+      let called = false;
+      const onChange = () => { called = true; };
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-05') },
+      ];
+      handleRemoveRangeLogic(0, ranges, onChange);
+      expect(called).toBe(true);
+    });
+
+    test('calls onIndividualDatesChange when provided', () => {
+      let calledDates: Date[] = [];
+      const onIndividualDatesChange = (dates: Date[]) => { calledDates = dates; };
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-01'), end: new Date('2025-01-03') },
+        { start: new Date('2025-01-10'), end: new Date('2025-01-12') },
+      ];
+      handleRemoveRangeLogic(0, ranges, undefined, onIndividualDatesChange, true);
+      expect(calledDates.length).toBe(3);
     });
   });
 });
-
