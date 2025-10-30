@@ -1,13 +1,7 @@
 # MUI Multi-Range Date Picker
 
+React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's date picker components with full theme integration and mobile support.
 
-A monorepo containing React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of Material-UI's date picker components with full theme integration.
-
-<p align="center">
-  <img src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" height="250">
-  <img src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" height="250">
-
-</p>
 
 ## 📦 Packages
 
@@ -17,6 +11,9 @@ A monorepo containing React date picker components that allow selecting multiple
 [![npm downloads](https://img.shields.io/npm/dm/@spacedevin/react-mui-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker)
 
 A free multi-range date picker built on `@mui/x-date-pickers`.
+<p align="right">
+<img src="docs/mui-multi-range-date-picker.png" alt="MUI Multi-Range Date Picker" height="250">
+</p>
 
 **Features:**
 - ✅ Multi-range selection with drag support
@@ -34,6 +31,7 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 [![npm downloads](https://img.shields.io/npm/dm/@spacedevin/react-mui-pro-multi-range-picker.svg)](https://www.npmjs.com/package/@spacedevin/react-mui-pro-multi-range-picker)
 
 An enhanced version built on `@mui/x-date-pickers-pro` with professional UI features.
+<img src="docs/mui-multi-range-date-picker-pro.png" alt="MUI Multi-Range Date Picker Pro" height="250">
 
 **Features:**
 - ✅ All features from the free version
@@ -191,6 +189,7 @@ Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) 
 ## 📄 License
 
 [PIF](https://payitforwardlicense.com/)
+
 Note: Pro version requires MUI X Pro license for production use
 
 
@@ -198,4 +197,3 @@ Note: Pro version requires MUI X Pro license for production use
 
 - [MUI Documentation](https://mui.com/)
 - [MUI X Date Pickers](https://mui.com/x/react-date-pickers/)
-- [MUI X Pricing](https://mui.com/x/introduction/licensing/)
