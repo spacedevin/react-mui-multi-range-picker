@@ -56,6 +56,10 @@ jobs:
           cd packages/${{ matrix.package }}
           bun test --coverage --coverage-reporter=lcov
 
+      - name: Fix Coverage Paths
+        run: |
+          sed -i 's|^SF:lib/|SF:packages/${{ matrix.package }}/lib/|g' packages/${{ matrix.package }}/coverage/lcov.info
+      
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

@@ -327,18 +327,6 @@ bun test --coverage
 bun test --watch
 ```
 
-### Test Coverage
-
-**Current Stats:**
-- ✅ **93 total tests** (49 Free + 44 Pro)
-- ✅ **~79% average coverage** (84% Free, 74% Pro)
-- ✅ **All tests passing**
-- ✅ Tracked via [Codecov](https://codecov.io)
-
-**Coverage by Package:**
-- Free: `lib/MultiRangeDatePicker.tsx`, `lib/types.ts`, `lib/index.ts`
-- Pro: Same files + additional Pro features
-
 ### Test Environment
 
 - **Runner:** Bun (fast, built-in TypeScript support)
@@ -353,25 +341,11 @@ Tests are colocated with source files:
 - `lib/types.test.ts` - Type tests
 - `lib/index.test.ts` - Export tests
 
-### CI/CD Integration
-
-Tests automatically run on:
-- ✅ Every pull request
-- ✅ Every push to main (before release)
-- ✅ Coverage uploaded to Codecov
-
-**Codecov Setup:**
-```yaml
-# .github/workflows/pr.yml
-- run: bun test --coverage --coverage-reporter=lcov
-- uses: codecov/codecov-action@v5
-  with:
-    token: ${{ secrets.CODECOV_TOKEN }}
-```
-
 ## 📄 License
 
-PIF (Note: Pro version requires MUI X Pro license for production use)
+[PIF](https://payitforwardlicense.com/)
+Note: Pro version requires MUI X Pro license for production use
+
 
 ## 🔗 Links
 
