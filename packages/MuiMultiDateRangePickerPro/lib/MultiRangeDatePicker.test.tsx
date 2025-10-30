@@ -1,22 +1,27 @@
 import '../test-utils/setup';
 import { describe, test, expect, vi } from 'bun:test';
+// Shared functions from /lib
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
   isDateInRanges,
-  isDateInCurrentRange,
-  hasAdjacentSelectedDate,
   findOverlappingRanges,
   updateRangesWithSelection,
-  removeRangeByIndex,
   getAdjacentDate,
-  calculateDayRoundingStyle,
   findDateElementFromPoint,
   shouldUpdateDragDate,
-  commitDragSelection,
-  handleRangeChangeLogic,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+} from '../../../lib';
+// Package-specific functions
+import {
+  isDateInCurrentRange,
+  hasAdjacentSelectedDate,
+  removeRangeByIndex,
+  calculateDayRoundingStyle,
+  calculateDaySelection,
+  commitDragSelection,
+  handleRangeChangeLogic,
   handleRemoveRangeLogic,
   generatePickersDayStyles,
   generateDayWrapperStyles,
@@ -497,6 +502,74 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
       expect(result).toBeNull();
       
       document.elementFromPoint = originalElementFromPoint;
+    });
+  });
+
+  describe('calculateDaySelection', () => {
+    test('returns true when date is in saved ranges', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = calculateDaySelection(
+        new Date('2025-01-12'),
+        ranges,
+        [null, null],
+        null,
+        null,
+        false
+      );
+      expect(result).toBe(true);
+    });
+
+    test('returns true when date is in current picker range', () => {
+      const result = calculateDaySelection(
+        new Date('2025-01-12'),
+        [],
+        [new Date('2025-01-10'), new Date('2025-01-15')],
+        null,
+        null,
+        false
+      );
+      expect(result).toBe(true);
+    });
+
+    test('returns true when date is in drag selection', () => {
+      const result = calculateDaySelection(
+        new Date('2025-01-12'),
+        [],
+        [null, null],
+        new Date('2025-01-10'),
+        new Date('2025-01-15'),
+        true
+      );
+      expect(result).toBe(true);
+    });
+
+    test('returns false when date is not selected anywhere', () => {
+      const result = calculateDaySelection(
+        new Date('2025-01-12'),
+        [],
+        [null, null],
+        null,
+        null,
+        false
+      );
+      expect(result).toBe(false);
+    });
+
+    test('returns true when in both saved and current range', () => {
+      const ranges: DateRange[] = [
+        { start: new Date('2025-01-10'), end: new Date('2025-01-15') },
+      ];
+      const result = calculateDaySelection(
+        new Date('2025-01-12'),
+        ranges,
+        [new Date('2025-01-11'), new Date('2025-01-13')],
+        null,
+        null,
+        false
+      );
+      expect(result).toBe(true);
     });
   });
 

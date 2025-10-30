@@ -6,61 +6,18 @@ import { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import { Box, useTheme } from '@mui/material';
 import { isSameDay, isWithinInterval, startOfDay, isValid } from 'date-fns';
 import type { DateRange, MultiRangeDatePickerProps } from './types';
-
-// Pure utility functions for unit testing
-export const mergeOverlappingRanges = (ranges: DateRange[]): DateRange[] => {
-  if (ranges.length <= 1) return ranges;
-  
-  const sorted = [...ranges].sort((a, b) => a.start.getTime() - b.start.getTime());
-  const merged: DateRange[] = [];
-  let current = sorted[0];
-  
-  for (let i = 1; i < sorted.length; i++) {
-    const next = sorted[i];
-    const currentEnd = new Date(current.end);
-    currentEnd.setDate(currentEnd.getDate() + 1);
-    
-    if (next.start <= currentEnd) {
-      current = {
-        start: current.start,
-        end: next.end > current.end ? next.end : current.end,
-      };
-    } else {
-      merged.push(current);
-      current = next;
-    }
-  }
-  merged.push(current);
-  
-  return merged;
-};
-
-export const getRangesAsIndividualDates = (ranges: DateRange[]): Date[] => {
-  const dates: Date[] = [];
-  ranges.forEach((range) => {
-    const current = new Date(range.start);
-    while (current <= range.end) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-  });
-  return dates;
-};
-
-export const isDateInRanges = (date: Date, dateRanges: DateRange[]): boolean => {
-  if (!date || !isValid(date)) return false;
-  return dateRanges.some((range) => {
-    try {
-      if (!isValid(range.start) || !isValid(range.end)) return false;
-      return isWithinInterval(startOfDay(date), {
-        start: startOfDay(range.start),
-        end: startOfDay(range.end),
-      });
-    } catch {
-      return false;
-    }
-  });
-};
+import {
+  mergeOverlappingRanges,
+  getRangesAsIndividualDates,
+  isDateInRanges,
+  findOverlappingRanges,
+  updateRangesWithSelection,
+  getAdjacentDate,
+  findDateElementFromPoint,
+  shouldUpdateDragDate,
+  handlePointerDownLogic,
+  handlePointerMoveLogic,
+} from '../../../lib';
 
 export const areDatesInSameRange = (date1: Date, date2: Date, dateRanges: DateRange[]): boolean => {
   if (!date1 || !date2 || !isValid(date1) || !isValid(date2)) return false;
@@ -114,68 +71,6 @@ export const isDateInHoverRange = (
   }
 };
 
-export const findOverlappingRanges = (
-  dateRanges: DateRange[],
-  selectionStart: Date,
-  selectionEnd: Date
-): number[] => {
-  const overlappingIndices: number[] = [];
-  dateRanges.forEach((range, index) => {
-    try {
-      const rangeStart = startOfDay(range.start);
-      const rangeEnd = startOfDay(range.end);
-      const normSelectionStart = startOfDay(selectionStart);
-      const normSelectionEnd = startOfDay(selectionEnd);
-
-      const hasOverlap = 
-        isWithinInterval(normSelectionStart, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(normSelectionEnd, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(rangeStart, { start: normSelectionStart, end: normSelectionEnd }) ||
-        isWithinInterval(rangeEnd, { start: normSelectionStart, end: normSelectionEnd });
-
-      if (hasOverlap) {
-        overlappingIndices.push(index);
-      }
-    } catch {}
-  });
-  return overlappingIndices;
-};
-
-export const updateRangesWithSelection = (
-  dateRanges: DateRange[],
-  selectionStart: Date,
-  selectionEnd: Date,
-  shouldMergeRanges: boolean
-): DateRange[] => {
-  const start = selectionStart < selectionEnd ? selectionStart : selectionEnd;
-  const end = selectionStart < selectionEnd ? selectionEnd : selectionStart;
-
-  const overlappingIndices = findOverlappingRanges(dateRanges, start, end);
-
-  let updatedRanges: DateRange[];
-  
-  if (overlappingIndices.length > 0) {
-    updatedRanges = dateRanges.filter((_, index) => !overlappingIndices.includes(index));
-  } else {
-    const newRange: DateRange = {
-      start: startOfDay(start),
-      end: startOfDay(end),
-    };
-    updatedRanges = [...dateRanges, newRange];
-  }
-
-  if (shouldMergeRanges) {
-    updatedRanges = mergeOverlappingRanges(updatedRanges);
-  }
-
-  return updatedRanges;
-};
-
-export const getAdjacentDate = (date: Date, direction: 'left' | 'right'): Date => {
-  const adjacentDate = new Date(date);
-  adjacentDate.setDate(adjacentDate.getDate() + (direction === 'right' ? 1 : -1));
-  return adjacentDate;
-};
 
 export const calculateDayRoundingStyleForCalendar = (
   day: Date,
@@ -230,34 +125,6 @@ export const calculateDayRoundingStyleForCalendar = (
   return { shouldRoundLeft, shouldRoundRight, isInRange, isHovered };
 };
 
-export const findDateElementFromPoint = (
-  clientX: number,
-  clientY: number,
-  dateButtonsMap: Map<string, HTMLElement>
-): Date | null => {
-  if (typeof document === 'undefined') return null;
-  
-  const element = document.elementFromPoint(clientX, clientY);
-  if (!element) return null;
-  
-  // Find which date button is under the pointer
-  for (const [dateStr, button] of Array.from(dateButtonsMap.entries())) {
-    if (button === element || button.contains(element)) {
-      const date = new Date(dateStr);
-      if (isValid(date)) {
-        return date;
-      }
-    }
-  }
-  
-  return null;
-};
-
-export const shouldUpdateDragDate = (currentDate: Date | null, newDate: Date): boolean => {
-  if (!currentDate || !isValid(currentDate)) return true;
-  if (!newDate || !isValid(newDate)) return false;
-  return !isSameDay(newDate, currentDate);
-};
 
 export const commitSelection = (
   dragStart: Date | null,
@@ -285,32 +152,6 @@ export const commitSelection = (
   return updatedRanges;
 };
 
-export const handlePointerDownLogic = (
-  date: Date
-): { dragStart: Date; dragEnd: Date } | null => {
-  if (!date || !isValid(date)) return null;
-  
-  return {
-    dragStart: date,
-    dragEnd: date
-  };
-};
-
-export const handlePointerMoveLogic = (
-  date: Date,
-  isDragging: boolean,
-  dragStart: Date | null,
-  currentDragEnd: Date | null
-): Date | null => {
-  if (!isDragging || !dragStart) return null;
-  if (!date || !isValid(date)) return null;
-  
-  if (shouldUpdateDragDate(currentDragEnd, date)) {
-    return date;
-  }
-  
-  return null;
-};
 
 // MUI PickersDay constants - exported for testing
 export const DAY_SIZE = 36;

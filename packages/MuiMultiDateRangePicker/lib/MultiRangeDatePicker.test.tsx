@@ -1,21 +1,25 @@
 import '../test-utils/setup';
 import { describe, test, expect } from 'bun:test';
+// Shared functions from /lib
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
   isDateInRanges,
-  areDatesInSameRange,
-  hasAdjacentSelectedDate,
-  isDateInHoverRange,
   findOverlappingRanges,
   updateRangesWithSelection,
   getAdjacentDate,
-  calculateDayRoundingStyleForCalendar,
   findDateElementFromPoint,
   shouldUpdateDragDate,
-  commitSelection,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+} from '../../../lib';
+// Package-specific functions
+import {
+  areDatesInSameRange,
+  hasAdjacentSelectedDate,
+  isDateInHoverRange,
+  calculateDayRoundingStyleForCalendar,
+  commitSelection,
   generateDayButtonStyles,
   createCommitSelectionCallback,
   createHandlePointerDown,

@@ -8,61 +8,18 @@ import { Box, Chip, Stack, Paper } from '@mui/material';
 import { DateRange as MUIDateRange } from '@mui/x-date-pickers-pro/models';
 import { isSameDay, isWithinInterval, startOfDay, isValid } from 'date-fns';
 import type { DateRange, MultiRangeDatePickerProps } from './types';
-
-// Pure utility functions for unit testing
-export const mergeOverlappingRanges = (ranges: DateRange[]): DateRange[] => {
-  if (ranges.length <= 1) return ranges;
-  
-  const sorted = [...ranges].sort((a, b) => a.start.getTime() - b.start.getTime());
-  const merged: DateRange[] = [];
-  let current = sorted[0];
-  
-  for (let i = 1; i < sorted.length; i++) {
-    const next = sorted[i];
-    const currentEnd = new Date(current.end);
-    currentEnd.setDate(currentEnd.getDate() + 1);
-    
-    if (next.start <= currentEnd) {
-      current = {
-        start: current.start,
-        end: next.end > current.end ? next.end : current.end,
-      };
-    } else {
-      merged.push(current);
-      current = next;
-    }
-  }
-  merged.push(current);
-  
-  return merged;
-};
-
-export const getRangesAsIndividualDates = (ranges: DateRange[]): Date[] => {
-  const dates: Date[] = [];
-  ranges.forEach((range) => {
-    const current = new Date(range.start);
-    while (current <= range.end) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-  });
-  return dates;
-};
-
-export const isDateInRanges = (date: Date, dateRanges: DateRange[]): boolean => {
-  if (!date || !isValid(date)) return false;
-  return dateRanges.some((range) => {
-    try {
-      if (!isValid(range.start) || !isValid(range.end)) return false;
-      return isWithinInterval(startOfDay(date), {
-        start: startOfDay(range.start),
-        end: startOfDay(range.end),
-      });
-    } catch {
-      return false;
-    }
-  });
-};
+import {
+  mergeOverlappingRanges,
+  getRangesAsIndividualDates,
+  isDateInRanges,
+  findOverlappingRanges,
+  updateRangesWithSelection,
+  getAdjacentDate,
+  findDateElementFromPoint,
+  shouldUpdateDragDate,
+  handlePointerDownLogic,
+  handlePointerMoveLogic,
+} from '../../../lib';
 
 export const isDateInCurrentRange = (
   date: Date,
@@ -116,72 +73,11 @@ export const hasAdjacentSelectedDate = (
   );
 };
 
-export const findOverlappingRanges = (
-  dateRanges: DateRange[],
-  selectionStart: Date,
-  selectionEnd: Date
-): number[] => {
-  const overlappingIndices: number[] = [];
-  dateRanges.forEach((range, index) => {
-    try {
-      const rangeStart = startOfDay(range.start);
-      const rangeEnd = startOfDay(range.end);
-      const normSelectionStart = startOfDay(selectionStart);
-      const normSelectionEnd = startOfDay(selectionEnd);
-
-      const hasOverlap = 
-        isWithinInterval(normSelectionStart, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(normSelectionEnd, { start: rangeStart, end: rangeEnd }) ||
-        isWithinInterval(rangeStart, { start: normSelectionStart, end: normSelectionEnd }) ||
-        isWithinInterval(rangeEnd, { start: normSelectionStart, end: normSelectionEnd });
-
-      if (hasOverlap) {
-        overlappingIndices.push(index);
-      }
-    } catch {}
-  });
-  return overlappingIndices;
-};
-
-export const updateRangesWithSelection = (
-  dateRanges: DateRange[],
-  selectionStart: Date,
-  selectionEnd: Date,
-  shouldMergeRanges: boolean
-): DateRange[] => {
-  const normalizedStart = selectionStart < selectionEnd ? selectionStart : selectionEnd;
-  const normalizedEnd = selectionStart < selectionEnd ? selectionEnd : selectionStart;
-
-  const overlappingIndices = findOverlappingRanges(dateRanges, normalizedStart, normalizedEnd);
-
-  let updatedRanges: DateRange[];
-  
-  if (overlappingIndices.length > 0) {
-    updatedRanges = dateRanges.filter((_, index) => !overlappingIndices.includes(index));
-  } else {
-    const newRange: DateRange = {
-      start: startOfDay(normalizedStart),
-      end: startOfDay(normalizedEnd),
-    };
-    updatedRanges = [...dateRanges, newRange];
-  }
-
-  if (shouldMergeRanges) {
-    updatedRanges = mergeOverlappingRanges(updatedRanges);
-  }
-
-  return updatedRanges;
-};
 
 export const removeRangeByIndex = (dateRanges: DateRange[], index: number): DateRange[] => {
   return dateRanges.filter((_, i) => i !== index);
 };
 
-export const getAdjacentDate = (date: Date, direction: 'left' | 'right'): Date => {
-  const adjacentDate = new Date(date);
-  adjacentDate.setDate(adjacentDate.getDate() + (direction === 'right' ? 1 : -1));
-  return adjacentDate;
-};
 
 export const calculateDayRoundingStyle = (
   day: Date,
@@ -226,34 +122,6 @@ export const calculateDayRoundingStyle = (
   return { shouldRoundLeft, shouldRoundRight };
 };
 
-export const findDateElementFromPoint = (
-  clientX: number,
-  clientY: number,
-  dateButtonsMap: Map<string, HTMLElement>
-): Date | null => {
-  if (typeof document === 'undefined') return null;
-  
-  const element = document.elementFromPoint(clientX, clientY);
-  if (!element) return null;
-  
-  // Find which date button is under the pointer
-  for (const [dateStr, button] of Array.from(dateButtonsMap.entries())) {
-    if (button === element || button.contains(element)) {
-      const date = new Date(dateStr);
-      if (isValid(date)) {
-        return date;
-      }
-    }
-  }
-  
-  return null;
-};
-
-export const shouldUpdateDragDate = (currentDate: Date | null, newDate: Date): boolean => {
-  if (!currentDate || !isValid(currentDate)) return true;
-  if (!newDate || !isValid(newDate)) return false;
-  return !isSameDay(newDate, currentDate);
-};
 
 export const commitDragSelection = (
   dragStart: Date | null,
@@ -316,32 +184,6 @@ export const handleRangeChangeLogic = (
   return { shouldUpdate: true };
 };
 
-export const handlePointerDownLogic = (
-  date: Date
-): { dragStart: Date; dragEnd: Date } | null => {
-  if (!date || !isValid(date)) return null;
-  
-  return {
-    dragStart: date,
-    dragEnd: date
-  };
-};
-
-export const handlePointerMoveLogic = (
-  date: Date,
-  isDragging: boolean,
-  dragStart: Date | null,
-  currentDragEnd: Date | null
-): Date | null => {
-  if (!isDragging || !dragStart) return null;
-  if (!date || !isValid(date)) return null;
-  
-  if (shouldUpdateDragDate(currentDragEnd, date)) {
-    return date;
-  }
-  
-  return null;
-};
 
 export const handleRemoveRangeLogic = (
   index: number,
@@ -574,6 +416,25 @@ export const createHandleRemoveRange = (
   };
 };
 
+export const calculateDaySelection = (
+  day: Date,
+  dateRanges: DateRange[],
+  currentRange: MUIDateRange<Date>,
+  dragStart: Date | null,
+  dragEnd: Date | null,
+  isDragging: boolean
+): boolean => {
+  const isInSavedRange = isDateInRanges(day, dateRanges);
+  const isInCurrent = isDateInCurrentRange(
+    day,
+    currentRange,
+    dragStart,
+    dragEnd,
+    isDragging
+  );
+  return isInSavedRange || isInCurrent;
+};
+
 export const createCustomDayPro = (
   dateRanges: DateRange[],
   currentRange: MUIDateRange<Date>,
@@ -591,15 +452,14 @@ export const createCustomDayPro = (
       return <PickersDay day={day} {...other} />;
     }
 
-    const isInSavedRange = isDateInRanges(day, dateRanges);
-    const isInCurrent = isDateInCurrentRange(
+    const isSelected = calculateDaySelection(
       day,
+      dateRanges,
       currentRange,
       dragStartRef.current,
       dragEndRef.current,
       isDraggingRef.current
     );
-    const isSelected = isInSavedRange || isInCurrent;
 
     const { shouldRoundLeft, shouldRoundRight } = calculateDayRoundingStyle(
       day,
@@ -650,14 +510,15 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   const forceUpdate = useCallback(() => setForceUpdateState({}), []);
 
   const commitDragSelectionCallback = useCallback(() => {
-    const updatedRanges = commitDragSelection(
-      dragStartRef.current,
-      dragEndRef.current,
+    const factory = createCommitDragSelectionCallback(
+      dragStartRef,
+      dragEndRef,
       dateRanges,
       mergeRanges,
       onChange,
       onIndividualDatesChange
     );
+    const updatedRanges = factory();
     if (updatedRanges) {
       setDateRanges(updatedRanges);
     }
@@ -665,22 +526,24 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   }, [dateRanges, onChange, onIndividualDatesChange, mergeRanges]);
 
   const handleRangeChange = useCallback((newValue: MUIDateRange<Date>) => {
-    if (!isDraggingRef.current) {
-      setCurrentRange(newValue);
-      
-      if (newValue[0] && newValue[1]) {
+    const factory = createHandleRangeChange(
+      isDraggingRef,
+      dateRanges,
+      mergeRanges,
+      onChange,
+      onIndividualDatesChange
+    );
+    const result = factory(newValue);
+    
+    if (result.shouldUpdate) {
+      if (result.newRange) {
+        setCurrentRange(result.newRange);
+      }
+      if (result.callback) {
         setTimeout(() => {
-          const result = handleRangeChangeLogic(
-            newValue,
-            isDraggingRef.current,
-            dateRanges,
-            mergeRanges,
-            onChange,
-            onIndividualDatesChange
-          );
-          
-          if (result.shouldUpdate && result.updatedRanges) {
-            setDateRanges(result.updatedRanges);
+          const logicResult = result.callback();
+          if (logicResult && logicResult.shouldUpdate && logicResult.updatedRanges) {
+            setDateRanges(logicResult.updatedRanges);
             setCurrentRange([null, null]);
           }
         }, 0);
@@ -709,12 +572,12 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
   );
 
   const handleRemoveRange = useCallback((index: number) => {
-    const updatedRanges = handleRemoveRangeLogic(
-      index,
+    const factory = createHandleRemoveRange(
       dateRanges,
       onChange,
       onIndividualDatesChange
     );
+    const updatedRanges = factory(index);
     setDateRanges(updatedRanges);
   }, [dateRanges, onChange, onIndividualDatesChange]);
 
