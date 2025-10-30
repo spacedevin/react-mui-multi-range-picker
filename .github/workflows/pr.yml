@@ -29,6 +29,33 @@ jobs:
             ✅ fix: resolve bug
             ❌ feat: Add feature
 
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [MuiMultiDateRangePicker, MuiMultiDateRangePickerPro]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install Dependencies
+        run: |
+          cd packages/${{ matrix.package }}
+          bun install
+      
+      - name: Run Tests with Coverage
+        run: |
+          cd packages/${{ matrix.package }}
+          bun test --coverage
+
   build:
     name: Build Packages
     runs-on: ubuntu-latest
