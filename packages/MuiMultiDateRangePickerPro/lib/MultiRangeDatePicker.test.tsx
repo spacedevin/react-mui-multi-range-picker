@@ -1,22 +1,25 @@
 import '../test-utils/setup';
 import { describe, test, expect, vi } from 'bun:test';
+// Import shared library functions from /lib for testing
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
   isDateInRanges,
-  isDateInCurrentRange,
-  hasAdjacentSelectedDate,
   findOverlappingRanges,
   updateRangesWithSelection,
-  removeRangeByIndex,
-  getAdjacentDate,
-  calculateDayRoundingStyle,
   findDateElementFromPoint,
   shouldUpdateDragDate,
-  commitDragSelection,
-  handleRangeChangeLogic,
   handlePointerDownLogic,
   handlePointerMoveLogic,
+} from '../../../lib';
+// Import component-specific functions from component file  
+import {
+  isDateInCurrentRange,
+  hasAdjacentSelectedDate,
+  removeRangeByIndex,
+  calculateDayRoundingStyle,
+  commitDragSelection,
+  handleRangeChangeLogic,
   handleRemoveRangeLogic,
   generatePickersDayStyles,
   generateDayWrapperStyles,
@@ -430,26 +433,7 @@ describe('MultiRangeDatePicker - Pure Functions', () => {
     });
   });
 
-  describe('getAdjacentDate', () => {
-    test('returns previous day for left direction', () => {
-      const date = new Date('2025-01-15');
-      const result = getAdjacentDate(date, 'left');
-      expect(result.getDate()).toBe(14);
-    });
-
-    test('returns next day for right direction', () => {
-      const date = new Date('2025-01-15');
-      const result = getAdjacentDate(date, 'right');
-      expect(result.getDate()).toBe(16);
-    });
-
-    test('handles month boundaries', () => {
-      const date = new Date('2025-01-01');
-      const result = getAdjacentDate(date, 'left');
-      expect(result.getMonth()).toBe(11); // December
-      expect(result.getFullYear()).toBe(2024);
-    });
-  });
+  // getAdjacentDate tests removed - function not used in Pro component
 
   describe('findDateElementFromPoint', () => {
     test('returns date when element is found', () => {
