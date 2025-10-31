@@ -1,1 +1,6 @@
 [test]
+preload = ["./test-utils/setup.ts"]
+
+[install]
+# When resolving modules (even from ../../../lib), look in this package's node_modules
+modules = ["node_modules", "../../node_modules"]

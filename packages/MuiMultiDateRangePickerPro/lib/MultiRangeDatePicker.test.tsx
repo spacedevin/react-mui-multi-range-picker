@@ -1,6 +1,6 @@
 import '../test-utils/setup';
 import { describe, test, expect, vi } from 'bun:test';
-// Import shared library functions from /lib
+// Import shared library functions from /lib for testing
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
@@ -12,7 +12,7 @@ import {
   handlePointerDownLogic,
   handlePointerMoveLogic,
 } from '../../../lib';
-// Import component-specific functions from component file
+// Import component-specific functions from component file  
 import {
   isDateInCurrentRange,
   hasAdjacentSelectedDate,

@@ -19,6 +19,7 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "postinstall": "cd ../../lib && ln -sf ../packages/MuiMultiDateRangePickerPro/node_modules node_modules || true",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
     "build:esm": "tsc -p tsconfig.build.json --module esnext --outDir dist/esm && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir dist/cjs",

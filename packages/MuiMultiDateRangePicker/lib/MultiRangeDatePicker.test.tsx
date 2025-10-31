@@ -1,6 +1,6 @@
 import '../test-utils/setup';
 import { describe, test, expect } from 'bun:test';
-// Import shared library functions from /lib
+// Import shared library functions from /lib for testing
 import {
   mergeOverlappingRanges,
   getRangesAsIndividualDates,
