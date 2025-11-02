@@ -121,6 +121,8 @@ function App() {
 
 ### Running Demos Locally
 
+Using your favorite package manager (ideally bun), install the packages and run dev.
+
 ```bash
 # Free version demo
 cd packages/MuiMultiDateRangePicker
