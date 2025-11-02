@@ -1,0 +1,14 @@
+{
+  "name": "mui-date-dragger-workspace",
+  "private": true,
+  "description": "Workspace for mui-date-dragger packages with shared library. Run 'bun test' from root for full coverage.",
+  "scripts": {
+    "test": "bun test",
+    "test:coverage": "bun test --coverage"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
+}
+
+

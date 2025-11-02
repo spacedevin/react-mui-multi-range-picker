@@ -24,16 +24,6 @@ export const isDateInRanges = (date: Date, dateRanges: DateRange[]): boolean => 
 };
 
 /**
- * Returns the date adjacent to the given date in the specified direction.
- * 'left' returns the previous day, 'right' returns the next day.
- */
-export const getAdjacentDate = (date: Date, direction: 'left' | 'right'): Date => {
-  const adjacentDate = new Date(date);
-  adjacentDate.setDate(adjacentDate.getDate() + (direction === 'right' ? 1 : -1));
-  return adjacentDate;
-};
-
-/**
  * Determines if the drag date should be updated to the new date.
  * Returns true if the dates are different or if there's no current date.
  */

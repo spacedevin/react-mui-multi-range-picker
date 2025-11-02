@@ -10,11 +10,20 @@ import {
   getRangesAsIndividualDates,
   updateRangesWithSelection,
   isDateInRanges as isDateInRangesUtil,
-  getAdjacentDate,
   findDateElementFromPoint,
   handlePointerDownLogic,
   handlePointerMoveLogic,
 } from '../../../lib';
+
+/**
+ * Gets the date adjacent to the given date (left = previous day, right = next day).
+ * Component-specific utility for Standard package.
+ */
+export const getAdjacentDate = (date: Date, direction: 'left' | 'right'): Date => {
+  const adjacentDate = new Date(date);
+  adjacentDate.setDate(adjacentDate.getDate() + (direction === 'right' ? 1 : -1));
+  return adjacentDate;
+};
 
 export const areDatesInSameRange = (date1: Date, date2: Date, dateRanges: DateRange[]): boolean => {
   if (!date1 || !date2 || !isValid(date1) || !isValid(date2)) return false;

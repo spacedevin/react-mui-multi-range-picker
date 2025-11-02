@@ -10,7 +10,6 @@ export {
 // Date utilities
 export {
   isDateInRanges,
-  getAdjacentDate,
   shouldUpdateDragDate,
   findDateElementFromPoint,
 } from './date-utils';
