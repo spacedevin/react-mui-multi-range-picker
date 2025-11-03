@@ -1,11 +1,78 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration for version updates
+# Documentation: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Root workspace dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # MuiMultiDateRangePicker package
+  - package-ecosystem: "npm"
+    directory: "/packages/MuiMultiDateRangePicker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # MuiMultiDateRangePickerPro package
+  - package-ecosystem: "npm"
+    directory: "/packages/MuiMultiDateRangePickerPro"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # ESM example
+  - package-ecosystem: "npm"
+    directory: "/examples/esm"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "examples"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # CJS example
+  - package-ecosystem: "npm"
+    directory: "/examples/cjs"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "examples"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
