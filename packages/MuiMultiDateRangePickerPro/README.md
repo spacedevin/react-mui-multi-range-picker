@@ -30,8 +30,8 @@ npm install @mui/material @mui/x-date-pickers @mui/x-date-pickers-pro @emotion/r
 ## Quick Start
 
 ```tsx
-import { MultiRangeDatePicker } from '@spacedevin/react-mui-pro-multi-range-picker';
-import { useState } from 'react';
+import { MultiRangeDatePicker } from "@spacedevin/react-mui-pro-multi-range-picker";
+import { useState } from "react";
 
 interface DateRange {
   start: Date;
@@ -41,29 +41,24 @@ interface DateRange {
 function App() {
   const [ranges, setRanges] = useState<DateRange[]>([]);
 
-  return (
-    <MultiRangeDatePicker onChange={setRanges} />
-  );
+  return <MultiRangeDatePicker onChange={setRanges} />;
 }
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `onChange` | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change |
-| `onIndividualDatesChange` | `(dates: Date[]) => void` | `undefined` | Callback fired with all selected dates as individual Date objects |
-| `mergeRanges` | `boolean` | `false` | When `true`, adjacent or overlapping ranges are automatically merged |
+| Prop                      | Type                            | Default     | Description                                                          |
+| ------------------------- | ------------------------------- | ----------- | -------------------------------------------------------------------- |
+| `onChange`                | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change                       |
+| `onIndividualDatesChange` | `(dates: Date[]) => void`       | `undefined` | Callback fired with all selected dates as individual Date objects    |
+| `mergeRanges`             | `boolean`                       | `false`     | When `true`, adjacent or overlapping ranges are automatically merged |
 
 ## Examples
 
 ### Auto-Merge Adjacent Ranges
 
 ```tsx
-<MultiRangeDatePicker 
-  onChange={setRanges}
-  mergeRanges={true}
-/>
+<MultiRangeDatePicker onChange={setRanges} mergeRanges={true} />
 ```
 
 ### Get Individual Dates
@@ -71,10 +66,10 @@ function App() {
 ```tsx
 const [dates, setDates] = useState<Date[]>([]);
 
-<MultiRangeDatePicker 
+<MultiRangeDatePicker
   onChange={setRanges}
   onIndividualDatesChange={setDates}
-/>
+/>;
 
 console.log(`Total days: ${dates.length}`);
 ```
@@ -82,32 +77,37 @@ console.log(`Total days: ${dates.length}`);
 ### Dark Mode
 
 ```tsx
-import { ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme } from "@mui/material";
 
-const darkTheme = createTheme({ palette: { mode: 'dark' } });
+const darkTheme = createTheme({ palette: { mode: "dark" } });
 
 <ThemeProvider theme={darkTheme}>
   <MultiRangeDatePicker onChange={setRanges} />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ## UI Components
 
 ### Range Chips
+
 Selected ranges are displayed as chips with delete buttons:
+
 - Format: "MM/DD/YYYY - MM/DD/YYYY"
 - Click X button to remove a range
 
 ### Calendar View
+
 Full calendar with visual range highlighting and drag-to-select functionality.
 
 ## How It Works
 
 ### Selection Methods
+
 1. **Drag Selection**: Click and drag across dates for quick range selection
 2. **Click/Drag Over Range**: Remove existing ranges
 
 ### Range Management
+
 - **Add Range**: Complete a selection via calendar
 - **Delete Range**: Click the X button on any chip
 - **Merge Ranges**: Enable `mergeRanges` prop for auto-merging
@@ -115,11 +115,11 @@ Full calendar with visual range highlighting and drag-to-select functionality.
 ## TypeScript
 
 ```tsx
-import type { DateRange } from '@spacedevin/react-mui-pro-multi-range-picker';
+import type { DateRange } from "@spacedevin/react-mui-pro-multi-range-picker";
 
 interface DateRange {
-  start: Date;  // Start date of the range (inclusive)
-  end: Date;    // End date of the range (inclusive)
+  start: Date; // Start date of the range (inclusive)
+  end: Date; // End date of the range (inclusive)
 }
 ```
 
@@ -131,15 +131,15 @@ interface DateRange {
 
 ## Comparison: Free vs Pro
 
-| Feature | Free Version | Pro Version |
-|---------|-------------|-------------|
-| Multi-range selection | ✅ | ✅ |
-| Drag to select | ✅ | ✅ |
-| MUI theme support | ✅ | ✅ |
-| Text input field | ❌ | ✅ |
-| Range chips UI | ❌ | ✅ |
-| Click to delete chips | ❌ | ✅ |
-| License required | ❌ | ⚠️ MUI X Pro |
+| Feature               | Free Version | Pro Version  |
+| --------------------- | ------------ | ------------ |
+| Multi-range selection | ✅           | ✅           |
+| Drag to select        | ✅           | ✅           |
+| MUI theme support     | ✅           | ✅           |
+| Text input field      | ❌           | ✅           |
+| Range chips UI        | ❌           | ✅           |
+| Click to delete chips | ❌           | ✅           |
+| License required      | ❌           | ⚠️ MUI X Pro |
 
 ## License
 
