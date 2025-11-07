@@ -69,6 +69,21 @@ jobs:
           name: ${{ matrix.package }}-coverage
           fail_ci_if_error: false
 
+      - name: Upload Coverage to Codacy
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+            -r packages/${{ matrix.package }}/coverage/lcov.info \
+            --partial
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+      - name: Finalize Codacy Coverage
+        if: matrix.package == 'MuiMultiDateRangePickerPro'
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) final
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
   release:
     name: Release Packages
     needs: [check, test]
