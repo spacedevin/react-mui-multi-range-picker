@@ -5,18 +5,17 @@ export {
   getRangesAsIndividualDates,
   updateRangesWithSelection,
   type DateRange,
-} from './range-utils';
+} from "./range-utils";
 
 // Date utilities
 export {
   isDateInRanges,
   shouldUpdateDragDate,
   findDateElementFromPoint,
-} from './date-utils';
+} from "./date-utils";
 
 // Pointer utilities
 export {
   handlePointerDownLogic,
   handlePointerMoveLogic,
-} from './pointer-utils';
-
+} from "./pointer-utils";

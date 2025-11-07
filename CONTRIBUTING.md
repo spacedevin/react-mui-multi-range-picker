@@ -82,6 +82,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for automati
 **Format:** `type: description` (lowercase, no period at end)
 
 **Examples:**
+
 - ✅ `feat: add keyboard navigation`
 - ✅ `fix: resolve drag selection bug`
 - ❌ `feat: Add feature` (uppercase)
@@ -117,6 +118,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for automati
    - Visit: https://www.npmjs.com/settings/[username]/tokens
 
 2. **Add to GitHub Secrets**
+
    ```bash
    gh secret set NPM_TOKEN
    gh secret set CODECOV_TOKEN
@@ -133,6 +135,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for automati
 ### `.github/workflows/pr.yml` - Pull Request Checks
 
 Runs on every PR:
+
 - Validates conventional commit title
 - Runs all 93 tests with coverage
 - Builds both packages (ESM + CJS + types)
@@ -143,6 +146,7 @@ Runs on every PR:
 ### `.github/workflows/main.yml` - Release & Deploy
 
 Runs on push to main:
+
 - Checks if release needed (skips release commits)
 - Runs all tests with coverage
 - Determines version from commit message
@@ -179,6 +183,7 @@ bun test --watch
 ### Writing Tests
 
 Tests are colocated with source files:
+
 - `lib/MultiRangeDatePicker.test.tsx` - Component tests
 - `lib/types.test.ts` - Type tests
 - `lib/index.test.ts` - Export tests
@@ -204,6 +209,7 @@ react-mui-multi-range-picker/
 ```
 
 **Package Features:**
+
 - ✅ Tree-shakeable exports (ESM + CJS)
 - ✅ Full TypeScript support with declarations
 - ✅ Peer dependencies (no duplicate MUI/React)
@@ -213,4 +219,3 @@ react-mui-multi-range-picker/
 ## 💬 Questions?
 
 Feel free to open an issue for any questions or concerns!
-
