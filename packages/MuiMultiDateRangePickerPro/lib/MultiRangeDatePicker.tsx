@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { Box, Chip, Stack, Paper } from '@mui/material';
-import { DateRange as MUIDateRange } from '@mui/x-date-pickers-pro/models';
-import { isWithinInterval, startOfDay, isValid } from 'date-fns';
-import type { DateRange, MultiRangeDatePickerProps } from './types';
+import React, { useState, useCallback, useRef } from "react";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { SingleInputDateRangeField } from "@mui/x-date-pickers-pro/SingleInputDateRangeField";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
+import { Box, Chip, Stack, Paper } from "@mui/material";
+import { DateRange as MUIDateRange } from "@mui/x-date-pickers-pro/models";
+import { isWithinInterval, startOfDay, isValid } from "date-fns";
+import type { DateRange, MultiRangeDatePickerProps } from "./types";
 import {
   getRangesAsIndividualDates,
   updateRangesWithSelection,
@@ -15,7 +15,7 @@ import {
   findDateElementFromPoint,
   handlePointerDownLogic,
   handlePointerMoveLogic,
-} from '../../../lib';
+} from "../../../lib";
 
 // Re-export for use in this component
 const isDateInRanges = isDateInRangesUtil;
@@ -25,10 +25,10 @@ export const isDateInCurrentRange = (
   currentRange: MUIDateRange<Date>,
   dragStart: Date | null,
   dragEnd: Date | null,
-  isDragging: boolean
+  isDragging: boolean,
 ): boolean => {
   if (!date || !isValid(date)) return false;
-  
+
   // Check picker's current range
   const [start, end] = currentRange;
   if (start && end && isValid(start) && isValid(end)) {
@@ -40,9 +40,15 @@ export const isDateInCurrentRange = (
       if (inPickerRange) return true;
     } catch {}
   }
-  
+
   // Check drag selection
-  if (isDragging && dragStart && dragEnd && isValid(dragStart) && isValid(dragEnd)) {
+  if (
+    isDragging &&
+    dragStart &&
+    dragEnd &&
+    isValid(dragStart) &&
+    isValid(dragEnd)
+  ) {
     try {
       return isWithinInterval(startOfDay(date), {
         start: startOfDay(dragStart < dragEnd ? dragStart : dragEnd),
@@ -50,31 +56,42 @@ export const isDateInCurrentRange = (
       });
     } catch {}
   }
-  
+
   return false;
 };
 
 export const hasAdjacentSelectedDate = (
   date: Date,
-  direction: 'left' | 'right',
+  direction: "left" | "right",
   dateRanges: DateRange[],
   currentRange: MUIDateRange<Date>,
   dragStart: Date | null,
   dragEnd: Date | null,
-  isDragging: boolean
+  isDragging: boolean,
 ): boolean => {
   if (!date || !isValid(date)) return false;
   const adjacentDate = new Date(date);
-  adjacentDate.setDate(adjacentDate.getDate() + (direction === 'right' ? 1 : -1));
+  adjacentDate.setDate(
+    adjacentDate.getDate() + (direction === "right" ? 1 : -1),
+  );
   return (
     isDateInRanges(adjacentDate, dateRanges) ||
-    isDateInCurrentRange(adjacentDate, currentRange, dragStart, dragEnd, isDragging)
+    isDateInCurrentRange(
+      adjacentDate,
+      currentRange,
+      dragStart,
+      dragEnd,
+      isDragging,
+    )
   );
 };
 
 // findOverlappingRanges and updateRangesWithSelection imported from shared library
 
-export const removeRangeByIndex = (dateRanges: DateRange[], index: number): DateRange[] => {
+export const removeRangeByIndex = (
+  dateRanges: DateRange[],
+  index: number,
+): DateRange[] => {
   return dateRanges.filter((_, i) => i !== index);
 };
 
@@ -87,10 +104,16 @@ export const calculateDayRoundingStyle = (
   dragStart: Date | null,
   dragEnd: Date | null,
   isDragging: boolean,
-  mergeRanges: boolean
+  mergeRanges: boolean,
 ): { shouldRoundLeft: boolean; shouldRoundRight: boolean } => {
   const isInSavedRange = isDateInRanges(day, dateRanges);
-  const isInCurrent = isDateInCurrentRange(day, currentRange, dragStart, dragEnd, isDragging);
+  const isInCurrent = isDateInCurrentRange(
+    day,
+    currentRange,
+    dragStart,
+    dragEnd,
+    isDragging,
+  );
   const isSelected = isInSavedRange || isInCurrent;
 
   if (!isSelected) {
@@ -100,23 +123,23 @@ export const calculateDayRoundingStyle = (
   // Check adjacent dates
   const hasLeftSelected = hasAdjacentSelectedDate(
     day,
-    'left',
+    "left",
     dateRanges,
     currentRange,
     dragStart,
     dragEnd,
-    isDragging
+    isDragging,
   );
   const hasRightSelected = hasAdjacentSelectedDate(
     day,
-    'right',
+    "right",
     dateRanges,
     currentRange,
     dragStart,
     dragEnd,
-    isDragging
+    isDragging,
   );
-  
+
   const shouldRoundLeft = isSelected && !hasLeftSelected;
   const shouldRoundRight = isSelected && !hasRightSelected;
 
@@ -131,18 +154,23 @@ export const commitDragSelection = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ): DateRange[] | null => {
   if (!dragStart || !dragEnd || !isValid(dragStart) || !isValid(dragEnd)) {
     return null;
   }
 
-  const updatedRanges = updateRangesWithSelection(dateRanges, dragStart, dragEnd, mergeRanges);
+  const updatedRanges = updateRangesWithSelection(
+    dateRanges,
+    dragStart,
+    dragEnd,
+    mergeRanges,
+  );
 
   if (onChange) {
     onChange(updatedRanges);
   }
-  
+
   if (onIndividualDatesChange) {
     const individualDates = getRangesAsIndividualDates(updatedRanges);
     onIndividualDatesChange(individualDates);
@@ -157,32 +185,37 @@ export const handleRangeChangeLogic = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ): { shouldUpdate: boolean; updatedRanges?: DateRange[] } => {
   // Only update if not dragging (to avoid interference)
   if (isDragging) {
     return { shouldUpdate: false };
   }
-  
+
   // If both start and end are selected, commit the range from picker
   if (newValue[0] && newValue[1]) {
     const [start, end] = newValue;
     if (!start || !end) return { shouldUpdate: false };
-    
-    const updatedRanges = updateRangesWithSelection(dateRanges, start, end, mergeRanges);
-    
+
+    const updatedRanges = updateRangesWithSelection(
+      dateRanges,
+      start,
+      end,
+      mergeRanges,
+    );
+
     if (onChange) {
       onChange(updatedRanges);
     }
-    
+
     if (onIndividualDatesChange) {
       const individualDates = getRangesAsIndividualDates(updatedRanges);
       onIndividualDatesChange(individualDates);
     }
-    
+
     return { shouldUpdate: true, updatedRanges };
   }
-  
+
   return { shouldUpdate: true };
 };
 
@@ -192,19 +225,19 @@ export const handleRemoveRangeLogic = (
   index: number,
   dateRanges: DateRange[],
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ): DateRange[] => {
   const updatedRanges = removeRangeByIndex(dateRanges, index);
-  
+
   if (onChange) {
     onChange(updatedRanges);
   }
-  
+
   if (onIndividualDatesChange) {
     const individualDates = getRangesAsIndividualDates(updatedRanges);
     onIndividualDatesChange(individualDates);
   }
-  
+
   return updatedRanges;
 };
 
@@ -215,58 +248,64 @@ export const DAY_MARGIN_PRO = 2;
 export const generatePickersDayStyles = (
   isSelected: boolean,
   shouldRoundLeft: boolean,
-  shouldRoundRight: boolean
+  shouldRoundRight: boolean,
 ) => {
   return {
-    backgroundColor: isSelected ? 'primary.main' : undefined,
-    color: isSelected ? 'primary.contrastText' : undefined,
-    transition: 'none',
-    '&:hover': {
-      backgroundColor: isSelected ? 'primary.dark' : undefined,
+    backgroundColor: isSelected ? "primary.main" : undefined,
+    color: isSelected ? "primary.contrastText" : undefined,
+    transition: "none",
+    "&:hover": {
+      backgroundColor: isSelected ? "primary.dark" : undefined,
     },
-    borderRadius: '50%',
-    ...(isSelected && !shouldRoundLeft && !shouldRoundRight && {
-      borderRadius: 0,
-    }),
-    ...(shouldRoundLeft && !shouldRoundRight && {
-      borderRadius: '50% 0 0 50%',
-    }),
-    ...(shouldRoundRight && !shouldRoundLeft && {
-      borderRadius: '0 50% 50% 0',
-    }),
-    position: 'relative' as const,
-    touchAction: 'none' as const,
-    userSelect: 'none' as const,
+    borderRadius: "50%",
+    ...(isSelected &&
+      !shouldRoundLeft &&
+      !shouldRoundRight && {
+        borderRadius: 0,
+      }),
+    ...(shouldRoundLeft &&
+      !shouldRoundRight && {
+        borderRadius: "50% 0 0 50%",
+      }),
+    ...(shouldRoundRight &&
+      !shouldRoundLeft && {
+        borderRadius: "0 50% 50% 0",
+      }),
+    position: "relative" as const,
+    touchAction: "none" as const,
+    userSelect: "none" as const,
     // Fill gaps for range continuity
-    ...(!shouldRoundLeft && isSelected && {
-      '&::before': {
-        content: '""',
-        position: 'absolute' as const,
-        left: -2,
-        top: 0,
-        width: 2,
-        height: '100%',
-        backgroundColor: 'primary.main',
-      },
-    }),
-    ...(!shouldRoundRight && isSelected && {
-      '&::after': {
-        content: '""',
-        position: 'absolute' as const,
-        right: -2,
-        top: 0,
-        width: 2,
-        height: '100%',
-        backgroundColor: 'primary.main',
-      },
-    }),
+    ...(!shouldRoundLeft &&
+      isSelected && {
+        "&::before": {
+          content: '""',
+          position: "absolute" as const,
+          left: -2,
+          top: 0,
+          width: 2,
+          height: "100%",
+          backgroundColor: "primary.main",
+        },
+      }),
+    ...(!shouldRoundRight &&
+      isSelected && {
+        "&::after": {
+          content: '""',
+          position: "absolute" as const,
+          right: -2,
+          top: 0,
+          width: 2,
+          height: "100%",
+          backgroundColor: "primary.main",
+        },
+      }),
   };
 };
 
 export const generateDayWrapperStyles = () => {
   return {
-    display: 'inline-block',
-    position: 'relative' as const,
+    display: "inline-block",
+    position: "relative" as const,
   };
 };
 
@@ -277,7 +316,7 @@ export const createCommitDragSelectionCallback = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ) => {
   return () => {
     const updatedRanges = commitDragSelection(
@@ -286,7 +325,7 @@ export const createCommitDragSelectionCallback = (
       dateRanges,
       mergeRanges,
       onChange,
-      onIndividualDatesChange
+      onIndividualDatesChange,
     );
     return updatedRanges;
   };
@@ -297,7 +336,7 @@ export const createHandleRangeChange = (
   dateRanges: DateRange[],
   mergeRanges: boolean,
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ) => {
   return (newValue: MUIDateRange<Date>) => {
     if (!isDraggingRef.current) {
@@ -311,10 +350,10 @@ export const createHandleRangeChange = (
               dateRanges,
               mergeRanges,
               onChange,
-              onIndividualDatesChange
+              onIndividualDatesChange,
             );
             return result;
-          }
+          },
         };
       }
       return { shouldUpdate: true, newRange: newValue };
@@ -327,19 +366,19 @@ export const createHandlePointerDownPro = (
   isDraggingRef: React.MutableRefObject<boolean>,
   dragStartRef: React.MutableRefObject<Date | null>,
   dragEndRef: React.MutableRefObject<Date | null>,
-  forceUpdate: () => void
+  forceUpdate: () => void,
 ) => {
   return (date: Date, e: React.PointerEvent) => {
     const result = handlePointerDownLogic(date);
     if (!result) return;
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     isDraggingRef.current = true;
     dragStartRef.current = result.dragStart;
     dragEndRef.current = result.dragEnd;
-    
+
     const target = e.target as HTMLElement;
     if (target.setPointerCapture) {
       target.setPointerCapture(e.pointerId);
@@ -352,16 +391,16 @@ export const createHandlePointerMovePro = (
   isDraggingRef: React.MutableRefObject<boolean>,
   dragStartRef: React.MutableRefObject<Date | null>,
   dragEndRef: React.MutableRefObject<Date | null>,
-  forceUpdate: () => void
+  forceUpdate: () => void,
 ) => {
   return (date: Date) => {
     const newDragEnd = handlePointerMoveLogic(
       date,
       isDraggingRef.current,
       dragStartRef.current,
-      dragEndRef.current
+      dragEndRef.current,
     );
-    
+
     if (newDragEnd) {
       dragEndRef.current = newDragEnd;
       forceUpdate();
@@ -372,12 +411,16 @@ export const createHandlePointerMovePro = (
 export const createHandleContainerPointerMovePro = (
   isDraggingRef: React.MutableRefObject<boolean>,
   dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
-  handlePointerMove: (date: Date) => void
+  handlePointerMove: (date: Date) => void,
 ) => {
   return (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
-    
-    const date = findDateElementFromPoint(e.clientX, e.clientY, dateButtonsRef.current);
+
+    const date = findDateElementFromPoint(
+      e.clientX,
+      e.clientY,
+      dateButtonsRef.current,
+    );
     if (date) {
       handlePointerMove(date);
     }
@@ -389,13 +432,13 @@ export const createHandlePointerUpPro = (
   dragStartRef: React.MutableRefObject<Date | null>,
   dragEndRef: React.MutableRefObject<Date | null>,
   commitDragSelectionCallback: () => DateRange[] | null,
-  forceUpdate: () => void
+  forceUpdate: () => void,
 ) => {
   return () => {
     if (!isDraggingRef.current) return;
-    
+
     commitDragSelectionCallback();
-    
+
     isDraggingRef.current = false;
     dragStartRef.current = null;
     dragEndRef.current = null;
@@ -406,14 +449,14 @@ export const createHandlePointerUpPro = (
 export const createHandleRemoveRange = (
   dateRanges: DateRange[],
   onChange?: (ranges: DateRange[]) => void,
-  onIndividualDatesChange?: (dates: Date[]) => void
+  onIndividualDatesChange?: (dates: Date[]) => void,
 ) => {
   return (index: number) => {
     const updatedRanges = handleRemoveRangeLogic(
       index,
       dateRanges,
       onChange,
-      onIndividualDatesChange
+      onIndividualDatesChange,
     );
     return updatedRanges;
   };
@@ -427,11 +470,11 @@ export const createCustomDayPro = (
   isDraggingRef: React.MutableRefObject<boolean>,
   mergeRanges: boolean,
   dateButtonsRef: React.MutableRefObject<Map<string, HTMLElement>>,
-  handlePointerDown: (date: Date, e: React.PointerEvent) => void
+  handlePointerDown: (date: Date, e: React.PointerEvent) => void,
 ) => {
   return (props: PickersDayProps) => {
     const { day, ...other } = props;
-    
+
     if (!day || !isValid(day)) {
       return <PickersDay day={day} {...other} />;
     }
@@ -442,7 +485,7 @@ export const createCustomDayPro = (
       currentRange,
       dragStartRef.current,
       dragEndRef.current,
-      isDraggingRef.current
+      isDraggingRef.current,
     );
     const isSelected = isInSavedRange || isInCurrent;
 
@@ -453,11 +496,15 @@ export const createCustomDayPro = (
       dragStartRef.current,
       dragEndRef.current,
       isDraggingRef.current,
-      mergeRanges
+      mergeRanges,
     );
 
     const wrapperStyles = generateDayWrapperStyles();
-    const dayStyles = generatePickersDayStyles(isSelected, shouldRoundLeft, shouldRoundRight);
+    const dayStyles = generatePickersDayStyles(
+      isSelected,
+      shouldRoundLeft,
+      shouldRoundRight,
+    );
 
     return (
       <Box
@@ -470,23 +517,22 @@ export const createCustomDayPro = (
         onPointerDown={(e) => handlePointerDown(day, e)}
         sx={wrapperStyles}
       >
-        <PickersDay
-          {...other}
-          day={day}
-          sx={dayStyles}
-        />
+        <PickersDay {...other} day={day} sx={dayStyles} />
       </Box>
     );
   };
 };
 
-const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({ 
-  onChange, 
+const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
+  onChange,
   onIndividualDatesChange,
-  mergeRanges = false
+  mergeRanges = false,
 }) => {
   const [dateRanges, setDateRanges] = useState<DateRange[]>([]);
-  const [currentRange, setCurrentRange] = useState<MUIDateRange<Date>>([null, null]);
+  const [currentRange, setCurrentRange] = useState<MUIDateRange<Date>>([
+    null,
+    null,
+  ]);
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef<Date | null>(null);
   const dragEndRef = useRef<Date | null>(null);
@@ -501,7 +547,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       dateRanges,
       mergeRanges,
       onChange,
-      onIndividualDatesChange
+      onIndividualDatesChange,
     );
     if (updatedRanges) {
       setDateRanges(updatedRanges);
@@ -509,59 +555,85 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
     return updatedRanges;
   }, [dateRanges, onChange, onIndividualDatesChange, mergeRanges]);
 
-  const handleRangeChange = useCallback((newValue: MUIDateRange<Date>) => {
-    if (!isDraggingRef.current) {
-      setCurrentRange(newValue);
-      
-      if (newValue[0] && newValue[1]) {
-        setTimeout(() => {
-          const result = handleRangeChangeLogic(
-            newValue,
-            isDraggingRef.current,
-            dateRanges,
-            mergeRanges,
-            onChange,
-            onIndividualDatesChange
-          );
-          
-          if (result.shouldUpdate && result.updatedRanges) {
-            setDateRanges(result.updatedRanges);
-            setCurrentRange([null, null]);
-          }
-        }, 0);
+  const handleRangeChange = useCallback(
+    (newValue: MUIDateRange<Date>) => {
+      if (!isDraggingRef.current) {
+        setCurrentRange(newValue);
+
+        if (newValue[0] && newValue[1]) {
+          setTimeout(() => {
+            const result = handleRangeChangeLogic(
+              newValue,
+              isDraggingRef.current,
+              dateRanges,
+              mergeRanges,
+              onChange,
+              onIndividualDatesChange,
+            );
+
+            if (result.shouldUpdate && result.updatedRanges) {
+              setDateRanges(result.updatedRanges);
+              setCurrentRange([null, null]);
+            }
+          }, 0);
+        }
       }
-    }
-  }, [dateRanges, onChange, onIndividualDatesChange, mergeRanges]);
+    },
+    [dateRanges, onChange, onIndividualDatesChange, mergeRanges],
+  );
 
   const handlePointerDown = useCallback(
-    createHandlePointerDownPro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
-    [forceUpdate]
+    createHandlePointerDownPro(
+      isDraggingRef,
+      dragStartRef,
+      dragEndRef,
+      forceUpdate,
+    ),
+    [forceUpdate],
   );
 
   const handlePointerMove = useCallback(
-    createHandlePointerMovePro(isDraggingRef, dragStartRef, dragEndRef, forceUpdate),
-    [forceUpdate]
+    createHandlePointerMovePro(
+      isDraggingRef,
+      dragStartRef,
+      dragEndRef,
+      forceUpdate,
+    ),
+    [forceUpdate],
   );
 
   const handleContainerPointerMove = useCallback(
-    createHandleContainerPointerMovePro(isDraggingRef, dateButtonsRef, handlePointerMove),
-    [handlePointerMove]
+    createHandleContainerPointerMovePro(
+      isDraggingRef,
+      dateButtonsRef,
+      handlePointerMove,
+    ),
+    [handlePointerMove],
   );
 
   const handlePointerUp = useCallback(
-    createHandlePointerUpPro(isDraggingRef, dragStartRef, dragEndRef, commitDragSelectionCallback, forceUpdate),
-    [commitDragSelectionCallback, forceUpdate]
+    createHandlePointerUpPro(
+      isDraggingRef,
+      dragStartRef,
+      dragEndRef,
+      commitDragSelectionCallback,
+      forceUpdate,
+    ),
+    [commitDragSelectionCallback, forceUpdate],
   );
 
-  const handleRemoveRange = useCallback((index: number) => {
-    const updatedRanges = handleRemoveRangeLogic(
-      index,
-      dateRanges,
-      onChange,
-      onIndividualDatesChange
-    );
-    setDateRanges(updatedRanges);
-  }, [dateRanges, onChange, onIndividualDatesChange]);
+  const handleRemoveRange = useCallback(
+    (index: number) => {
+      const updatedRanges = handleRemoveRangeLogic(
+        index,
+        dateRanges,
+        onChange,
+        onIndividualDatesChange,
+      );
+      setDateRanges(updatedRanges);
+    },
+    [dateRanges, onChange, onIndividualDatesChange],
+  );
 
   const CustomDay = useCallback(
     createCustomDayPro(
@@ -572,9 +644,9 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
       isDraggingRef,
       mergeRanges,
       dateButtonsRef,
-      handlePointerDown
+      handlePointerDown,
     ),
-    [dateRanges, currentRange, mergeRanges, handlePointerDown]
+    [dateRanges, currentRange, mergeRanges, handlePointerDown],
   );
 
   return (
@@ -596,16 +668,16 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
             </Stack>
           </Paper>
         )}
-        
+
         {/* DateRangePicker for selecting new ranges */}
         <Box
           onPointerMove={handleContainerPointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           sx={{
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            touchAction: 'none',
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            touchAction: "none",
           }}
         >
           <DateRangePicker
@@ -617,7 +689,7 @@ const MultiRangeDatePicker: React.FC<MultiRangeDatePickerProps> = ({
             }}
             slotProps={{
               textField: {
-                placeholder: 'Select date range',
+                placeholder: "Select date range",
                 fullWidth: true,
               },
             }}

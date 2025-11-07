@@ -5,7 +5,6 @@
 
 React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
 
-
 ## 📦 Packages
 
 ### [MuiMultiDateRangePicker](./packages/MuiMultiDateRangePicker)
@@ -18,6 +17,7 @@ React date picker components that allow selecting multiple non-contiguous date r
 A free multi-range date picker built on `@mui/x-date-pickers`.
 
 **Features:**
+
 - ✅ Multi-range selection with drag support
 - ✅ Individual date selection support
 - ✅ Simple calendar-only interface
@@ -25,6 +25,7 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 - ✅ Perfect for basic multi-range needs
 
 **Links:**
+
 - 📦 [NPM Package](https://www.npmjs.com/package/@spacedevin/react-mui-multi-range-picker)
 - 📖 [Documentation](./packages/MuiMultiDateRangePicker/README.md)
 
@@ -38,6 +39,7 @@ A free multi-range date picker built on `@mui/x-date-pickers`.
 An enhanced version built on `@mui/x-date-pickers-pro`.
 
 **Features:**
+
 - ✅ All features from the free version
 - ✅ Multi-range and individual date selection
 - ✅ Text input field for manual date entry
@@ -46,6 +48,7 @@ An enhanced version built on `@mui/x-date-pickers-pro`.
 - ⚠️ Requires MUI X Pro license for production
 
 **Links:**
+
 - 📦 [NPM Package](https://www.npmjs.com/package/@spacedevin/react-mui-pro-multi-range-picker)
 - 📖 [Documentation](./packages/MuiMultiDateRangePickerPro/README.md)
 
@@ -166,6 +169,7 @@ react-mui-multi-range-picker/
 ```
 
 **Package Features:**
+
 - ✅ Tree-shakeable exports (ESM + CJS)
 - ✅ Full TypeScript support with declarations
 - ✅ Peer dependencies (no duplicate MUI/React)
@@ -175,12 +179,15 @@ react-mui-multi-range-picker/
 ## ✨ Key Features
 
 ### Multi-Range & Individual Date Selection
+
 Select multiple separate date ranges or individual dates on a single calendar - perfect for vacation booking, availability calendars, or any scenario requiring non-contiguous date selection. Supports both range-based and individual date selection modes.
 
 ### Click & Drag Support
+
 Intuitive drag-to-select interaction works seamlessly on both desktop (mouse) and mobile (touch) devices.
 
 ### Flexible Date Management
+
 - **Date Ranges**: Select start and end dates for periods
 - **Individual Dates**: Select specific dates without ranges
 - **Dual Mode**: Track both ranges and individual dates simultaneously
@@ -189,7 +196,9 @@ Intuitive drag-to-select interaction works seamlessly on both desktop (mouse) an
 - **Auto-merge**: Optional automatic merging of adjacent/overlapping ranges
 
 ### MUI Integration
+
 Built as extensions of MUI's date picker components, maintaining full compatibility with:
+
 - Theme system (light/dark mode)
 - Localization
 - Accessibility features
@@ -214,19 +223,19 @@ Built as extensions of MUI's date picker components, maintaining full compatibil
 
 ## 📋 Comparison
 
-| Feature | Free | Pro |
-|---------|------|-----|
-| Multi-range selection | ✅ | ✅ |
-| Individual date selection | ✅ | ✅ |
-| Drag to select | ✅ | ✅ |
-| Calendar view | ✅ | ✅ |
-| Theme support | ✅ | ✅ |
-| Touch support | ✅ | ✅ |
-| Auto-merge ranges | ✅ | ✅ |
-| Text input field | ❌ | ✅ |
-| Range chips UI | ❌ | ✅ |
-| Click to delete chips | ❌ | ✅ |
-| License required | ❌ Free | ⚠️ MUI X Pro |
+| Feature                   | Free    | Pro          |
+| ------------------------- | ------- | ------------ |
+| Multi-range selection     | ✅      | ✅           |
+| Individual date selection | ✅      | ✅           |
+| Drag to select            | ✅      | ✅           |
+| Calendar view             | ✅      | ✅           |
+| Theme support             | ✅      | ✅           |
+| Touch support             | ✅      | ✅           |
+| Auto-merge ranges         | ✅      | ✅           |
+| Text input field          | ❌      | ✅           |
+| Range chips UI            | ❌      | ✅           |
+| Click to delete chips     | ❌      | ✅           |
+| License required          | ❌ Free | ⚠️ MUI X Pro |
 
 ## 🤝 Contributing
 
@@ -242,7 +251,6 @@ Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) 
 [PIF](https://payitforwardlicense.com/)
 
 Note: Pro version requires MUI X Pro license for production use
-
 
 ## 🔗 Links
 

@@ -1,4 +1,4 @@
-import { isWithinInterval, startOfDay, isValid, isSameDay } from 'date-fns';
+import { isWithinInterval, startOfDay, isValid, isSameDay } from "date-fns";
 
 export interface DateRange {
   start: Date;
@@ -8,7 +8,10 @@ export interface DateRange {
 /**
  * Checks if a date falls within any of the provided date ranges.
  */
-export const isDateInRanges = (date: Date, dateRanges: DateRange[]): boolean => {
+export const isDateInRanges = (
+  date: Date,
+  dateRanges: DateRange[],
+): boolean => {
   if (!date || !isValid(date)) return false;
   return dateRanges.some((range) => {
     try {
@@ -27,7 +30,10 @@ export const isDateInRanges = (date: Date, dateRanges: DateRange[]): boolean => 
  * Determines if the drag date should be updated to the new date.
  * Returns true if the dates are different or if there's no current date.
  */
-export const shouldUpdateDragDate = (currentDate: Date | null, newDate: Date): boolean => {
+export const shouldUpdateDragDate = (
+  currentDate: Date | null,
+  newDate: Date,
+): boolean => {
   if (!currentDate || !isValid(currentDate)) return true;
   if (!newDate || !isValid(newDate)) return false;
   return !isSameDay(newDate, currentDate);
@@ -40,13 +46,13 @@ export const shouldUpdateDragDate = (currentDate: Date | null, newDate: Date): b
 export const findDateElementFromPoint = (
   clientX: number,
   clientY: number,
-  dateButtonsMap: Map<string, HTMLElement>
+  dateButtonsMap: Map<string, HTMLElement>,
 ): Date | null => {
-  if (typeof document === 'undefined') return null;
-  
+  if (typeof document === "undefined") return null;
+
   const element = document.elementFromPoint(clientX, clientY);
   if (!element) return null;
-  
+
   // Find which date button is under the pointer
   for (const [dateStr, button] of Array.from(dateButtonsMap.entries())) {
     if (button === element || button.contains(element)) {
@@ -56,7 +62,6 @@ export const findDateElementFromPoint = (
       }
     }
   }
-  
+
   return null;
 };
-
