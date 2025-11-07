@@ -27,8 +27,8 @@ npm install @mui/material @mui/x-date-pickers @emotion/react @emotion/styled dat
 ## Quick Start
 
 ```tsx
-import { MultiRangeDatePicker } from '@spacedevin/react-mui-multi-range-picker';
-import { useState } from 'react';
+import { MultiRangeDatePicker } from "@spacedevin/react-mui-multi-range-picker";
+import { useState } from "react";
 
 interface DateRange {
   start: Date;
@@ -38,29 +38,24 @@ interface DateRange {
 function App() {
   const [ranges, setRanges] = useState<DateRange[]>([]);
 
-  return (
-    <MultiRangeDatePicker onChange={setRanges} />
-  );
+  return <MultiRangeDatePicker onChange={setRanges} />;
 }
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `onChange` | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change |
-| `onIndividualDatesChange` | `(dates: Date[]) => void` | `undefined` | Callback fired with all selected dates as individual Date objects |
-| `mergeRanges` | `boolean` | `false` | When `true`, adjacent or overlapping ranges are automatically merged |
+| Prop                      | Type                            | Default     | Description                                                          |
+| ------------------------- | ------------------------------- | ----------- | -------------------------------------------------------------------- |
+| `onChange`                | `(ranges: DateRange[]) => void` | `undefined` | Callback fired when the selected ranges change                       |
+| `onIndividualDatesChange` | `(dates: Date[]) => void`       | `undefined` | Callback fired with all selected dates as individual Date objects    |
+| `mergeRanges`             | `boolean`                       | `false`     | When `true`, adjacent or overlapping ranges are automatically merged |
 
 ## Examples
 
 ### Auto-Merge Adjacent Ranges
 
 ```tsx
-<MultiRangeDatePicker 
-  onChange={setRanges}
-  mergeRanges={true}
-/>
+<MultiRangeDatePicker onChange={setRanges} mergeRanges={true} />
 ```
 
 ### Get Individual Dates
@@ -68,10 +63,10 @@ function App() {
 ```tsx
 const [dates, setDates] = useState<Date[]>([]);
 
-<MultiRangeDatePicker 
+<MultiRangeDatePicker
   onChange={setRanges}
   onIndividualDatesChange={setDates}
-/>
+/>;
 
 console.log(`Total days: ${dates.length}`);
 ```
@@ -79,13 +74,13 @@ console.log(`Total days: ${dates.length}`);
 ### Dark Mode
 
 ```tsx
-import { ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme } from "@mui/material";
 
-const darkTheme = createTheme({ palette: { mode: 'dark' } });
+const darkTheme = createTheme({ palette: { mode: "dark" } });
 
 <ThemeProvider theme={darkTheme}>
   <MultiRangeDatePicker onChange={setRanges} />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ## How It Works
@@ -98,11 +93,11 @@ const darkTheme = createTheme({ palette: { mode: 'dark' } });
 ## TypeScript
 
 ```tsx
-import type { DateRange } from '@spacedevin/react-mui-multi-range-picker';
+import type { DateRange } from "@spacedevin/react-mui-multi-range-picker";
 
 interface DateRange {
-  start: Date;  // Start date of the range (inclusive)
-  end: Date;    // End date of the range (inclusive)
+  start: Date; // Start date of the range (inclusive)
+  end: Date; // End date of the range (inclusive)
 }
 ```
 

@@ -1,4 +1,4 @@
-import { Window } from 'happy-dom';
+import { Window } from "happy-dom";
 
 // Set up happy-dom as the DOM environment
 const window = new Window();
@@ -22,4 +22,3 @@ global.PointerEvent = window.PointerEvent;
 // Set React testing environment flag
 // @ts-ignore
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-
