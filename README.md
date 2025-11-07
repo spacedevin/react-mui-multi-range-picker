@@ -1,6 +1,7 @@
 # MUI Multi-Range Date Picker
 
 [![codecov](https://codecov.io/gh/spacedevin/react-mui-multi-range-picker/branch/main/graph/badge.svg)](https://codecov.io/gh/spacedevin/react-mui-multi-range-picker)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/a786264873d64ec59638bcb6a015764b)](https://app.codacy.com/gh/spacedevin/react-mui-multi-range-picker/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 React date picker components that allow selecting multiple non-contiguous date ranges with click-and-drag support. Built on top of MUI's date picker components with full theme integration and mobile support.
 
