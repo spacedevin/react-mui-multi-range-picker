@@ -14,7 +14,7 @@ jobs:
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Check Commit Message
         id: check
@@ -36,7 +36,7 @@ jobs:
       matrix:
         package: [MuiMultiDateRangePicker, MuiMultiDateRangePickerPro]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
@@ -92,7 +92,7 @@ jobs:
     outputs:
       version: ${{ steps.publish.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -186,7 +186,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v4
         with:
